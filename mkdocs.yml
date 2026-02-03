@@ -61,9 +61,8 @@ theme:
 plugins:
   - search:
       lang: en
-      separator: '[\s\-\._,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+      separator: '[\s\-_,:!=\[\]()"/]+|(?=[A-Z][a-z])|&[lg]t;'
       pipeline:
-        - stemmer
         - stopWordFilter
         - trimmer
   - minify:
