@@ -60,25 +60,46 @@ FoundationDB provides a minimal, highly reliable core. Higher-level data models 
 
 ```mermaid
 graph TB
-    subgraph Layers
+    subgraph "Your Application"
+        App[Application Code]
+    end
+    subgraph "Layers (Choose Your Data Model)"
         SQL[SQL Layer]
         Doc[Document Layer]
-        Graph[Graph Layer]
+        Record[Record Layer]
+        Custom[Your Custom Layer]
     end
-    subgraph Core
-        KV[Key-Value Store]
+    subgraph "FoundationDB Core"
+        KV[Ordered Key-Value Store]
+        ACID[ACID Transactions]
     end
-    SQL --> KV
-    Doc --> KV
-    Graph --> KV
+    App --> SQL & Doc & Record & Custom
+    SQL & Doc & Record & Custom --> KV
+    KV --- ACID
 ```
+
+!!! tip "Why Layers?"
+    By keeping the core minimal, FoundationDB can focus on reliability, performance, and consistency. You get to choose the data model that fits your application—or build your own layer that inherits all of FoundationDB's guarantees.
+
+**Notable Layers:**
+
+- **[Record Layer](https://github.com/FoundationDB/fdb-record-layer)** — Structured records with schemas and indexes (powers Apple's CloudKit)
+- **[Document Layer](https://github.com/FoundationDB/fdb-document-layer)** — MongoDB-compatible API
 
 ## Learning Path
 
 We recommend reading these concepts in order:
 
-1. **Data Model** - Foundation of everything
-2. **Transactions** - How operations work
-3. **ACID Guarantees** - What you can rely on
-4. **Architecture** - How it all fits together
+1. **[Data Model](data-model.md)** — Ordered key-value pairs, the tuple layer, and key design patterns
+2. **[Transactions](transactions.md)** — ACID transactions, optimistic concurrency, and conflict handling
+3. **[ACID Guarantees](acid.md)** — What each property means and how FDB achieves them at scale
+4. **[Architecture](architecture.md)** — Components, transaction flow, fault tolerance, and scaling
+
+## Academic Resources
+
+For a deeper dive into FoundationDB's design:
+
+- **[SIGMOD 2021 Paper](https://www.foundationdb.org/files/fdb-paper.pdf)** — "FoundationDB: A Distributed Unbounded Ordered Key-Value Store"
+- **[Transaction Manifesto](https://apple.github.io/foundationdb/transaction-manifesto.html)** — Why ACID transactions are essential
+- **[CAP Theorem Analysis](https://apple.github.io/foundationdb/cap-theorem.html)** — How FoundationDB chooses consistency
 
