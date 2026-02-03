@@ -130,7 +130,7 @@ extra:
       link: https://discord.gg/foundationdb
   analytics:
     provider: google
-    property: G-XXXXXXXXXX
+    property: G-094G5SE58J
     feedback:
       title: Was this page helpful?
       ratings:
