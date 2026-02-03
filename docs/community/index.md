@@ -101,11 +101,11 @@ FoundationDB powers mission-critical systems at scale:
 
 | Company | Use Case |
 |---------|----------|
-| :material-apple: **Apple** | iCloud services through CloudKit—serving hundreds of millions of users |
-| :material-snowflake: **Snowflake** | Metadata management for their cloud data warehouse |
-| :material-adobe: **Adobe** | Identity graph database for customer data platform |
-| :material-tiger: **Tigris Data** | Global metadata storage for their cloud platform |
-| :material-apache: **Apache CouchDB** | Optional FDB-backed storage engine |
+| **Apple** | iCloud services through CloudKit—serving hundreds of millions of users |
+| **Snowflake** | Metadata management for their cloud data warehouse |
+| **Adobe** | Identity graph database for customer data platform |
+| **Tigris Data** | Global metadata storage for their cloud platform |
+| **Apache CouchDB** | Optional FDB-backed storage engine |
 
 ---
 

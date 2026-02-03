@@ -1,532 +1,40 @@
-/* FoundationDB Docs - Custom Theme
- * Inspired by Neon docs with FoundationDB brand colors
- * Primary: Deep blue #1a237e | Accent: Electric blue #00bcd4
+/* FoundationDB Docs - Minimal Custom Theme
+ * Let Material for MkDocs shine through with minimal overrides
  */
 
 /* ==========================================================================
-   CSS Variables - Light Theme
+   Custom Color Scheme - Darker Indigo
    ========================================================================== */
 
 :root {
-  /* Brand Colors */
-  --fdb-primary: #1a237e;
-  --fdb-primary-light: #3949ab;
-  --fdb-accent: #00bcd4;
-  --fdb-accent-light: #4dd0e1;
-  --fdb-accent-dark: #0097a7;
-
-  /* Light mode colors */
-  --md-primary-fg-color: var(--fdb-primary);
-  --md-primary-fg-color--light: var(--fdb-primary-light);
-  --md-primary-fg-color--dark: #0d1442;
-  --md-accent-fg-color: var(--fdb-accent);
-  --md-accent-fg-color--transparent: rgba(0, 188, 212, 0.1);
-
-  /* Typography */
-  --md-text-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --md-code-font: "JetBrains Mono", "Fira Code", "Consolas", monospace;
-
-  /* Backgrounds */
-  --fdb-surface: #ffffff;
-  --fdb-surface-raised: #f8f9fa;
-  --fdb-border: rgba(0, 0, 0, 0.08);
-
-  /* Glow effects */
-  --fdb-glow-color: rgba(0, 188, 212, 0.3);
-  --fdb-glow-subtle: rgba(0, 188, 212, 0.15);
+  --md-primary-fg-color: #2c3e7f;
+  --md-primary-fg-color--light: #3d5a9e;
+  --md-primary-fg-color--dark: #1a237e;
 }
-
-/* ==========================================================================
-   CSS Variables - Dark Theme
-   ========================================================================== */
 
 [data-md-color-scheme="slate"] {
-  --md-primary-fg-color: var(--fdb-accent);
-  --md-primary-fg-color--light: var(--fdb-accent-light);
-  --md-accent-fg-color: var(--fdb-accent);
-
-  /* Dark mode backgrounds matching GitHub's dark theme */
-  --md-default-bg-color: #0d1117;
-  --md-default-fg-color: #e6edf3;
-  --md-default-fg-color--light: #8b949e;
-  --md-default-fg-color--lighter: #6e7681;
-
-  /* Surfaces */
-  --fdb-surface: #0d1117;
-  --fdb-surface-raised: #161b22;
-  --fdb-border: rgba(255, 255, 255, 0.1);
-
-  /* Code blocks */
-  --md-code-bg-color: #161b22;
-  --md-code-fg-color: #e6edf3;
-
-  /* Glows are more visible in dark mode */
-  --fdb-glow-color: rgba(0, 188, 212, 0.4);
-  --fdb-glow-subtle: rgba(0, 188, 212, 0.2);
+  --md-primary-fg-color: #2c3e7f;
+  --md-primary-fg-color--light: #3d5a9e;
+  --md-primary-fg-color--dark: #1a237e;
 }
 
 /* ==========================================================================
-   Typography
+   Logo Sizing
    ========================================================================== */
 
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.md-typeset h1, .md-typeset h2, .md-typeset h3 {
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.md-typeset h1 {
-  font-size: 2.25rem;
-  line-height: 1.2;
-  margin-bottom: 1rem;
-}
-
-/* ==========================================================================
-   Navigation & Header
-   ========================================================================== */
-
-.md-header {
-  background: var(--fdb-surface);
-  border-bottom: 1px solid var(--fdb-border);
-  box-shadow: none;
-}
-
-[data-md-color-scheme="slate"] .md-header {
-  background: var(--fdb-surface-raised);
-}
-
-.md-header__title {
-  font-weight: 600;
-}
-
-/* Tab navigation styling */
-.md-tabs {
-  background: transparent;
-}
-
-.md-tabs__link {
-  font-weight: 500;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-}
-
-.md-tabs__link:hover,
-.md-tabs__link--active {
-  opacity: 1;
-}
-
-/* ==========================================================================
-   Links with subtle glow effect
-   ========================================================================== */
-
-.md-typeset a:not(.md-button) {
-  color: var(--fdb-accent-dark);
-  text-decoration: none;
-  transition: color 0.2s ease, text-shadow 0.2s ease;
-}
-
-[data-md-color-scheme="slate"] .md-typeset a:not(.md-button) {
-  color: var(--fdb-accent);
-}
-
-.md-typeset a:not(.md-button):hover {
-  color: var(--fdb-accent);
-  text-shadow: 0 0 8px var(--fdb-glow-subtle);
-}
-
-/* ==========================================================================
-   Code Blocks - Polished Styling
-   ========================================================================== */
-
-.md-typeset code {
-  border-radius: 6px;
-  font-size: 0.85em;
-  padding: 0.15em 0.4em;
-}
-
-.md-typeset pre {
-  border-radius: 8px;
-  border: 1px solid var(--fdb-border);
-}
-
-.md-typeset pre > code {
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
-/* Copy button styling */
-.md-clipboard {
-  color: var(--md-default-fg-color--lighter);
-  transition: color 0.2s ease;
-}
-
-.md-clipboard:hover {
-  color: var(--fdb-accent);
-}
-
-/* Syntax highlighting adjustments for dark mode */
-[data-md-color-scheme="slate"] .highlight {
-  background: var(--fdb-surface-raised);
-}
-
-/* ==========================================================================
-   Hero Section
-   ========================================================================== */
-
-.hero {
-  text-align: center;
-  padding: 3rem 1rem 4rem;
-  margin: -1rem -1rem 2rem;
-  background: linear-gradient(135deg, var(--fdb-primary) 0%, #303f9f 50%, var(--fdb-accent-dark) 100%);
-  border-radius: 0 0 24px 24px;
-  position: relative;
-  overflow: hidden;
-}
-
-[data-md-color-scheme="slate"] .hero {
-  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a237e 100%);
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 30% 70%, var(--fdb-glow-color) 0%, transparent 50%),
-              radial-gradient(circle at 70% 30%, rgba(26, 35, 126, 0.3) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-.hero h1 {
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.03em;
-  position: relative;
-}
-
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 2.5rem;
-  }
-}
-
-.hero .tagline {
-  font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.95);
-  margin-bottom: 1.5rem;
-  font-weight: 500;
-  position: relative;
-  letter-spacing: -0.01em;
-}
-
-.hero p.hero-description {
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 700px;
-  margin: 0 auto 2rem;
-  font-size: 1.15rem;
-  line-height: 1.7;
-  position: relative;
-}
-
-.hero p.hero-description strong {
-  color: var(--fdb-accent-light);
-  font-weight: 600;
-}
-
-.hero p.hero-stats {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 1.5rem;
-  margin-bottom: 0;
-  letter-spacing: 0.02em;
-  position: relative;
-}
-
-.hero p {
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 600px;
-  margin: 0 auto 2rem;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  position: relative;
-}
-
-/* ==========================================================================
-   Buttons with Neon-style effects
-   ========================================================================== */
-
-.md-button {
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  transition: all 0.2s ease;
-}
-
-.md-button--primary {
-  background-color: var(--fdb-accent);
-  border-color: var(--fdb-accent);
-  color: #000000;
-}
-
-.md-button--primary:hover {
-  background-color: var(--fdb-accent-light);
-  border-color: var(--fdb-accent-light);
-  box-shadow: 0 0 20px var(--fdb-glow-color);
-  transform: translateY(-1px);
-}
-
-.hero .md-button--primary {
-  background: #ffffff;
-  color: var(--fdb-primary);
-  border: none;
-}
-
-.hero .md-button--primary:hover {
-  background: var(--fdb-accent-light);
-  color: #000000;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-}
-
-.hero .md-button--secondary {
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  color: #ffffff;
-}
-
-.hero .md-button--secondary:hover {
-  border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* ==========================================================================
-   Feature Cards Grid
-   ========================================================================== */
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
-}
-
-.grid.cards > * {
-  background: var(--fdb-surface-raised);
-  border: 1px solid var(--fdb-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
-}
-
-.grid.cards > *:hover {
-  border-color: var(--fdb-accent);
-  box-shadow: 0 4px 20px var(--fdb-glow-subtle);
-  transform: translateY(-2px);
-}
-
-[data-md-color-scheme="slate"] .grid.cards > * {
-  background: var(--fdb-surface-raised);
-}
-
-.grid.cards h3 {
-  margin-top: 0;
-  font-size: 1.1rem;
-  color: var(--fdb-accent-dark);
-}
-
-[data-md-color-scheme="slate"] .grid.cards h3 {
-  color: var(--fdb-accent);
-}
-
-.grid.cards p {
-  margin-bottom: 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-/* Quick action cards */
-.quick-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 1.5rem;
-  position: relative;
-}
-
-.quick-actions a {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: #ffffff;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.quick-actions a:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-}
-
-/* ==========================================================================
-   Sidebar Customizations
-   ========================================================================== */
-
-.md-sidebar--primary .md-sidebar__inner {
-  border-right: 1px solid var(--fdb-border);
-}
-
-.md-nav__link--active {
-  color: var(--fdb-accent) !important;
-  font-weight: 500;
-}
-
-/* ==========================================================================
-   Search Enhancement
-   ========================================================================== */
-
-.md-search__input {
-  border-radius: 8px;
-  background: var(--fdb-surface-raised);
-  border: 1px solid var(--fdb-border);
-}
-
-.md-search__input:focus {
-  border-color: var(--fdb-accent);
-  box-shadow: 0 0 0 3px var(--fdb-glow-subtle);
-}
-
-/* ==========================================================================
-   Admonitions / Callouts
-   ========================================================================== */
-
-.md-typeset .admonition,
-.md-typeset details {
-  border-radius: 8px;
-  border-left-width: 4px;
-}
-
-.md-typeset .admonition.note,
-.md-typeset details.note {
-  border-left-color: var(--fdb-accent);
-}
-
-.md-typeset .admonition.tip,
-.md-typeset details.tip {
-  border-left-color: #00c853;
-}
-
-/* ==========================================================================
-   Footer
-   ========================================================================== */
-
-.md-footer {
-  background: var(--fdb-surface-raised);
-  border-top: 1px solid var(--fdb-border);
-}
-
-[data-md-color-scheme="slate"] .md-footer {
-  background: #0a0d12;
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 1.5rem;
+  width: auto;
 }
 
 /* ==========================================================================
    Accessibility - Focus States
    ========================================================================== */
 
-/* High-visibility focus indicator for keyboard navigation */
 *:focus-visible {
-  outline: 2px solid var(--fdb-accent);
+  outline: 2px solid var(--md-accent-fg-color);
   outline-offset: 2px;
-}
-
-/* Skip to content link for screen readers */
-.md-skip {
-  position: absolute;
-  left: -9999px;
-  z-index: 999;
-  padding: 1rem;
-  background: var(--fdb-accent);
-  color: #000000;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.md-skip:focus {
-  left: 0;
-  top: 0;
-}
-
-/* Ensure minimum touch target sizes (44px per WCAG 2.1) */
-.md-nav__link,
-.md-tabs__link,
-.md-search__icon,
-.md-header__button {
-  min-height: 44px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-}
-
-/* Focus visible styling for links */
-.md-typeset a:focus-visible {
-  outline: 2px solid var(--fdb-accent);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
-/* Focus visible styling for buttons */
-.md-button:focus-visible {
-  outline: 2px solid #ffffff;
-  outline-offset: 2px;
-}
-
-/* ==========================================================================
-   Accessibility - Color Contrast Improvements
-   ========================================================================== */
-
-/* Improve contrast for lighter text in light mode */
-.md-typeset {
-  color: #1a1a1a; /* Darker text for better contrast (was default gray) */
-}
-
-[data-md-color-scheme="slate"] .md-typeset {
-  color: #e6edf3; /* Keep light text in dark mode */
-}
-
-/* Improve contrast for secondary text */
-.md-footer__link {
-  color: #4a4a4a;
-}
-
-[data-md-color-scheme="slate"] .md-footer__link {
-  color: #b0b0b0;
-}
-
-/* Ensure links have sufficient contrast */
-.md-typeset a:not(.md-button) {
-  color: #007399; /* Darker cyan for WCAG AA compliance - 4.5:1 on white */
-}
-
-[data-md-color-scheme="slate"] .md-typeset a:not(.md-button) {
-  color: #4dd0e1; /* Lighter cyan for dark mode - 7.5:1 on dark bg */
-}
-
-/* Tab navigation - improve contrast when inactive */
-.md-tabs__link {
-  opacity: 0.85; /* Increased from 0.7 for better contrast */
 }
 
 /* ==========================================================================
@@ -545,51 +53,33 @@ body {
 }
 
 /* ==========================================================================
-   Mobile Responsiveness - Code Blocks
+   Minor Spacing Tweaks
    ========================================================================== */
 
-/* Prevent code blocks from overflowing */
+/* Slightly larger touch targets for mobile */
+@media screen and (max-width: 599px) {
+  .md-nav__link,
+  .md-tabs__link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ==========================================================================
+   Code Block Improvements
+   ========================================================================== */
+
 .md-typeset pre {
   overflow-x: auto;
   max-width: 100%;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
-
-.md-typeset pre > code {
-  display: block;
-  overflow-x: auto;
-  word-wrap: normal;
-  white-space: pre;
-}
-
-/* Inline code wrapping for mobile */
-.md-typeset code {
-  word-break: break-word;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ==========================================================================
-   Mobile Responsiveness - Images
+   Table Responsiveness
    ========================================================================== */
 
-/* Make all images responsive */
-.md-typeset img,
-.md-typeset svg {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Prevent images from overflowing containers */
-.md-content img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* ==========================================================================
-   Mobile Responsiveness - Tables
-   ========================================================================== */
-
-/* Wrap tables in scrollable container */
 .md-typeset table:not([class]) {
   display: block;
   max-width: 100%;
@@ -598,165 +88,13 @@ body {
 }
 
 /* ==========================================================================
-   Mobile Responsiveness - Breakpoints
+   Image Responsiveness
    ========================================================================== */
 
-/* Tablet and smaller (< 960px) */
-@media screen and (max-width: 959px) {
-  /* Hero section adjustments */
-  .hero {
-    padding: 2rem 1rem 3rem;
-    margin: -0.5rem -0.5rem 1.5rem;
-    border-radius: 0 0 16px 16px;
-  }
-
-  .hero h1 {
-    font-size: 2.25rem;
-  }
-
-  .hero .tagline {
-    font-size: 1.1rem;
-  }
-
-  .hero p {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  /* Grid cards adjust to fewer columns */
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-  }
-
-  /* Headings scale down */
-  .md-typeset h1 {
-    font-size: 1.875rem;
-  }
-
-  .md-typeset h2 {
-    font-size: 1.5rem;
-  }
-}
-
-/* Mobile devices (< 600px) */
-@media screen and (max-width: 599px) {
-  /* Hero section - mobile optimized */
-  .hero {
-    padding: 1.5rem 0.75rem 2rem;
-    margin: 0 -0.75rem 1rem;
-    border-radius: 0 0 12px 12px;
-  }
-
-  .hero h1 {
-    font-size: 1.75rem;
-    letter-spacing: -0.02em;
-  }
-
-  .hero .tagline {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .hero p {
-    font-size: 0.9375rem;
-    line-height: 1.5;
-    margin-bottom: 1.25rem;
-    padding: 0 0.5rem;
-  }
-
-  /* Quick actions stack vertically on mobile */
-  .quick-actions {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: stretch;
-    padding: 0 0.5rem;
-  }
-
-  .quick-actions a {
-    justify-content: center;
-    padding: 0.875rem 1rem; /* Larger touch target */
-    min-height: 48px; /* Ensure touch-friendly size */
-  }
-
-  /* Grid becomes single column */
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    margin: 1rem 0;
-  }
-
-  .grid.cards > * {
-    padding: 1.25rem;
-  }
-
-  /* Typography adjustments */
-  .md-typeset h1 {
-    font-size: 1.5rem;
-    line-height: 1.3;
-  }
-
-  .md-typeset h2 {
-    font-size: 1.25rem;
-  }
-
-  .md-typeset h3 {
-    font-size: 1.1rem;
-  }
-
-  /* Buttons - ensure adequate touch targets */
-  .md-button {
-    padding: 0.875rem 1.25rem;
-    min-height: 48px;
-    font-size: 0.9375rem;
-  }
-
-  /* Code blocks - smaller font on mobile */
-  .md-typeset pre > code {
-    font-size: 0.8125rem;
-    line-height: 1.5;
-  }
-
-  .md-typeset code {
-    font-size: 0.8125em;
-    padding: 0.1em 0.3em;
-  }
-
-  /* Admonitions - compact on mobile */
-  .md-typeset .admonition,
-  .md-typeset details {
-    padding: 0.5rem 0.75rem;
-  }
-
-  /* Search input adjustments */
-  .md-search__input {
-    font-size: 1rem; /* Prevent zoom on iOS */
-  }
-
-  /* Content padding */
-  .md-content {
-    padding: 0 0.5rem;
-  }
-}
-
-/* Small mobile devices (< 400px) */
-@media screen and (max-width: 399px) {
-  .hero h1 {
-    font-size: 1.5rem;
-  }
-
-  .hero .tagline {
-    font-size: 0.9375rem;
-  }
-
-  .md-typeset h1 {
-    font-size: 1.375rem;
-  }
-
-  /* Even smaller code on very small screens */
-  .md-typeset pre > code {
-    font-size: 0.75rem;
-  }
+.md-typeset img,
+.md-typeset svg {
+  max-width: 100%;
+  height: auto;
 }
 
 /* ==========================================================================
@@ -764,24 +102,8 @@ body {
    ========================================================================== */
 
 @media (prefers-contrast: high) {
-  :root {
-    --fdb-border: rgba(0, 0, 0, 0.3);
-  }
-
-  [data-md-color-scheme="slate"] {
-    --fdb-border: rgba(255, 255, 255, 0.3);
-  }
-
   .md-typeset a:not(.md-button) {
     text-decoration: underline;
-  }
-
-  .md-button {
-    border-width: 2px;
-  }
-
-  .grid.cards > * {
-    border-width: 2px;
   }
 }
 
@@ -790,278 +112,753 @@ body {
    ========================================================================== */
 
 @media print {
-  .hero {
-    background: none !important;
-    color: #000000 !important;
-  }
-
-  .hero h1,
-  .hero p,
-  .hero .tagline {
-    color: #000000 !important;
-  }
-
   .md-button {
-    border: 1px solid #000000 !important;
+    border: 1px solid currentColor !important;
   }
 }
 
 /* ==========================================================================
-   Numbered Steps Section (Neon-style)
+   Hero Section with Graphic
    ========================================================================== */
 
-.numbered-steps {
+.hero-section {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin: 2rem 0 3rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
 }
 
-.numbered-steps .step {
+.hero-content {
+  flex: 1 1 350px;
+  min-width: 280px;
+}
+
+.hero-graphic {
+  flex: 1 1 300px;
+  max-width: 400px;
+  min-width: 200px;
+}
+
+.hero-graphic svg {
+  width: 100%;
+  height: auto;
+}
+
+/* SVG Animation - respect reduced motion */
+.hero-graphic .connection-line {
+  stroke-dasharray: 4 2;
+  animation: dash 20s linear infinite;
+}
+
+.hero-graphic .node {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.hero-graphic .node-central {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -60;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Dark mode adjustments for SVG */
+[data-md-color-scheme="slate"] .hero-graphic .labels text {
+  fill: #aaa;
+}
+
+/* ==========================================================================
+   Video Section
+   ========================================================================== */
+
+.video-section {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ==========================================================================
+   Company Logos Section
+   ========================================================================== */
+
+.company-logos {
   display: flex;
-  align-items: flex-start;
-  gap: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  background: var(--fdb-surface-raised);
-  border: 1px solid var(--fdb-border);
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3rem;
+  padding: 2rem 0;
 }
 
-.numbered-steps .step:hover {
-  border-color: var(--fdb-accent);
-  box-shadow: 0 4px 20px var(--fdb-glow-subtle);
-}
-
-.numbered-steps .step-number {
+.company-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  min-width: 2rem;
-  background: linear-gradient(135deg, var(--fdb-accent) 0%, var(--fdb-accent-dark) 100%);
-  color: #000000;
-  font-weight: 700;
-  font-size: 0.95rem;
-  border-radius: 50%;
-  margin-top: 0.25rem;
 }
 
-.numbered-steps .step-content {
-  flex: 1;
+.company-logo img {
+  height: 40px;
+  width: auto;
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: all 0.3s ease;
 }
 
-.numbered-steps .step-content h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--md-default-fg-color);
+.company-logo img:hover {
+  filter: grayscale(0%);
+  opacity: 1;
 }
 
-.numbered-steps .step-content p {
-  margin: 0 0 0.75rem;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--md-default-fg-color--light);
+/* Dark mode adjustments - invert logos to white */
+[data-md-color-scheme="slate"] .company-logo img {
+  filter: grayscale(100%) invert(1);
+  opacity: 0.7;
 }
 
-.numbered-steps .step-content a {
-  font-weight: 500;
-  font-size: 0.9rem;
+[data-md-color-scheme="slate"] .company-logo img:hover {
+  filter: invert(1);
+  opacity: 1;
+}
+
+/* VMware logo is taller, shrink it */
+.company-logo img[alt="VMware"] {
+  height: 30px;
+}
+
+/* Adobe logo includes text, adjust height */
+.company-logo img[alt="Adobe"] {
+  height: 35px;
+}
+
+
+/* Hide site name in header since logo already contains the name */
+.md-header__topic .md-ellipsis {
+  display: none;
 }
 
 /* ==========================================================================
-   Feature Grid (Enhanced)
+   Hero Parallax Section (MkDocs Material style)
    ========================================================================== */
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin: 2rem 0 3rem;
+/* Animated gradient keyframes */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-@media (max-width: 768px) {
-  .feature-grid {
-    grid-template-columns: 1fr;
-  }
+.hero-parallax {
+  position: relative;
+  min-height: 85vh;
+  /* Break out of parent container - use viewport width */
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-top: -1.2rem;
+  overflow: hidden;
 }
 
-.feature-card {
-  background: var(--fdb-surface-raised);
-  border: 1px solid var(--fdb-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+/* Make header use primary indigo on landing page */
+body:has(.hero-parallax) .md-header {
+  position: fixed;
+  width: 100%;
+  background: var(--md-primary-fg-color) !important;
+  box-shadow: none !important;
+  z-index: 100;
 }
 
-.feature-card:hover {
-  border-color: var(--fdb-accent);
-  box-shadow: 0 4px 20px var(--fdb-glow-subtle);
+/* Ensure header text/icons are white on landing page */
+body:has(.hero-parallax) .md-header .md-header__button,
+body:has(.hero-parallax) .md-header .md-search__icon,
+body:has(.hero-parallax) .md-header .md-header__title,
+body:has(.hero-parallax) .md-header .md-icon {
+  color: white !important;
+}
+
+/* Add shadow to header when scrolled on landing page */
+body:has(.hero-parallax) .md-header--shadow {
+  background: var(--md-primary-fg-color) !important;
+  box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.1), 0 0.2rem 0.4rem rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Ensure content starts below the fixed header on landing page */
+body:has(.hero-parallax) .md-main {
+  margin-top: 0;
+}
+
+/* Background layer */
+.hero-parallax__bg-layer {
+  position: absolute;
+  inset: 0;
+  top: -80px; /* Extend up behind the header */
+  background: linear-gradient(
+    135deg,
+    var(--md-primary-fg-color) 0%,
+    #5c6bc0 25%,
+    #6a5acd 50%,
+    #6a5acd 75%,
+    var(--md-accent-fg-color) 100%
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  z-index: 1;
+}
+
+/* Mid layer - decorative pattern */
+.hero-parallax__mid-layer {
+  position: absolute;
+  inset: 0;
+  top: -80px;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.12) 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 80px 80px, 60px 60px, 40px 40px;
+  z-index: 2;
+}
+
+/* Foreground layer - floating nodes decoration */
+.hero-parallax__fg-layer {
+  position: absolute;
+  inset: 0;
+  top: -80px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='20' cy='30' r='4' fill='rgba(255,255,255,0.15)'/%3E%3Ccircle cx='180' cy='40' r='3' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='60' cy='160' r='3.5' fill='rgba(255,255,255,0.12)'/%3E%3Ccircle cx='140' cy='120' r='2.5' fill='rgba(255,255,255,0.08)'/%3E%3Ccircle cx='100' cy='80' r='2' fill='rgba(255,255,255,0.1)'/%3E%3Cline x1='20' y1='30' x2='60' y2='160' stroke='rgba(255,255,255,0.05)' stroke-width='0.5'/%3E%3Cline x1='180' y1='40' x2='140' y2='120' stroke='rgba(255,255,255,0.05)' stroke-width='0.5'/%3E%3Cline x1='100' y1='80' x2='140' y2='120' stroke='rgba(255,255,255,0.04)' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+  opacity: 0.7;
+  z-index: 3;
+}
+
+/* Content layer */
+.hero-parallax__content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  padding: 6rem 2rem 8rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Hero text styling */
+.hero-text {
+  flex: 1 1 400px;
+  max-width: 600px;
+}
+
+.hero-text h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* Large button variant */
+.md-button--lg {
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+}
+
+/* Hero buttons on gradient */
+.hero-parallax .md-button--primary {
+  background-color: white;
+  color: var(--md-primary-fg-color);
+  border-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.hero-parallax .md-button--primary:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.hero-parallax .md-button:not(.md-button--primary) {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.hero-parallax .md-button:not(.md-button--primary):hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: white;
   transform: translateY(-2px);
 }
 
-.feature-card.featured {
-  grid-column: span 1;
-  background: linear-gradient(135deg, var(--fdb-surface-raised) 0%, rgba(0, 188, 212, 0.05) 100%);
-  border-color: rgba(0, 188, 212, 0.3);
+/* Hero graphic in parallax */
+.hero-parallax .hero-graphic {
+  flex: 1 1 300px;
+  max-width: 450px;
+  min-width: 280px;
 }
 
-[data-md-color-scheme="slate"] .feature-card.featured {
-  background: linear-gradient(135deg, var(--fdb-surface-raised) 0%, rgba(0, 188, 212, 0.08) 100%);
+.hero-parallax .hero-graphic svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
 }
 
-.feature-card .feature-icon {
-  font-size: 1.75rem;
-  margin-bottom: 0.75rem;
-  display: block;
+.hero-parallax .hero-graphic .labels text {
+  fill: rgba(255, 255, 255, 0.9);
 }
 
-.feature-card h3 {
-  margin: 0 0 0.75rem;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--fdb-accent-dark);
+.hero-parallax .hero-graphic .connections line {
+  stroke: rgba(255, 255, 255, 0.5);
 }
 
-[data-md-color-scheme="slate"] .feature-card h3 {
-  color: var(--fdb-accent);
+/* Fade transition at bottom of hero */
+.hero-parallax__fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 30%,
+    rgba(255, 255, 255, 0.7) 60%,
+    var(--md-default-bg-color) 100%
+  );
+  z-index: 5;
+  pointer-events: none;
 }
 
-.feature-card p {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
+/* Dark mode hero adjustments */
+[data-md-color-scheme="slate"] .hero-parallax__bg-layer {
+  background: linear-gradient(
+    135deg,
+    #1a237e 0%,
+    #283593 25%,
+    #512da8 50%,
+    #7c4dff 75%,
+    #651fff 100%
+  );
+}
+
+[data-md-color-scheme="slate"] .hero-parallax__fade {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(30, 34, 45, 0.3) 30%,
+    rgba(30, 34, 45, 0.7) 60%,
+    var(--md-default-bg-color) 100%
+  );
+}
+
+/* Responsive hero */
+@media screen and (min-width: 76.25em) {
+  .hero-parallax {
+    margin-top: -1.2rem;
+  }
+
+  .hero-parallax__content {
+    padding: 8rem 3rem 10rem 3rem;
+  }
+}
+
+@media screen and (max-width: 959px) {
+  .hero-parallax__content {
+    flex-direction: column;
+    text-align: center;
+    padding: 4rem 1.5rem 6rem 1.5rem;
+  }
+
+  .hero-text {
+    max-width: 100%;
+  }
+
+  .hero-parallax .hero-graphic {
+    max-width: 350px;
+  }
+}
+
+@media screen and (max-width: 599px) {
+  .hero-parallax {
+    min-height: 70vh;
+  }
+
+  .hero-parallax__content {
+    padding: 3rem 1rem 5rem 1rem;
+    gap: 2rem;
+  }
+
+  .hero-text h1 {
+    font-size: 1.75rem;
+  }
+
+  .hero-text p {
+    font-size: 1rem;
+  }
+
+  .hero-parallax__fade {
+    height: 100px;
+  }
+}
+
+/* Reduced motion - disable parallax and animations */
+@media (prefers-reduced-motion: reduce) {
+  .hero-parallax__bg-layer {
+    animation: none;
+    background-position: 0% 50%;
+    transform: none;
+    inset: 0;
+  }
+
+  .hero-parallax__mid-layer {
+    transform: none;
+    inset: 0;
+  }
+
+  .hero-parallax .md-button:hover {
+    transform: none;
+  }
+}
+
+
+/* ==========================================================================
+   Landing Page Sections
+   ========================================================================== */
+
+.landing-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+}
+
+.landing-section h2 {
+  text-align: center;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  margin-bottom: 1rem;
+  color: var(--md-default-fg-color);
+}
+
+.section-intro {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--md-default-fg-color--light);
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+}
+
+/* Features section - 6 cards grid */
+.landing-section--features {
+  padding-top: 2rem;
+}
+
+.landing-section--features .grid.cards {
+  margin-top: 2rem;
+}
+
+/* Enhanced card hover effects */
+.landing-section .grid.cards > ul > li {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-section .grid.cards > ul > li:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+[data-md-color-scheme="slate"] .landing-section .grid.cards > ul > li:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   Feature Highlights (Side-by-side sections)
+   ========================================================================== */
+
+.landing-section--highlights {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(63, 81, 181, 0.03) 20%,
+    rgba(63, 81, 181, 0.03) 80%,
+    transparent 100%
+  );
+}
+
+[data-md-color-scheme="slate"] .landing-section--highlights {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(124, 77, 255, 0.05) 20%,
+    rgba(124, 77, 255, 0.05) 80%,
+    transparent 100%
+  );
+}
+
+.feature-highlight {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3rem;
+  margin: 4rem 0;
+  padding: 2rem;
+  background: var(--md-default-bg-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
+}
+
+.feature-highlight:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+[data-md-color-scheme="slate"] .feature-highlight {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+[data-md-color-scheme="slate"] .feature-highlight:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.feature-highlight__content {
+  flex: 1 1 350px;
+}
+
+.feature-highlight__content h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: var(--md-primary-fg-color);
+}
+
+.feature-highlight__content p {
+  line-height: 1.7;
   color: var(--md-default-fg-color--light);
 }
 
-.feature-card a {
+.feature-highlight__content a {
   display: inline-block;
   margin-top: 1rem;
   font-weight: 500;
-  font-size: 0.9rem;
+}
+
+.feature-highlight__visual {
+  flex: 1 1 300px;
+  min-width: 280px;
+}
+
+.feature-highlight__visual pre {
+  margin: 0;
+  font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+[data-md-color-scheme="slate"] .feature-highlight__visual pre {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Alternating layout */
+.feature-highlight--reverse {
+  flex-direction: row-reverse;
+}
+
+/* Responsive feature highlights */
+@media screen and (max-width: 959px) {
+  .feature-highlight {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .feature-highlight--reverse {
+    flex-direction: column;
+  }
+
+  .feature-highlight__content {
+    max-width: 100%;
+  }
+
+  .feature-highlight__visual {
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Trusted Section
+   ========================================================================== */
+
+.landing-section--trusted {
+  text-align: center;
+}
+
+.landing-section--trusted .company-logos {
+  justify-content: center;
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+/* ==========================================================================
+   Video Section
+   ========================================================================== */
+
+.landing-section--video {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(63, 81, 181, 0.02) 50%,
+    transparent 100%
+  );
+}
+
+.landing-section--video .video-section {
+  max-width: 900px;
 }
 
 /* ==========================================================================
    Community Section
    ========================================================================== */
 
-.community-section {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin: 2rem 0;
+.landing-section--community {
+  padding-bottom: 2rem;
 }
 
-@media (max-width: 900px) {
-  .community-section {
-    grid-template-columns: 1fr;
-  }
-}
-
-.community-card {
-  background: var(--fdb-surface-raised);
-  border: 1px solid var(--fdb-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: center;
-  transition: all 0.2s ease;
-}
-
-.community-card:hover {
-  border-color: var(--fdb-accent);
-  box-shadow: 0 4px 20px var(--fdb-glow-subtle);
-}
-
-.community-card strong {
-  display: block;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-  color: var(--md-default-fg-color);
-}
-
-.community-card p {
-  margin: 0.5rem 0 1rem;
-  font-size: 0.9rem;
-  color: var(--md-default-fg-color--light);
+.landing-section--community .grid.cards {
+  max-width: 1000px;
+  margin: 2rem auto 0 auto;
 }
 
 /* ==========================================================================
-   CTA Section
+   Landing Page Footer
    ========================================================================== */
 
-.cta-section {
+.landing-footer {
   text-align: center;
-  padding: 3rem 2rem;
-  margin: 2rem -1rem -1rem;
-  background: linear-gradient(135deg, var(--fdb-primary) 0%, #303f9f 50%, var(--fdb-accent-dark) 100%);
-  border-radius: 16px 16px 0 0;
-  position: relative;
-  overflow: hidden;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--md-default-fg-color--light);
+  font-size: 0.9rem;
 }
 
-[data-md-color-scheme="slate"] .cta-section {
-  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a237e 100%);
+[data-md-color-scheme="slate"] .landing-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
 }
 
-.cta-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 30% 70%, var(--fdb-glow-color) 0%, transparent 50%);
-  pointer-events: none;
+.landing-footer .heart-icon {
+  color: #e91e63;
+  animation: heartbeat 1.5s ease-in-out infinite;
 }
 
-.cta-content {
-  position: relative;
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.15);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.15);
+  }
+  56% {
+    transform: scale(1);
+  }
 }
 
-.cta-section p {
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 500px;
-  margin: 0 auto 1.5rem;
-  font-size: 1rem;
-  line-height: 1.6;
+/* Reduced motion - disable heartbeat */
+@media (prefers-reduced-motion: reduce) {
+  .landing-footer .heart-icon {
+    animation: none;
+  }
 }
 
-.cta-section strong {
-  display: block;
-  font-size: 1.5rem;
-  color: #ffffff;
-  margin-bottom: 0.75rem;
+/* ==========================================================================
+   Remove default horizontal rules on landing page
+   ========================================================================== */
+
+/* Landing page doesn't need the default hr styling */
+.md-content__inner > hr {
+  display: none;
 }
 
-.cta-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+/* Ensure proper spacing in landing sections */
+.landing-section + .landing-section {
+  margin-top: 0;
 }
 
-.cta-buttons .md-button--primary {
-  background: #ffffff;
-  color: var(--fdb-primary);
-  border: none;
+/* Dark mode header background on landing page - keep indigo in dark mode too */
+[data-md-color-scheme="slate"] body:has(.hero-parallax) .md-header,
+body:has(.hero-parallax)[data-md-color-scheme="slate"] .md-header {
+  background: var(--md-primary-fg-color) !important;
 }
 
-.cta-buttons .md-button--primary:hover {
-  background: var(--fdb-accent-light);
-  color: #000000;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+/* Also style the tabs bar on landing page with indigo */
+body:has(.hero-parallax) .md-tabs {
+  background: var(--md-primary-fg-color) !important;
+  z-index: 99;
 }
 
-.cta-buttons .md-button--secondary {
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  color: #ffffff;
+/* Ensure tab links are white on landing page */
+body:has(.hero-parallax) .md-tabs__link {
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
-.cta-buttons .md-button--secondary:hover {
-  border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+body:has(.hero-parallax) .md-tabs__link--active,
+body:has(.hero-parallax) .md-tabs__link:hover {
+  color: white !important;
 }
 
+[data-md-color-scheme="slate"] body:has(.hero-parallax) .md-tabs,
+body:has(.hero-parallax)[data-md-color-scheme="slate"] .md-tabs {
+  background: var(--md-primary-fg-color) !important;
+}
+
+/* Ensure ALL header elements have indigo background on landing page */
+body:has(.hero-parallax) .md-header,
+body:has(.hero-parallax) .md-header__inner,
+body:has(.hero-parallax) .md-header__title {
+  background: var(--md-primary-fg-color) !important;
+}
+
+/* Dark mode - all header elements keep indigo */
+[data-md-color-scheme="slate"] body:has(.hero-parallax) .md-header,
+[data-md-color-scheme="slate"] body:has(.hero-parallax) .md-header__inner,
+[data-md-color-scheme="slate"] body:has(.hero-parallax) .md-header__title,
+[data-md-color-scheme="slate"] body:has(.hero-parallax) .md-tabs {
+  background: var(--md-primary-fg-color) !important;
+}

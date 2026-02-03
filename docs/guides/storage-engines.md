@@ -120,20 +120,25 @@ The legacy SSD engine, based on SQLite, is still supported but Redwood is prefer
 
 ## Memory Engine
 
-The memory engine stores all data in RAM—useful for testing and ephemeral workloads.
+The memory engine stores all data in RAM with writes logged to disk for durability—useful for testing and small datasets.
 
 ```bash
 fdb> configure storage_engine=memory
 ```
 
-!!! danger "Data Loss"
-    Memory engine loses all data on restart. Never use in production.
+### Characteristics
+
+- All data resident in memory
+- Writes logged to disk for durability
+- Default 1GB limit per process (configurable via `storage_memory`)
+- Good for spinning disks with small datasets
 
 ### Use Cases
 
 - Unit testing
 - Development environments
 - Performance testing (remove disk bottleneck)
+- Small datasets on spinning disks
 
 ## RocksDB Engine (Experimental)
 

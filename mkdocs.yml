@@ -11,7 +11,7 @@ theme:
   name: material
   custom_dir: docs/overrides
   language: en
-  logo: images/logo.svg
+  logo: assets/images/foundationdb-logo.png
   favicon: images/favicon.svg
   icon:
     repo: fontawesome/brands/github
@@ -46,20 +46,17 @@ theme:
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: custom
-      accent: custom
+      accent: deep purple
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: custom
-      accent: custom
+      accent: deep purple
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-  font:
-    text: Inter
-    code: JetBrains Mono
 
 plugins:
   - search:
