@@ -38,9 +38,17 @@ We're thrilled you're interested in contributing. FoundationDB is an open-source
 
     ---
 
-    Documentation improvements are always welcome and appreciated.
+    Documentation improvements are always welcome and appreciated. Every page has an "Edit" button.
 
-    [:octicons-arrow-right-24: Edit Docs](https://github.com/apple/foundationdb){ .md-button target="_blank" }
+    [:octicons-arrow-right-24: Edit Docs](https://github.com/foundation-oss/doc-site){ .md-button target="_blank" }
+
+-   :material-tag-multiple:{ .lg .middle } **Doc Versions**
+
+    ---
+
+    We use [mike](https://github.com/jimporter/mike) for documentation versioning. See the [workflow guide](#documentation-versioning) below.
+
+    [:octicons-arrow-right-24: Versioning Guide](#documentation-versioning)
 
 -   :material-forum:{ .lg .middle } **Join Discussions**
 
@@ -194,6 +202,86 @@ All contributors are valued members of our community. We recognize contributions
 - GitHub contributor credits
 - Acknowledgment in release notes for significant contributions
 - Community spotlight on forums
+
+---
+
+## :material-tag-multiple: Documentation Versioning
+
+We use [mike](https://github.com/jimporter/mike){ target="_blank" } with MkDocs Material to manage documentation versions. The version selector appears in the header, allowing users to switch between different FoundationDB releases.
+
+### Version Structure
+
+| Version | Alias | Description |
+|---------|-------|-------------|
+| `7.x` | `stable`, `latest` | Current stable release (default) |
+| `7.3` | - | Specific 7.3 release |
+| `7.2` | - | Previous minor release |
+| `dev` | - | Development/main branch |
+
+### Maintainer Workflow
+
+#### Initial Setup
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Initialize gh-pages branch (first time only)
+mike deploy --push --update-aliases 7.x stable latest
+mike set-default --push 7.x
+```
+
+#### Deploying a New Version
+
+```bash
+# Deploy current docs as version 7.x with aliases
+mike deploy --push --update-aliases 7.x stable latest
+
+# Deploy a specific version (e.g., for 7.3 release)
+mike deploy --push 7.3
+
+# Update default version
+mike set-default --push 7.x
+```
+
+#### Updating an Existing Version
+
+```bash
+# Update docs for existing version (e.g., patch fixes)
+mike deploy --push 7.x
+```
+
+#### Managing Old Versions
+
+```bash
+# List all deployed versions
+mike list
+
+# Delete an old version
+mike delete --push 6.x
+```
+
+### URL Structure
+
+With mike, documentation URLs follow this pattern:
+
+- `https://docs.foundationdb.org/` → Redirects to default (7.x)
+- `https://docs.foundationdb.org/7.x/` → Current stable docs
+- `https://docs.foundationdb.org/7.3/` → Specific 7.3 version
+- `https://docs.foundationdb.org/dev/` → Development docs
+
+### Local Development
+
+```bash
+# Preview versioned docs locally
+mike serve
+
+# Build without pushing (for testing)
+mike deploy 7.x stable latest
+```
+
+!!! tip "CI/CD Integration"
+    For automated deployments, add mike commands to your CI/CD pipeline. Deploy on tagged releases to main branch.
 
 ---
 
