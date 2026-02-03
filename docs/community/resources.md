@@ -203,6 +203,7 @@ FoundationDB powers critical infrastructure at:
 
 ## :material-book-plus: Additional Resources
 
+- [:material-flask: Internals & Deep Dives](../guides/internals-overview.md) — Architecture, simulation testing, storage engines
 - [:octicons-mark-github-16: awesome-foundationdb](https://github.com/FoundationDB/awesome-foundationdb){ target="_blank" } — Comprehensive curated list
 - [:material-blog: Official Blog](https://www.foundationdb.org/blog/){ target="_blank" } — Announcements and technical posts
 - [:material-forum: Community Forums](https://forums.foundationdb.org/){ target="_blank" } — Discussions and Q&A

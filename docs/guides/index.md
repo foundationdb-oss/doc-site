@@ -5,7 +5,7 @@ description: Practical guides for building with FoundationDB
 
 # Guides
 
-Practical guides for building applications with FoundationDB.
+Practical guides for building applications with FoundationDB, from design patterns to deep internals.
 
 <div class="grid cards" markdown>
 
@@ -24,6 +24,14 @@ Practical guides for building applications with FoundationDB.
     Guidelines for building robust, performant applications.
 
     [:octicons-arrow-right-24: Best Practices](best-practices.md)
+
+-   :material-flask:{ .lg .middle } **Internals & Deep Dives**
+
+    ---
+
+    Advanced content: architecture, simulation testing, and storage engines.
+
+    [:octicons-arrow-right-24: Internals Overview](internals-overview.md)
 
 </div>
 
@@ -52,6 +60,16 @@ Before diving into these guides, you should:
 | Queues | FIFO task processing |
 | Indexes | Secondary access patterns |
 | Blob Storage | Large value handling |
+
+## Deep Dive Topics
+
+For advanced users who want to understand FDB's internals:
+
+| Topic | Description |
+|-------|-------------|
+| [Simulation Testing](simulation-testing.md) | FDB's deterministic testing approach |
+| [Architecture Deep Dive](architecture-deep-dive.md) | Transaction processing & consensus |
+| [Storage Engines](storage-engines.md) | Redwood, SSD, and memory engines |
 
 !!! tip "Request a Recipe"
     Missing a pattern you need? [Open an issue](https://github.com/foundation-oss/doc-site/issues) on GitHub.

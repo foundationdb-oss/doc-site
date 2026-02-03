@@ -150,6 +150,11 @@ nav:
       - guides/index.md
       - Design Recipes: guides/design-recipes.md
       - Best Practices: guides/best-practices.md
+      - Internals & Deep Dives:
+          - Overview: guides/internals-overview.md
+          - Simulation Testing: guides/simulation-testing.md
+          - Architecture Deep Dive: guides/architecture-deep-dive.md
+          - Storage Engines: guides/storage-engines.md
   - API Reference:
       - api/index.md
       - Python: api/python.md
