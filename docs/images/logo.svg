@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40">
+  <defs>
+    <linearGradient id="fdbGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a237e"/>
+      <stop offset="100%" style="stop-color:#00bcd4"/>
+    </linearGradient>
+  </defs>
+  <!-- Database icon -->
+  <g fill="url(#fdbGradient)">
+    <ellipse cx="16" cy="10" rx="12" ry="4"/>
+    <path d="M4 10v6c0 2.2 5.4 4 12 4s12-1.8 12-4v-6c0 2.2-5.4 4-12 4S4 12.2 4 10z"/>
+    <path d="M4 16v6c0 2.2 5.4 4 12 4s12-1.8 12-4v-6c0 2.2-5.4 4-12 4S4 18.2 4 16z"/>
+    <path d="M4 22v6c0 2.2 5.4 4 12 4s12-1.8 12-4v-6c0 2.2-5.4 4-12 4S4 24.2 4 22z"/>
+  </g>
+  <!-- Text -->
+  <text x="36" y="26" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="16" fill="currentColor">
+    <tspan>Foundation</tspan><tspan fill="#00bcd4">DB</tspan>
+  </text>
+</svg>
+

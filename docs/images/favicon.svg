@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="fdbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a237e"/>
+      <stop offset="100%" style="stop-color:#00bcd4"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#fdbGrad)">
+    <ellipse cx="16" cy="8" rx="12" ry="4"/>
+    <path d="M4 8v5c0 2.2 5.4 4 12 4s12-1.8 12-4V8c0 2.2-5.4 4-12 4S4 10.2 4 8z"/>
+    <path d="M4 13v5c0 2.2 5.4 4 12 4s12-1.8 12-4v-5c0 2.2-5.4 4-12 4S4 15.2 4 13z"/>
+    <path d="M4 18v6c0 2.2 5.4 4 12 4s12-1.8 12-4v-6c0 2.2-5.4 4-12 4S4 20.2 4 18z"/>
+  </g>
+</svg>
+
