@@ -123,6 +123,29 @@ Coordination state changed
 
 Redundancy modes control data replication and fault tolerance.
 
+```mermaid
+graph TB
+    subgraph "Triple Redundancy - Production Recommended"
+        subgraph "Zone A"
+            A1[Storage 1<br/>Replica 1]
+        end
+        subgraph "Zone B"
+            B1[Storage 2<br/>Replica 2]
+        end
+        subgraph "Zone C"
+            C1[Storage 3<br/>Replica 3]
+        end
+    end
+
+    Data[Data Shard X] --> A1
+    Data --> B1
+    Data --> C1
+
+    style A1 fill:#4caf50,color:#fff
+    style B1 fill:#4caf50,color:#fff
+    style C1 fill:#4caf50,color:#fff
+```
+
 ### Single Datacenter Modes
 
 | Mode | Replicas | Min Machines | Fault Tolerance | Best For |
@@ -137,6 +160,37 @@ Redundancy modes control data replication and fault tolerance.
 | Mode | Replicas | Description |
 |------|----------|-------------|
 | `three_datacenter` | 6 | Survives loss of 1 datacenter |
+
+```mermaid
+graph TB
+    subgraph "DC 1 - Primary"
+        DC1_SS1[Storage]
+        DC1_SS2[Storage]
+    end
+    subgraph "DC 2 - Satellite"
+        DC2_SS1[Storage]
+        DC2_SS2[Storage]
+    end
+    subgraph "DC 3 - Satellite"
+        DC3_SS1[Storage]
+        DC3_SS2[Storage]
+    end
+
+    Client --> DC1_SS1
+    Client --> DC1_SS2
+
+    DC1_SS1 -.->|Replicate| DC2_SS1
+    DC1_SS1 -.->|Replicate| DC3_SS1
+    DC1_SS2 -.->|Replicate| DC2_SS2
+    DC1_SS2 -.->|Replicate| DC3_SS2
+
+    style DC1_SS1 fill:#2196f3,color:#fff
+    style DC1_SS2 fill:#2196f3,color:#fff
+    style DC2_SS1 fill:#ff9800,color:#000
+    style DC2_SS2 fill:#ff9800,color:#000
+    style DC3_SS1 fill:#9c27b0,color:#fff
+    style DC3_SS2 fill:#9c27b0,color:#fff
+```
 
 !!! warning "Important"
     For `three_datacenter` mode, all processes must specify `--datacenter-id` or `--locality-dcid`.

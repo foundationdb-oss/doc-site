@@ -29,11 +29,32 @@ FoundationDB's backup system offers:
 
 Backup agents run as separate processes that read mutation logs from the database and write them to a backup destination. Multiple agents can run for redundancy and performance.
 
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   FDB Cluster   │────>│   Backup Agent   │────>│ Backup Storage  │
-│  (mutations)    │     │   (one or more)  │     │  (blob/file)    │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
+```mermaid
+graph LR
+    subgraph "FoundationDB Cluster"
+        TLog[Transaction Logs<br/>Mutations]
+        SS[Storage Servers]
+    end
+
+    subgraph "Backup System"
+        BA1[Backup Agent 1]
+        BA2[Backup Agent 2]
+    end
+
+    subgraph "Backup Storage"
+        S3[(S3 / Blob Store)]
+        FS[(Filesystem)]
+    end
+
+    TLog --> BA1
+    TLog --> BA2
+    BA1 --> S3
+    BA2 --> S3
+    BA1 -.-> FS
+    BA2 -.-> FS
+
+    style S3 fill:#ff9800,color:#000
+    style FS fill:#4caf50,color:#fff
 ```
 
 ## Backup Destinations
@@ -337,11 +358,31 @@ DR provides real-time replication to a standby cluster for immediate failover.
 
 ### DR Architecture
 
-```
-┌─────────────────┐                    ┌─────────────────┐
-│  Primary        │                    │  DR Cluster     │
-│  Cluster        │───── dr_agent ────>│  (standby)      │
-└─────────────────┘                    └─────────────────┘
+```mermaid
+graph LR
+    subgraph "Primary Datacenter"
+        P_TLog[Transaction Logs]
+        P_SS[Storage Servers]
+        P_Client[Clients<br/>Read/Write]
+    end
+
+    subgraph "DR Datacenter"
+        DR_TLog[Transaction Logs]
+        DR_SS[Storage Servers]
+        DR_Client[Clients<br/>Read-Only]
+    end
+
+    DR_Agent[DR Agent]
+
+    P_Client --> P_TLog
+    P_TLog --> P_SS
+    P_TLog --> DR_Agent
+    DR_Agent --> DR_TLog
+    DR_TLog --> DR_SS
+    DR_Client -.-> DR_SS
+
+    style P_TLog fill:#4caf50,color:#fff
+    style DR_TLog fill:#ff9800,color:#000
 ```
 
 ### Setting Up DR
