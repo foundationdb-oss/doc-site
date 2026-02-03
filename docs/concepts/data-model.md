@@ -238,6 +238,7 @@ Transactions are the key enabler: because layers can update multiple keys atomic
 
 - **[Record Layer](https://github.com/FoundationDB/fdb-record-layer)**: Structured records with indexes (used by Apple)
 - **[Document Layer](https://github.com/FoundationDB/fdb-document-layer)**: MongoDB-compatible API
+- **[SNAPs Catalogue](https://snaps.dev)**: Community catalogue of composable FoundationDB layers (task queues, blob stores, search indices, and more)
 
 ## Size Guidelines
 
