@@ -11,9 +11,23 @@ The Go client provides idiomatic bindings with proper error handling and context
 
 ## Installation
 
-```bash
-go get github.com/apple/foundationdb/bindings/go/src/fdb
-```
+=== "go get"
+
+    ```bash
+    go get github.com/apple/foundationdb/bindings/go/src/fdb
+    ```
+
+=== "go.mod"
+
+    ```go title="go.mod"
+    require github.com/apple/foundationdb/bindings/go v0.0.0-20240101000000-abcdef123456
+    ```
+
+    Then run:
+
+    ```bash
+    go mod tidy
+    ```
 
 !!! note "Prerequisites"
     The FoundationDB client library must be installed on your system. See [Installation](../getting-started/installation.md).
