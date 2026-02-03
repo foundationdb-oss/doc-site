@@ -40,7 +40,7 @@ We're thrilled you're interested in contributing. FoundationDB is an open-source
 
     Documentation improvements are always welcome and appreciated. Every page has an "Edit" button.
 
-    [:octicons-arrow-right-24: Edit Docs](https://github.com/foundation-oss/doc-site){ .md-button target="_blank" }
+    [:octicons-arrow-right-24: Edit Docs](https://github.com/foundationdb-oss/doc-site){ .md-button target="_blank" }
 
 -   :material-tag-multiple:{ .lg .middle } **Doc Versions**
 

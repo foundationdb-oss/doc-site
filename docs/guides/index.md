@@ -72,5 +72,5 @@ For advanced users who want to understand FDB's internals:
 | [Storage Engines](storage-engines.md) | Redwood, SSD, and memory engines |
 
 !!! tip "Request a Recipe"
-    Missing a pattern you need? [Open an issue](https://github.com/foundation-oss/doc-site/issues) on GitHub.
+    Missing a pattern you need? [Open an issue](https://github.com/foundationdb-oss/doc-site/issues) on GitHub.
 

@@ -3,8 +3,8 @@ site_url: https://docs.foundationdb.org
 site_description: Documentation for FoundationDB - the open source, distributed, transactional key-value store
 site_author: FoundationDB Community
 
-repo_name: foundation-oss/doc-site
-repo_url: https://github.com/foundation-oss/doc-site
+repo_name: foundationdb-oss/doc-site
+repo_url: https://github.com/foundationdb-oss/doc-site
 edit_uri: edit/main/docs/
 
 theme:
@@ -144,7 +144,7 @@ extra:
           data: 0
           note: >-
             Thanks for your feedback! Help us improve by
-            <a href="https://github.com/foundation-oss/doc-site/issues/new?title=[Feedback]+{title}&body=Page: {url}" target="_blank" rel="noopener">opening an issue</a>.
+            <a href="https://github.com/foundationdb-oss/doc-site/issues/new?title=[Feedback]+{title}&body=Page: {url}" target="_blank" rel="noopener">opening an issue</a>.
   generator: false
 
 extra_css:

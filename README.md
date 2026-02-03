@@ -1,6 +1,6 @@
 # FoundationDB Documentation
 
-[\![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/foundation-oss/doc-site)
+[\![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/foundationdb-oss/doc-site)
 
 Modern, comprehensive documentation for [FoundationDB](https://www.foundationdb.org/) — the open-source, distributed, transactional key-value store.
 
@@ -27,7 +27,7 @@ Modern, comprehensive documentation for [FoundationDB](https://www.foundationdb.
 
 ```bash
 # Clone the repository
-git clone https://github.com/foundation-oss/doc-site.git
+git clone https://github.com/foundationdb-oss/doc-site.git
 cd doc-site
 
 # Install dependencies
