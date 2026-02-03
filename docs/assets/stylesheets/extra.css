@@ -1,0 +1,414 @@
+/* FoundationDB Docs - Custom Theme
+ * Inspired by Neon docs with FoundationDB brand colors
+ * Primary: Deep blue #1a237e | Accent: Electric blue #00bcd4
+ */
+
+/* ==========================================================================
+   CSS Variables - Light Theme
+   ========================================================================== */
+
+:root {
+  /* Brand Colors */
+  --fdb-primary: #1a237e;
+  --fdb-primary-light: #3949ab;
+  --fdb-accent: #00bcd4;
+  --fdb-accent-light: #4dd0e1;
+  --fdb-accent-dark: #0097a7;
+
+  /* Light mode colors */
+  --md-primary-fg-color: var(--fdb-primary);
+  --md-primary-fg-color--light: var(--fdb-primary-light);
+  --md-primary-fg-color--dark: #0d1442;
+  --md-accent-fg-color: var(--fdb-accent);
+  --md-accent-fg-color--transparent: rgba(0, 188, 212, 0.1);
+
+  /* Typography */
+  --md-text-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --md-code-font: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+
+  /* Backgrounds */
+  --fdb-surface: #ffffff;
+  --fdb-surface-raised: #f8f9fa;
+  --fdb-border: rgba(0, 0, 0, 0.08);
+
+  /* Glow effects */
+  --fdb-glow-color: rgba(0, 188, 212, 0.3);
+  --fdb-glow-subtle: rgba(0, 188, 212, 0.15);
+}
+
+/* ==========================================================================
+   CSS Variables - Dark Theme
+   ========================================================================== */
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: var(--fdb-accent);
+  --md-primary-fg-color--light: var(--fdb-accent-light);
+  --md-accent-fg-color: var(--fdb-accent);
+
+  /* Dark mode backgrounds matching GitHub's dark theme */
+  --md-default-bg-color: #0d1117;
+  --md-default-fg-color: #e6edf3;
+  --md-default-fg-color--light: #8b949e;
+  --md-default-fg-color--lighter: #6e7681;
+
+  /* Surfaces */
+  --fdb-surface: #0d1117;
+  --fdb-surface-raised: #161b22;
+  --fdb-border: rgba(255, 255, 255, 0.1);
+
+  /* Code blocks */
+  --md-code-bg-color: #161b22;
+  --md-code-fg-color: #e6edf3;
+
+  /* Glows are more visible in dark mode */
+  --fdb-glow-color: rgba(0, 188, 212, 0.4);
+  --fdb-glow-subtle: rgba(0, 188, 212, 0.2);
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.md-typeset h1, .md-typeset h2, .md-typeset h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.md-typeset h1 {
+  font-size: 2.25rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+/* ==========================================================================
+   Navigation & Header
+   ========================================================================== */
+
+.md-header {
+  background: var(--fdb-surface);
+  border-bottom: 1px solid var(--fdb-border);
+  box-shadow: none;
+}
+
+[data-md-color-scheme="slate"] .md-header {
+  background: var(--fdb-surface-raised);
+}
+
+.md-header__title {
+  font-weight: 600;
+}
+
+/* Tab navigation styling */
+.md-tabs {
+  background: transparent;
+}
+
+.md-tabs__link {
+  font-weight: 500;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.md-tabs__link:hover,
+.md-tabs__link--active {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Links with subtle glow effect
+   ========================================================================== */
+
+.md-typeset a:not(.md-button) {
+  color: var(--fdb-accent-dark);
+  text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+[data-md-color-scheme="slate"] .md-typeset a:not(.md-button) {
+  color: var(--fdb-accent);
+}
+
+.md-typeset a:not(.md-button):hover {
+  color: var(--fdb-accent);
+  text-shadow: 0 0 8px var(--fdb-glow-subtle);
+}
+
+/* ==========================================================================
+   Code Blocks - Polished Styling
+   ========================================================================== */
+
+.md-typeset code {
+  border-radius: 6px;
+  font-size: 0.85em;
+  padding: 0.15em 0.4em;
+}
+
+.md-typeset pre {
+  border-radius: 8px;
+  border: 1px solid var(--fdb-border);
+}
+
+.md-typeset pre > code {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Copy button styling */
+.md-clipboard {
+  color: var(--md-default-fg-color--lighter);
+  transition: color 0.2s ease;
+}
+
+.md-clipboard:hover {
+  color: var(--fdb-accent);
+}
+
+/* Syntax highlighting adjustments for dark mode */
+[data-md-color-scheme="slate"] .highlight {
+  background: var(--fdb-surface-raised);
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+
+.hero {
+  text-align: center;
+  padding: 3rem 1rem 4rem;
+  margin: -1rem -1rem 2rem;
+  background: linear-gradient(135deg, var(--fdb-primary) 0%, #303f9f 50%, var(--fdb-accent-dark) 100%);
+  border-radius: 0 0 24px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-md-color-scheme="slate"] .hero {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a237e 100%);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 70%, var(--fdb-glow-color) 0%, transparent 50%),
+              radial-gradient(circle at 70% 30%, rgba(26, 35, 126, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.03em;
+  position: relative;
+}
+
+.hero .tagline {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2rem;
+  font-weight: 400;
+  position: relative;
+}
+
+.hero p {
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  position: relative;
+}
+
+/* ==========================================================================
+   Buttons with Neon-style effects
+   ========================================================================== */
+
+.md-button {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.md-button--primary {
+  background-color: var(--fdb-accent);
+  border-color: var(--fdb-accent);
+  color: #000000;
+}
+
+.md-button--primary:hover {
+  background-color: var(--fdb-accent-light);
+  border-color: var(--fdb-accent-light);
+  box-shadow: 0 0 20px var(--fdb-glow-color);
+  transform: translateY(-1px);
+}
+
+.hero .md-button--primary {
+  background: #ffffff;
+  color: var(--fdb-primary);
+  border: none;
+}
+
+.hero .md-button--primary:hover {
+  background: var(--fdb-accent-light);
+  color: #000000;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.hero .md-button--secondary {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+
+.hero .md-button--secondary:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   Feature Cards Grid
+   ========================================================================== */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.grid.cards > * {
+  background: var(--fdb-surface-raised);
+  border: 1px solid var(--fdb-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.grid.cards > *:hover {
+  border-color: var(--fdb-accent);
+  box-shadow: 0 4px 20px var(--fdb-glow-subtle);
+  transform: translateY(-2px);
+}
+
+[data-md-color-scheme="slate"] .grid.cards > * {
+  background: var(--fdb-surface-raised);
+}
+
+.grid.cards h3 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: var(--fdb-accent-dark);
+}
+
+[data-md-color-scheme="slate"] .grid.cards h3 {
+  color: var(--fdb-accent);
+}
+
+.grid.cards p {
+  margin-bottom: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Quick action cards */
+.quick-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  position: relative;
+}
+
+.quick-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.quick-actions a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   Sidebar Customizations
+   ========================================================================== */
+
+.md-sidebar--primary .md-sidebar__inner {
+  border-right: 1px solid var(--fdb-border);
+}
+
+.md-nav__link--active {
+  color: var(--fdb-accent) !important;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Search Enhancement
+   ========================================================================== */
+
+.md-search__input {
+  border-radius: 8px;
+  background: var(--fdb-surface-raised);
+  border: 1px solid var(--fdb-border);
+}
+
+.md-search__input:focus {
+  border-color: var(--fdb-accent);
+  box-shadow: 0 0 0 3px var(--fdb-glow-subtle);
+}
+
+/* ==========================================================================
+   Admonitions / Callouts
+   ========================================================================== */
+
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 8px;
+  border-left-width: 4px;
+}
+
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-left-color: var(--fdb-accent);
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-left-color: #00c853;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.md-footer {
+  background: var(--fdb-surface-raised);
+  border-top: 1px solid var(--fdb-border);
+}
+
+[data-md-color-scheme="slate"] .md-footer {
+  background: #0a0d12;
+}
+

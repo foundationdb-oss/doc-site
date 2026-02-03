@@ -1,0 +1,169 @@
+site_name: FoundationDB Documentation
+site_url: https://docs.foundationdb.org
+site_description: Documentation for FoundationDB - the open source, distributed, transactional key-value store
+site_author: FoundationDB Community
+
+repo_name: foundation-oss/doc-site
+repo_url: https://github.com/foundation-oss/doc-site
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  language: en
+  logo: images/logo.svg
+  favicon: images/favicon.svg
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    # Navigation - tabs and structure
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    # Table of contents
+    - toc.follow
+    # Search
+    - search.suggest
+    - search.highlight
+    - search.share
+    # Content features
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+    - content.action.view
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+plugins:
+  - search:
+      separator: '[\s\-\.]+'
+      lang: en
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  version:
+    provider: mike
+    default: stable
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/apple/foundationdb
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/foundationdb
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX
+  generator: false
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+extra_javascript:
+  - assets/javascripts/extra.js
+
+# Navigation Structure
+nav:
+  - Home: index.md
+  - Getting Started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+      - First Application: getting-started/first-app.md
+  - Core Concepts:
+      - concepts/index.md
+      - Data Model: concepts/data-model.md
+      - Transactions: concepts/transactions.md
+      - ACID Guarantees: concepts/acid.md
+      - Architecture: concepts/architecture.md
+  - Guides:
+      - guides/index.md
+      - Design Recipes: guides/design-recipes.md
+      - Best Practices: guides/best-practices.md
+  - API Reference:
+      - api/index.md
+      - Python: api/python.md
+      - Java: api/java.md
+      - Go: api/go.md
+      - C: api/c.md
+  - Operations:
+      - operations/index.md
+      - Configuration: operations/configuration.md
+      - Monitoring: operations/monitoring.md
+      - Backup & Recovery: operations/backup.md
+      - Troubleshooting: operations/troubleshooting.md
+  - Community:
+      - community/index.md
+      - Contributing: community/contributing.md
+      - Resources: community/resources.md
+
