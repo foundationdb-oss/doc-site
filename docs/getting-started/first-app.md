@@ -423,6 +423,6 @@ if __name__ == "__main__":
 ## Next Steps
 
 - [Core Concepts](../concepts/index.md) — Understand transactions and data modeling in depth
-- [Data Modeling Guide](../guides/data-modeling.md) — Learn advanced modeling patterns
+- [Design Recipes](../guides/design-recipes.md) — Learn advanced modeling patterns
 - [API Reference](../api/index.md) — Explore the complete Python API
 

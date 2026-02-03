@@ -50,7 +50,7 @@ Install FoundationDB and start your first local cluster.
 
 Choose your language: Python, Java, Go, C, Ruby, or more.
 
-[:material-connection: Client Setup →](getting-started/client-setup.md)
+[:material-connection: Client Setup →](getting-started/quickstart.md)
 
 </div>
 </div>
@@ -104,7 +104,7 @@ Multi-key, multi-range transactions with **serializable isolation**—the strong
 
 Our deterministic simulation framework tests **millions of failure scenarios** before every release. Network partitions, disk failures, process crashes—we've already found and fixed the bugs that would hit you in production.
 
-[How simulation testing works →](architecture/simulation-testing.md)
+[How simulation testing works →](guides/simulation-testing.md)
 </div>
 
 <div class="feature-card" markdown>
@@ -165,13 +165,13 @@ Build documents, graphs, tables, or queues on top of the ordered key-value store
 
     Deploy, configure, monitor clusters.
 
-- :material-tune: **[Configuration](configuration/index.md)**
+- :material-tune: **[Configuration](operations/configuration.md)**
 
     Tuning and cluster settings.
 
-- :material-arrow-up-bold-circle: **[Migration Guide](operations/migration.md)**
+- :material-lightbulb: **[Best Practices](guides/best-practices.md)**
 
-    Moving from other databases.
+    Patterns and recommendations for production.
 
 </div>
 

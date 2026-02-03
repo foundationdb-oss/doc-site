@@ -221,7 +221,7 @@ After installation, FoundationDB runs with these defaults:
 | Cluster file | `/etc/foundationdb/fdb.cluster` | Linux default |
 
 !!! warning "Development Configuration"
-    The default configuration is for local development only. For production, configure proper redundancy and use the SSD storage engine. See [Building a Cluster](../operations/cluster-setup.md).
+    The default configuration is for local development only. For production, configure proper redundancy and use the SSD storage engine. See [Configuration](../operations/configuration.md).
 
 ## Managing the Service
 
