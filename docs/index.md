@@ -185,14 +185,11 @@ The layer concept lets you implement documents, graphs, tables, queues, or custo
 [Explore the layers :octicons-arrow-right-24:](concepts/data-model.md)
 </div>
 <div class="feature-highlight__visual" markdown>
-```
-┌─────────────────────────────────────┐
-│     Your Application                │
-├─────────────────────────────────────┤
-│  Record Layer  │  Document Layer    │
-├─────────────────────────────────────┤
-│     FoundationDB Key-Value Store    │
-└─────────────────────────────────────┘
+```mermaid
+flowchart TB
+    App[Your Application]
+    App --> RL[Record Layer] & DL[Document Layer]
+    RL & DL --> FDB[FoundationDB Key-Value Store]
 ```
 </div>
 </div>
@@ -208,14 +205,13 @@ This deterministic testing framework catches bugs that would take years to appea
 [Learn about simulation :octicons-arrow-right-24:](guides/simulation-testing.md)
 </div>
 <div class="feature-highlight__visual" markdown>
-```
-Simulated failures:
-  ✓ 1M+ hours tested
-  ✓ Network partitions
-  ✓ Disk failures
-  ✓ Process crashes
-  ✓ Clock skew
-  ✓ Byzantine faults
+```mermaid
+flowchart LR
+    S((Simulation)) --> A[Network partitions]
+    S --> B[Disk failures]
+    S --> C[Process crashes]
+    S --> D[Clock skew]
+    S --> E[Byzantine faults]
 ```
 </div>
 </div>
@@ -229,19 +225,18 @@ Deploy FoundationDB across data centers for disaster recovery and low-latency re
 [Configure replication :octicons-arrow-right-24:](operations/configuration.md)
 </div>
 <div class="feature-highlight__visual" markdown>
-```
-        Region A          Region B
-      ┌─────────┐       ┌─────────┐
-      │  Node   │◄─────►│  Node   │
-      │  Node   │       │  Node   │
-      │  Node   │       │  Node   │
-      └─────────┘       └─────────┘
-           ▲                 ▲
-           └────────┬────────┘
-                    ▼
-              ┌─────────┐
-              │ Region C│
-              └─────────┘
+```mermaid
+flowchart LR
+    subgraph A[Region A]
+        A1((N))
+    end
+    subgraph B[Region B]
+        B1((N))
+    end
+    subgraph C[Region C]
+        C1((N))
+    end
+    A <--> B <--> C <--> A
 ```
 </div>
 </div>
