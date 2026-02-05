@@ -1,20 +1,9 @@
 {% extends "base.html" %}
 
 {% block outdated %}
-  {% if config.extra.version %}
-    {% set current_version = config.extra.version.version | default("") %}
-    {# Show warning for non-stable versions (7.1, 7.4, etc.) but NOT for 7.3/stable #}
-    {% if current_version and current_version not in ["7.3", "stable", "7.x"] %}
-      <div class="md-banner md-banner--warning" data-md-component="outdated">
-        <div class="md-banner__inner md-grid md-typeset">
-          <strong>⚠️ You're viewing documentation for FoundationDB {{ current_version }}.</strong>
-          This is not the latest stable version.
-          <a href="../7.3/">
-            <strong>View the stable (7.3) documentation →</strong>
-          </a>
-        </div>
-      </div>
-    {% endif %}
-  {% endif %}
+  You're not viewing the latest stable version.
+  <a href="{{ '../' ~ base_url }}">
+    <strong>Click here to go to latest.</strong>
+  </a>
 {% endblock %}
 
