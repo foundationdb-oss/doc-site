@@ -84,6 +84,13 @@ def define_env(env):
         f"{config['fdb_release']}/foundationdb-clients-{config['fdb_release']}-1.el7.x86_64.rpm"
     )
     env.variables["docker_image"] = f"foundationdb/foundationdb:{config['docker_tag']}"
+
+    # Download URL for package downloads (used in upgrade documentation)
+    env.variables["download_url"] = "https://github.com/apple/foundationdb/releases/download"
+
+    # Next minor version for pip version constraints (e.g., 7.3 -> 7.4)
+    major, minor = config['fdb_version'].split('.')
+    env.variables["fdb_version_next"] = f"{major}.{int(minor) + 1}"
     
     # Define helper macros
     @env.macro
