@@ -50,7 +50,7 @@ body:has(.hero-parallax) .md-banner--warning {
   display: none !important;
 }
 
-body:has(.hero-parallax) .md-select {
+body:has(.hero-parallax) .md-version {
   display: none !important;
 }
 
