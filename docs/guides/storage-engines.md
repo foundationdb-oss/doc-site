@@ -16,6 +16,13 @@ FoundationDB supports multiple storage engines, each optimized for different har
 | **memory** | RAM | Ephemeral, testing | Production |
 | **ssd-rocksdb-v1** | SSD | RocksDB-based | Experimental |
 
+!!! note "Version Differences: Redwood Naming"
+    In **FDB 7.1 and 7.2**, Redwood's engine name is `ssd-redwood-1-experimental`.
+    Despite the "experimental" label, Redwood has been production-ready since 7.1.
+
+    In **FDB 7.3+**, the canonical name was changed to `ssd-redwood-1` (dropping the `-experimental` suffix).
+    The old name `ssd-redwood-1-experimental` is still accepted as an alias in 7.3+ for backward compatibility.
+
 ## Configuring Storage Engine
 
 ```bash
@@ -27,7 +34,9 @@ fdb> configure storage_engine=ssd-redwood-1
 
 ## Redwood (ssd-redwood-1)
 
-**Redwood** is FDB's purpose-built B-tree storage engine, designed specifically for FDB's versioned workload.
+<!-- Version note: Called ssd-redwood-1-experimental in 7.1/7.2, renamed to ssd-redwood-1 in 7.3+ -->
+
+**Redwood** is FDB's purpose-built B-tree storage engine, designed specifically for FDB's versioned workload. It has been production-ready since FDB 7.1 and is the recommended engine for new deployments.
 
 ### Architecture
 
