@@ -3,7 +3,7 @@ title: Consistency Scan
 description: Continuous background scanning for data corruption detection
 ---
 
-# Consistency Scan <span class="pill-new">NEW in 7.4</span>
+# Consistency Scan <span class="pill-new">NEW IN 7.4</span>
 
 {% if fdb_version < "7.4" %}
 !!! warning "Version Notice"

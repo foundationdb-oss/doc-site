@@ -3,7 +3,7 @@ title: Bulk Load & Dump
 description: Load and dump large datasets efficiently using SST files
 ---
 
-# Bulk Load & Dump <span class="pill-new">NEW in 7.4</span> <span class="pill-experimental">EXPERIMENTAL</span>
+# Bulk Load & Dump <span class="pill-new">NEW IN 7.4</span> <span class="pill-experimental">EXPERIMENTAL</span>
 
 {% if fdb_version < "7.4" %}
 !!! warning "Version Notice"

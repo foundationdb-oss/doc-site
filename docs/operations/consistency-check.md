@@ -3,7 +3,7 @@ title: Consistency Check Urgent
 description: Validate data consistency across storage server replicas
 ---
 
-# Consistency Check Urgent <span class="pill-new">NEW in 7.3</span>
+# Consistency Check Urgent <span class="pill-new">NEW IN 7.3</span>
 
 {% if fdb_version < "7.3" %}
 !!! warning "Version Notice"

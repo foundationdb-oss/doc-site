@@ -3,7 +3,7 @@ title: Tenants
 description: Configure multi-tenant key-space isolation in FoundationDB
 ---
 
-# Tenants <span class="pill-new">NEW in 7.3</span> <span class="pill-experimental">EXPERIMENTAL</span>
+# Tenants <span class="pill-new">NEW IN 7.3</span> <span class="pill-experimental">EXPERIMENTAL</span>
 
 {% if fdb_version < "7.3" %}
 !!! warning "Version Notice"

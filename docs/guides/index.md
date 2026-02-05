@@ -34,7 +34,7 @@ Practical guides for building applications with FoundationDB, from design patter
     [:octicons-arrow-right-24: Internals Overview](internals-overview.md)
 
 {% if fdb_version >= "7.3" %}
--   :material-account-group:{ .lg .middle } **Tenants** <span class="pill-new">NEW in 7.3</span>
+-   :material-account-group:{ .lg .middle } **Tenants** <span class="pill-new">NEW IN 7.3</span>
 
     ---
 
@@ -42,7 +42,7 @@ Practical guides for building applications with FoundationDB, from design patter
 
     [:octicons-arrow-right-24: Tenants](tenants.md)
 
--   :material-shield-key:{ .lg .middle } **Authorization** <span class="pill-new">NEW in 7.3</span>
+-   :material-shield-key:{ .lg .middle } **Authorization** <span class="pill-new">NEW IN 7.3</span>
 
     ---
 
