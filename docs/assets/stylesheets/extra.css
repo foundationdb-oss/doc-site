@@ -50,8 +50,14 @@ body:has(.hero-parallax) .md-banner--warning {
   display: none !important;
 }
 
-body:has(.hero-parallax) .md-version {
+/* Hide version selector on landing page - use multiple selectors for robustness */
+body:has(.hero-parallax) .md-version,
+body:has(.hero-parallax) .md-header .md-version,
+body:has(.hero-parallax) .md-header__topic .md-version {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* ==========================================================================
