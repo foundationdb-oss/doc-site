@@ -39,19 +39,19 @@ echo "Starting versioned documentation build..."
 
 # 7.1 - Legacy version
 echo "Building FoundationDB 7.1 (Legacy)..."
-mike deploy 7.1 --title="7.1 (Legacy)"
+mike deploy 7.1 --title="7.1 (Legacy)" --alias-type=redirect
 
 # 7.3 - Current stable (gets stable and latest aliases)
 echo "Building FoundationDB 7.3 (Stable)..."
-mike deploy 7.3 stable latest --title="7.3 (Stable)"
+mike deploy 7.3 stable latest --title="7.3 (Stable)" --alias-type=redirect
 
 # 7.4 - Pre-release
 echo "Building FoundationDB 7.4 (Pre-release)..."
-mike deploy 7.4 --title="7.4 (Pre-release)"
+mike deploy 7.4 --title="7.4 (Pre-release)" --alias-type=redirect
 
 # Set stable as the default version
 echo "Setting default version to stable..."
-mike set-default stable
+mike set-default stable --alias-type=redirect
 
 # Verify mike deployment
 echo "Verifying mike deployment..."

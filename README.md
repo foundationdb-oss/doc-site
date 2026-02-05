@@ -116,6 +116,8 @@ mkdocs build
 
 We use [mike](https://github.com/jimporter/mike) for multi-version documentation. This allows users to switch between different FoundationDB releases.
 
+> **Note:** We use `--alias-type=redirect` for all mike deploy commands to ensure compatibility with Vercel. Mike's default symlink-based aliases don't work on Vercel's static hosting.
+
 ### Current Versions
 
 | Version | Alias | Description |
