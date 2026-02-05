@@ -1,5 +1,5 @@
 site_name: FoundationDB Documentation
-site_url: https://docs.foundationdb.org
+site_url: https://docs.foundationdb.org/
 site_description: Documentation for FoundationDB - the open source, distributed, transactional key-value store
 site_author: FoundationDB Community
 
@@ -119,7 +119,7 @@ extra:
   version:
     provider: mike
     default:
-      - 7.x
+      - 7.3
       - stable
     alias: true
   social:

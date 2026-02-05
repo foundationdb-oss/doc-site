@@ -19,6 +19,33 @@
 }
 
 /* ==========================================================================
+   Version Warning Banner
+   ========================================================================== */
+
+.md-banner--warning {
+  background-color: #ff9800;
+  color: #000;
+}
+
+.md-banner--warning a {
+  color: #000;
+  text-decoration: underline;
+}
+
+.md-banner--warning a:hover {
+  color: #1a237e;
+}
+
+[data-md-color-scheme="slate"] .md-banner--warning {
+  background-color: #ff9800;
+  color: #000;
+}
+
+[data-md-color-scheme="slate"] .md-banner--warning a {
+  color: #000;
+}
+
+/* ==========================================================================
    Logo Sizing
    ========================================================================== */
 
