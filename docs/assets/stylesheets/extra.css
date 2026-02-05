@@ -66,7 +66,7 @@ body:has(.hero-parallax) .md-header__topic .md-version {
 
 .md-header__button.md-logo img,
 .md-header__button.md-logo svg {
-  height: 1.5rem;
+  height: 1.2rem;
   width: auto;
 }
 
