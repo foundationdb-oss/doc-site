@@ -37,7 +37,7 @@ You should see `The database is available.`
     <dependency>
         <groupId>org.foundationdb</groupId>
         <artifactId>fdb-java</artifactId>
-        <version>7.3.63</version>
+        <version>7.3.71</version>
     </dependency>
     ```
 
