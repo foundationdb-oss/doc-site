@@ -760,6 +760,304 @@ For detailed version-specific information, see [Version Overview](../getting-sta
 !!! tip "API Version Compatibility"
     Client applications specify an API version when connecting. All supported versions accept API versions 510+. Lock your application to a specific API version for consistent behavior across cluster upgrades.
 
+### Upgrading Client Libraries
+
+After upgrading the FoundationDB cluster, you must upgrade client libraries on all application machines. Client libraries must match the **major.minor** version of your server (e.g., use 7.3.x clients with a 7.3 server).
+
+!!! warning "Version Matching Required"
+    Mismatched client/server versions can cause connection failures, protocol errors, or unexpected behavior. Always upgrade client libraries when upgrading the server.
+
+#### Upgrading the C Client Library (libfdb_c)
+
+All language bindings depend on the native C client library (`libfdb_c`). Upgrade this library on **every machine** running FoundationDB client applications before upgrading language-specific bindings.
+
+=== "Ubuntu/Debian"
+
+    ```bash
+    # Set the target version
+    FDB_VERSION="{{ fdb_release }}"
+
+    # Download the clients package
+    wget https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/foundationdb-clients_${FDB_VERSION}-1_amd64.deb
+
+    # Install (upgrades existing installation)
+    sudo dpkg -i foundationdb-clients_${FDB_VERSION}-1_amd64.deb
+
+    # Verify installation
+    ls -la /usr/lib/libfdb_c.so
+    ```
+
+    The library is installed to `/usr/lib/libfdb_c.so` with headers in `/usr/include/foundationdb/`.
+
+=== "RHEL/CentOS"
+
+    ```bash
+    # Set the target version
+    FDB_VERSION="{{ fdb_release }}"
+
+    # Download the clients package
+    wget https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/foundationdb-clients-${FDB_VERSION}-1.el7.x86_64.rpm
+
+    # Install (upgrades existing installation)
+    sudo rpm -Uvh foundationdb-clients-${FDB_VERSION}-1.el7.x86_64.rpm
+
+    # Verify installation
+    ls -la /usr/lib64/libfdb_c.so
+    ```
+
+    The library is installed to `/usr/lib64/libfdb_c.so` with headers in `/usr/include/foundationdb/`.
+
+=== "macOS"
+
+    ```bash
+    # For Intel Macs:
+    curl -LO https://github.com/apple/foundationdb/releases/download/{{ fdb_release }}/FoundationDB-{{ fdb_release }}_x86_64.pkg
+
+    # For Apple Silicon (M1/M2/M3):
+    curl -LO https://github.com/apple/foundationdb/releases/download/{{ fdb_release }}/FoundationDB-{{ fdb_release }}_arm64.pkg
+
+    # Install (opens GUI installer)
+    open FoundationDB-{{ fdb_release }}_*.pkg
+    ```
+
+    The library is installed to `/usr/local/lib/libfdb_c.dylib` with headers in `/usr/local/include/foundationdb/`.
+
+=== "Windows"
+
+    ```powershell
+    # Download the Windows installer
+    $FDB_VERSION = "{{ fdb_release }}"
+    Invoke-WebRequest -Uri "https://github.com/apple/foundationdb/releases/download/$FDB_VERSION/foundationdb-$FDB_VERSION-x64.msi" -OutFile "foundationdb-$FDB_VERSION-x64.msi"
+
+    # Install (run as Administrator)
+    msiexec /i foundationdb-$FDB_VERSION-x64.msi /quiet
+    ```
+
+    The library is installed to `C:\Program Files\foundationdb\bin\fdb_c.dll`.
+
+#### Upgrading Python Client
+
+The Python client is distributed via PyPI and requires the matching `libfdb_c` to be installed on the system.
+
+```bash
+# Upgrade to specific version matching your server
+pip install --upgrade foundationdb=={{ package_version }}
+
+# Or for a version range matching your server's major.minor
+pip install --upgrade "foundationdb>={{ fdb_version }},<{{ fdb_version_next }}"
+
+# Verify installation
+python -c "import fdb; print(fdb.__version__)"
+```
+
+!!! tip "Virtual Environments"
+    When using virtual environments, ensure `libfdb_c` is installed system-wide, as the Python package dynamically loads the native library at runtime.
+
+**Common Errors:**
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `Unable to load libfdb_c` | Missing native library | Install `foundationdb-clients` package |
+| `API version not supported` | Version mismatch | Upgrade `libfdb_c` to match Python client version |
+| `Incompatible protocol version` | Client/server mismatch | Ensure client and server major.minor versions match |
+
+See [Python API](../api/python.md) for detailed usage.
+
+#### Upgrading Java Client
+
+The Java client is distributed via Maven Central and requires `libfdb_c` for native library loading.
+
+=== "Maven"
+
+    Update your `pom.xml`:
+
+    ```xml
+    <dependency>
+        <groupId>org.foundationdb</groupId>
+        <artifactId>fdb-java</artifactId>
+        <version>{{ java_version }}</version>
+    </dependency>
+    ```
+
+    Then run:
+    ```bash
+    mvn dependency:resolve -U
+    ```
+
+=== "Gradle"
+
+    Update your `build.gradle`:
+
+    ```groovy
+    implementation 'org.foundationdb:fdb-java:{{ java_version }}'
+    ```
+
+    Then run:
+    ```bash
+    ./gradlew dependencies --refresh-dependencies
+    ```
+
+!!! note "Native Library"
+    The Java client requires `libfdb_c` to be installed on the system. The JAR includes JNI bindings that load the native library at runtime.
+
+**Common Errors:**
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `UnsatisfiedLinkError: fdb_c` | Missing native library | Install `foundationdb-clients` package |
+| `API version not valid` | Invalid API version code | Use correct API version (e.g., 730 for 7.3) |
+| `Cluster file not found` | Wrong cluster file path | Verify `/etc/foundationdb/fdb.cluster` exists |
+
+See [Java API](../api/java.md) for detailed usage.
+
+#### Upgrading Go Client
+
+The Go client uses CGO to link against `libfdb_c`, requiring the native library at both compile and runtime.
+
+```bash
+# Ensure libfdb_c is installed first (see above)
+
+# Update to specific version
+go get github.com/apple/foundationdb/bindings/go/src/fdb@v{{ package_version }}
+
+# Update go.mod
+go mod tidy
+
+# Verify the binding compiles
+go build ./...
+```
+
+!!! warning "CGO Requirements"
+    The Go bindings require CGO. Ensure you have:
+
+    - `CGO_ENABLED=1` (default on most systems)
+    - A C compiler installed (gcc or clang)
+    - `libfdb_c` headers available (from `foundationdb-clients` package)
+
+**Environment Variables for CGO:**
+
+```bash
+# If libfdb_c is in a non-standard location
+export CGO_CFLAGS="-I/path/to/foundationdb/include"
+export CGO_LDFLAGS="-L/path/to/foundationdb/lib -lfdb_c"
+```
+{% if fdb_version >= "7.4" %}
+
+!!! warning "Breaking Change in 7.4: Close() Required"
+    Starting with FoundationDB 7.4, you **must** call `db.Close()` on Database objects when done. Update your code:
+
+    ```go
+    db := fdb.MustOpenDefault()
+    defer db.Close()  // REQUIRED in 7.4+
+    ```
+{% endif %}
+
+**Common Errors:**
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `cannot find -lfdb_c` | Missing native library | Install `foundationdb-clients` package |
+| `fdb_c.h: No such file` | Missing headers | Install development package or set `CGO_CFLAGS` |
+| `undefined: fdb.MustAPIVersion` | Wrong import path | Use `github.com/apple/foundationdb/bindings/go/src/fdb` |
+
+See [Go API](../api/go.md) for detailed usage.
+
+#### Upgrading C Client
+
+For C applications, upgrade `libfdb_c` directly using the platform-specific instructions above. Then recompile your application:
+
+```bash
+# Recompile with updated library
+gcc -o myapp myapp.c -lfdb_c -lpthread
+
+# Or with explicit paths
+gcc -o myapp myapp.c -I/usr/include -L/usr/lib -lfdb_c -lpthread
+```
+
+Update the API version in your code if needed:
+
+```c
+// Update to match server version
+#define FDB_API_VERSION {{ api_version }}  // e.g., 730 for FoundationDB 7.3
+#include <foundationdb/fdb_c.h>
+```
+
+See [C API](../api/c.md) for detailed usage.
+
+#### Upgrading Ruby Client
+
+The Ruby client is distributed via RubyGems and requires `libfdb_c`.
+
+```bash
+# Ensure libfdb_c is installed first (see above)
+
+# Upgrade the gem
+gem install fdb
+
+# Or with Bundler, update Gemfile:
+# gem 'fdb', '~> {{ fdb_version }}'
+bundle update fdb
+
+# Verify installation
+ruby -e "require 'fdb'; puts 'FDB Ruby client loaded'"
+```
+
+**Common Errors:**
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `LoadError: cannot load fdb_c` | Missing native library | Install `foundationdb-clients` package |
+| `FFI::NotFoundError` | Wrong library path | Set `LD_LIBRARY_PATH` to include `libfdb_c` location |
+
+#### Version Compatibility Matrix
+
+| Server Version | API Version | Python | Java | Go | libfdb_c |
+|---------------|-------------|--------|------|-----|----------|
+| 7.1.x | 710 | 7.1.x | 7.1.x | v7.1.x | 7.1.x |
+| 7.2.x | 720 | 7.2.x | 7.2.x | v7.2.x | 7.2.x |
+| 7.3.x | 730 | 7.3.x | 7.3.x | v7.3.x | 7.3.x |
+
+!!! tip "Multi-Version Client"
+    For environments with multiple server versions, FoundationDB supports a multi-version client configuration. Set the `FDB_NETWORK_OPTION_EXTERNAL_CLIENT_LIBRARY` option to load multiple client library versions. See the [official documentation](https://apple.github.io/foundationdb/api-general.html#multi-version-client) for details.
+
+#### Verifying Client Upgrade
+
+After upgrading, verify the client can connect to the cluster:
+
+=== "Python"
+
+    ```python
+    import fdb
+    fdb.api_version({{ api_version }})
+    db = fdb.open()
+    print("Connected! Server version:", db.options.set_transaction_timeout)
+    ```
+
+=== "Java"
+
+    ```java
+    FDB fdb = FDB.selectAPIVersion({{ api_version }});
+    try (Database db = fdb.open()) {
+        System.out.println("Connected!");
+    }
+    ```
+
+=== "Go"
+
+    ```go
+    fdb.MustAPIVersion({{ api_version }})
+    db := fdb.MustOpenDefault()
+    defer db.Close()
+    fmt.Println("Connected!")
+    ```
+
+=== "CLI"
+
+    ```bash
+    # Quick connectivity test
+    fdbcli --exec "status minimal"
+    ```
+
 ## Getting Help
 
 ### Self-Service Resources
