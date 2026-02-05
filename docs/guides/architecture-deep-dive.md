@@ -122,7 +122,7 @@ Resolvers maintain a sliding window of recent commits to detect conflicts effici
 Coordinators run a Paxos-based consensus protocol:
 
 - **Cluster file location** - Where to find the cluster
-- **Cluster controller election** - Elect the master process  
+- **Cluster controller election** - Elect the cluster controller
 - **Configuration changes** - Store cluster configuration
 
 ```
