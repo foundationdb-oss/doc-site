@@ -1,7 +1,7 @@
 {
-  "buildCommand": "uv pip install --system -r requirements.txt && mkdocs build",
+  "buildCommand": "./scripts/vercel-build.sh",
   "outputDirectory": "site",
-  "installCommand": "uv pip install --system -r requirements.txt",
+  "installCommand": "echo 'Dependencies installed by build script'",
   "headers": [
     {
       "source": "/assets/(.*)",
