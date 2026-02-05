@@ -93,6 +93,9 @@ The master, proxies, resolvers, and transaction logs form a **generation**. If a
 
 ### GRV Proxies (Get Read Version)
 
+!!! info "Proxy Split (7.0+)"
+    In FoundationDB 7.0, the original "Proxy" role was split into **GRV Proxies** and **Commit Proxies**. This separation reduces GRV tail latency by allowing independent scaling of read version requests.
+
 **GRV Proxies** provide read versions to clients:
 
 ```mermaid
@@ -173,10 +176,14 @@ For each incoming transaction, the resolver:
 | Applying mutations | Pull from transaction logs, apply to storage |
 | Version history | Keep ~5 seconds of MVCC versions in memory |
 
-Storage servers use one of two storage engines:
+Storage servers use one of several storage engines:
 
-- **SSD Engine (Redwood)**: B-tree optimized for SSDs (default in 7.0+)
-- **Memory Engine**: In-memory with append-only log
+- **Redwood** (`ssd-redwood-1`): B-tree optimized for SSDs with lower write amplification (recommended for 7.3+)
+- **SQLite** (`ssd-2`): Original SSD engine, still available
+- **Memory Engine**: In-memory with append-only log (for testing)
+
+!!! note "Storage Engine Evolution"
+    Redwood was introduced in 7.0 as `ssd-redwood-1-experimental`. In 7.3, it was renamed to `ssd-redwood-1` (production ready). See [Storage Engines](../guides/storage-engines.md) for migration guidance.
 
 ### Data Distributor
 
