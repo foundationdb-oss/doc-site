@@ -124,18 +124,45 @@ We use [mike](https://github.com/jimporter/mike) for multi-version documentation
 | `7.4` | - | Pre-release version |
 | `7.1` | - | Legacy version |
 
-### Local Testing with Mike
+### Local Development
+
+#### Quick Preview (Recommended)
+
+For most development work, use MkDocs directly:
 
 ```bash
-# Preview versioned docs locally
-mike serve
+pip install -r requirements.txt
+mkdocs serve
+```
 
+This serves the docs at `http://localhost:8000` with live reload.
+
+#### Testing Versioned Docs with Mike
+
+To test the version selector locally:
+
+```bash
+mike serve
+```
+
+Note: Mike requires a git repository and stores versions on the `gh-pages` branch.
+
+```bash
 # Build a specific version locally (for testing)
 mike deploy 7.3 stable latest --title="7.3 (Stable)"
 
 # List all deployed versions
 mike list
 ```
+
+#### ⚠️ Warning: Do NOT Run the Vercel Build Script Locally
+
+**Never run `scripts/vercel-build.sh` on your local machine.** This script:
+- Deletes the `.git` directory (`rm -rf .git`)
+- Initializes a fresh git repo
+- Is designed for Vercel's ephemeral build environment only
+
+Running it locally will destroy your git history and uncommitted changes.
 
 ### Version Deployment Workflow
 
