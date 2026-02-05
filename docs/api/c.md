@@ -24,8 +24,8 @@ The C client is included with the FoundationDB client package:
 === "Linux (Debian/Ubuntu)"
 
     ```bash
-    wget https://github.com/apple/foundationdb/releases/download/7.3.0/foundationdb-clients_7.3.0-1_amd64.deb
-    sudo dpkg -i foundationdb-clients_7.3.0-1_amd64.deb
+    wget https://github.com/apple/foundationdb/releases/download/7.3.71/foundationdb-clients_7.3.71-1_amd64.deb
+    sudo dpkg -i foundationdb-clients_7.3.71-1_amd64.deb
     # Headers: /usr/include/foundationdb/
     # Library: /usr/lib/libfdb_c.so
     ```
@@ -33,8 +33,8 @@ The C client is included with the FoundationDB client package:
 === "Linux (RHEL/CentOS)"
 
     ```bash
-    wget https://github.com/apple/foundationdb/releases/download/7.3.0/foundationdb-clients-7.3.0-1.el7.x86_64.rpm
-    sudo rpm -i foundationdb-clients-7.3.0-1.el7.x86_64.rpm
+    wget https://github.com/apple/foundationdb/releases/download/7.3.71/foundationdb-clients-7.3.71-1.el7.x86_64.rpm
+    sudo rpm -i foundationdb-clients-7.3.71-1.el7.x86_64.rpm
     ```
 
 ## Compilation
