@@ -45,6 +45,15 @@
   color: #000;
 }
 
+/* Hide version warning and selector on landing page (version-agnostic homepage) */
+body:has(.hero-parallax) .md-banner--warning {
+  display: none !important;
+}
+
+body:has(.hero-parallax) .md-select {
+  display: none !important;
+}
+
 /* ==========================================================================
    Logo Sizing
    ========================================================================== */
