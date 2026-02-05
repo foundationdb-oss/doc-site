@@ -154,6 +154,7 @@ graph TB
 | `double` | 2 | 3 | 1 machine | 3-4 machines |
 | `triple` | 3 | 4 | 2 machines | 5+ machines |
 | `three_data_hall` | 3 | 4 (2 halls) | 1 hall + 1 machine | Multi-hall deployments |
+| `three_data_hall_fallback` | 2 | 4 (2 halls) | 1 hall + 1 machine | Temporary fallback during outages |
 
 ### Datacenter-Aware Mode
 
@@ -414,7 +415,7 @@ FoundationDB supports multiple storage engines optimized for different workloads
 
 | Engine | Best For | Notes |
 |--------|----------|-------|
-| `ssd` (ssd-2) | Production with SSDs | B-tree optimized for SSDs, recommended default |
+| `ssd` | Production with SSDs | B-tree optimized for SSDs, recommended default |
 | `ssd-redwood-v1` | High throughput | Improved B-tree, lower write amplification |
 | `ssd-rocksdb-v1` | Write-heavy workloads | LSM-tree based, tunable compression |
 | `memory` | Small datasets | Data in memory, logged to disk |
