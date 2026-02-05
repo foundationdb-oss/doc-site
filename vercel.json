@@ -2,6 +2,13 @@
   "buildCommand": "./scripts/vercel-build.sh",
   "outputDirectory": "site",
   "installCommand": "echo 'Dependencies installed by build script'",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/stable/",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",
