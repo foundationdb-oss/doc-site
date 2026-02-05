@@ -342,6 +342,13 @@ body:has(.hero-parallax) .md-header .md-icon {
   color: white !important;
 }
 
+/* Ensure site name text is visible (white) on landing page */
+body:has(.hero-parallax) .md-header__title .md-header__topic .md-ellipsis,
+body:has(.hero-parallax) .md-header__title .md-header__ellipsis,
+body:has(.hero-parallax) .md-header__title .md-header__topic {
+  color: white !important;
+}
+
 /* Add shadow to header when scrolled on landing page */
 body:has(.hero-parallax) .md-header--shadow {
   background: var(--md-primary-fg-color) !important;
