@@ -33,6 +33,14 @@ Guides for operating FoundationDB in production environments.
 
     [:octicons-arrow-right-24: Backup & Recovery](backup.md)
 
+-   :material-update:{ .lg .middle } **Upgrading**
+
+    ---
+
+    Upgrade FoundationDB clusters safely with zero downtime.
+
+    [:octicons-arrow-right-24: Upgrading](upgrading.md)
+
 -   :material-bug:{ .lg .middle } **Troubleshooting**
 
     ---
