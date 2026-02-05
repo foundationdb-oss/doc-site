@@ -195,6 +195,203 @@ graph TB
 !!! warning "Important"
     For `three_datacenter` mode, all processes must specify `--datacenter-id` or `--locality-dcid`.
 
+## Configuring Regions
+
+Regions enable **automatic failover** between two datacenters without adding WAN latency for commits, while maintaining all FoundationDB consistency properties.
+
+!!! warning "Maximum 2 Regions"
+    FoundationDB supports at most **two regions**. This is a fundamental architectural constraint, not a configuration option.
+
+### Regions vs Datacenters
+
+Understanding the difference between regions and datacenters is critical for multi-datacenter deployments:
+
+| Term | Definition | Maximum Count |
+|------|------------|---------------|
+| **Region** | A logical grouping containing one primary datacenter plus optional satellite datacenters. Supports automatic failover. | **2** |
+| **Datacenter** | A physical location with failure independence (like an Availability Zone). Can be primary or satellite. | Unlimited |
+| **Primary Datacenter** | A datacenter within a region that stores full data replicas. | 1 per region |
+| **Satellite Datacenter** | A datacenter that only stores transaction logs (not full data). Provides synchronous durability without WAN latency. | Multiple per region |
+
+```mermaid
+graph TB
+    subgraph "Region 1 (West Coast)"
+        subgraph "Primary DC - WC1"
+            R1_SS1[Storage Server]
+            R1_SS2[Storage Server]
+            R1_TL[Transaction Logs]
+        end
+        subgraph "Satellite DC - WC2"
+            R1_SAT[Transaction Logs Only]
+        end
+    end
+
+    subgraph "Region 2 (East Coast)"
+        subgraph "Primary DC - EC1"
+            R2_SS1[Storage Server]
+            R2_SS2[Storage Server]
+            R2_TL[Transaction Logs]
+        end
+        subgraph "Satellite DC - EC2"
+            R2_SAT[Transaction Logs Only]
+        end
+    end
+
+    R1_TL -.->|Async Replication| R2_TL
+
+    style R1_SS1 fill:#2196f3,color:#fff
+    style R1_SS2 fill:#2196f3,color:#fff
+    style R1_TL fill:#4caf50,color:#fff
+    style R1_SAT fill:#ff9800,color:#000
+    style R2_SS1 fill:#9c27b0,color:#fff
+    style R2_SS2 fill:#9c27b0,color:#fff
+    style R2_TL fill:#4caf50,color:#fff
+    style R2_SAT fill:#ff9800,color:#000
+```
+
+### How Regions Work
+
+Region configuration combines two features:
+
+1. **Asynchronous replication** between regions — The remote region slightly lags behind the primary, avoiding WAN latency on commits
+2. **Synchronous satellite logs** — Mutations are made durable in nearby satellite datacenters before commits succeed
+
+When the primary datacenter fails, the satellite logs ensure no committed transactions are lost. The remote region catches up using these logs, then starts accepting new commits.
+
+### Region Configuration JSON
+
+Regions are configured via a JSON document using `fileconfigure` in `fdbcli`:
+
+```bash
+fdb> fileconfigure regions.json
+Configuration changed.
+```
+
+**Example: Two-region configuration with satellites**
+
+```json
+{
+  "regions": [{
+    "datacenters": [{
+      "id": "WC1",
+      "priority": 1
+    }, {
+      "id": "WC2",
+      "priority": 0,
+      "satellite": 1,
+      "satellite_logs": 2
+    }],
+    "satellite_redundancy_mode": "one_satellite_double"
+  }, {
+    "datacenters": [{
+      "id": "EC1",
+      "priority": 0
+    }, {
+      "id": "EC2",
+      "priority": -1,
+      "satellite": 1,
+      "satellite_logs": 2
+    }],
+    "satellite_redundancy_mode": "one_satellite_double"
+  }]
+}
+```
+
+**Configuration Parameters:**
+
+| Parameter | Description |
+|-----------|-------------|
+| `id` | Unique datacenter identifier (case-sensitive) |
+| `priority` | Determines which region is active. Higher = preferred. Negative = never recover here |
+| `satellite` | Set to `1` for satellite datacenters (log-only) |
+| `satellite_logs` | Number of transaction logs in the satellite |
+| `satellite_redundancy_mode` | How mutations are replicated to satellites (see below) |
+
+### Satellite Redundancy Modes
+
+| Mode | Copies | Description |
+|------|--------|-------------|
+| `one_satellite_single` | 1 | One copy in the highest-priority satellite |
+| `one_satellite_double` | 2 | Two copies in the highest-priority satellite |
+| `one_satellite_triple` | 3 | Three copies in the highest-priority satellite |
+| `two_satellite_safe` | 4 | Two copies in each of the two highest-priority satellites |
+| `two_satellite_fast` | 4 | Same as `two_satellite_safe`, but only waits for one satellite |
+
+!!! tip "Choosing a Mode"
+    Use `one_satellite_double` for most deployments. Use `two_satellite_fast` if you have two nearby satellites and want to hide network latency variations.
+
+### Specifying Datacenter Locality
+
+All processes must specify their datacenter using `--locality-dcid` or `--datacenter-id`:
+
+```ini
+## foundationdb.conf
+[fdbserver.4500]
+locality_dcid = WC1
+
+[fdbserver.4501]
+locality_dcid = WC1
+```
+
+Clients should also specify their datacenter using the `datacenter-id` database option to route requests to the nearest region.
+
+### Usable Regions
+
+The `usable_regions` option controls how many regions store data replicas:
+
+| Value | Behavior |
+|-------|----------|
+| `1` | Single region only (no cross-region replication) |
+| `2` | Both regions store full replicas (enables failover) |
+
+```bash
+fdb> configure usable_regions=2
+Configuration changed.
+```
+
+!!! warning "Changing usable_regions"
+    When changing `usable_regions`, exactly **one** region must have `priority >= 0`. This ensures a deterministic replica to add or remove.
+
+### Incompatibility with three_datacenter Mode
+
+!!! danger "Critical Limitation"
+    The `three_datacenter` redundancy mode is **NOT compatible** with region configuration.
+
+| Mode | Use Case | Replicas | Compatible with Regions? |
+|------|----------|----------|--------------------------|
+| `three_datacenter` | Synchronous replication across 3 DCs | 6 | **No** |
+| Region configuration | Automatic failover between 2 regions | 2-4 per region | **Yes** |
+
+If you need synchronous replication to three datacenters with low-latency reads from all locations, use `three_datacenter` mode. If you need automatic failover with lower commit latency, use region configuration.
+
+### Handling Datacenter Failures
+
+When a primary datacenter fails:
+
+1. The cluster recovers to the other region
+2. Mutations accumulate on transaction logs while waiting for recovery
+3. The cluster continues accepting commits (at reduced throughput—roughly 1/3 of normal)
+
+To permanently drop a failed datacenter:
+
+```bash
+# Set failed DC priority to negative
+fdb> fileconfigure regions_without_failed_dc.json
+
+# Reduce to single region
+fdb> configure usable_regions=1
+```
+
+### Choosing Coordinators for Regions
+
+For multi-region setups, coordinators should survive datacenter failures:
+
+- **Option 1:** 5 coordinators in 5 different datacenters
+- **Option 2:** 9 coordinators spread across 3 datacenters (3 per DC)
+
+!!! tip "Best Practice"
+    Place 3 coordinators in each of the two primary datacenters, plus 3 in a third location. This survives the loss of any single datacenter plus one additional machine.
+
 ### Configuring Redundancy
 
 ```bash
