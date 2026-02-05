@@ -57,7 +57,7 @@ Index:    (zipcode_index, zipcode, ID) = ''
 
     ```python
     import fdb
-    fdb.api_version(740)
+    fdb.api_version(730)
 
     user = fdb.Subspace(('user',))
     index = fdb.Subspace(('zipcode_index',))
@@ -170,7 +170,7 @@ Column index: (table, 'C', column, row) = value
 
     ```python
     import fdb
-    fdb.api_version(740)
+    fdb.api_version(730)
 
     table = fdb.Subspace(('T',))
     row_index = table['R']
@@ -304,7 +304,7 @@ Keys are ordered by index first, then by random element (for concurrent writes w
     import fdb
     import os
 
-    fdb.api_version(740)
+    fdb.api_version(730)
 
     queue = fdb.Subspace(('Q',))
 
@@ -419,7 +419,7 @@ Minimum priority items are at the start of the keyspace, maximum at the end—en
     import fdb
     import os
 
-    fdb.api_version(740)
+    fdb.api_version(730)
 
     pq = fdb.Subspace(('P',))
 
@@ -532,7 +532,7 @@ Use the vector index as the key. Tuple encoding ensures adjacent elements are st
 
     ```python
     import fdb
-    fdb.api_version(740)
+    fdb.api_version(730)
 
     vector = fdb.Subspace(('V',))
 
@@ -666,7 +666,7 @@ Becomes keys:
     import random
     import itertools
 
-    fdb.api_version(740)
+    fdb.api_version(730)
 
     doc_space = fdb.Subspace(('D',))
 
@@ -775,7 +775,7 @@ Split the blob into chunks stored as separate key-value pairs. Use byte offset a
 
     ```python
     import fdb
-    fdb.api_version(740)
+    fdb.api_version(730)
 
     CHUNK_SIZE = 10000  # 10KB chunks for optimal performance
 
