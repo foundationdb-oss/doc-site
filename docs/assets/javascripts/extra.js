@@ -1,5 +1,17 @@
 // FoundationDB Documentation - Custom JavaScript
 
+// Hide version selector on landing page immediately
+(function() {
+  if (document.querySelector('.hero-parallax') ||
+      window.location.pathname === '/' ||
+      window.location.pathname === '/stable/' ||
+      window.location.pathname === '/latest/') {
+    var style = document.createElement('style');
+    style.textContent = '.md-version { display: none !important; }';
+    document.head.appendChild(style);
+  }
+})();
+
 // Feedback widget - Send feedback events to Google Analytics 4
 // This integrates with MkDocs Material's built-in feedback feature
 var defined = (function () {

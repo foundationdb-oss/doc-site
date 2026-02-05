@@ -59,6 +59,7 @@ theme:
         name: Switch to light mode
 
 plugins:
+  - mike  # Required for version selector - must be BEFORE other plugins
   - search:
       lang: en
       separator: '[\s\-_,:!=\[\]()"/]+|&[lg]t;'
