@@ -128,34 +128,118 @@ We use [mike](https://github.com/jimporter/mike) for multi-version documentation
 
 ### Local Development
 
-#### Quick Preview (Recommended)
+#### Prerequisites
+
+- Python 3.8+
+- pip (or uv for faster installs)
+- Git
+
+```bash
+pip install -r requirements.txt
+```
+
+#### Quick Preview (Single Version)
 
 For most development work, use MkDocs directly:
 
 ```bash
-pip install -r requirements.txt
 mkdocs serve
 ```
 
-This serves the docs at `http://localhost:8000` with live reload.
+This serves the docs at `http://localhost:8000` with live reload, using the default 7.3 configuration.
 
-#### Testing Versioned Docs with Mike
-
-To test the version selector locally:
+**Testing a specific version:** Set the `FDB_VERSION` environment variable to control which version's variables are used:
 
 ```bash
-mike serve
+FDB_VERSION=7.1 mkdocs serve  # Test with 7.1 variables
+FDB_VERSION=7.3 mkdocs serve  # Test with 7.3 variables (default)
+FDB_VERSION=7.4 mkdocs serve  # Test with 7.4 variables
 ```
 
-Note: Mike requires a git repository and stores versions on the `gh-pages` branch.
+#### Local Testing with Version Picker
+
+To test the version picker locally with all versions, use the provided script:
 
 ```bash
-# Build a specific version locally (for testing)
-mike deploy 7.3 stable latest --title="7.3 (Stable)"
+./scripts/mike-serve.sh
+```
+
+This script:
+- Builds all versions (7.1, 7.3, 7.4) with the correct configuration
+- Uses a **temporary branch** (`mike-local-temp`) instead of `gh-pages`
+- Sets up proper version aliases (stable, latest → 7.3)
+- **Automatically cleans up** when you press Ctrl+C
+- Serves the multi-version site at http://localhost:8000
+
+> ⚠️ **Warning: Do NOT run `mike deploy` directly**
+>
+> Running `mike deploy` without the `-b` flag creates **permanent commits** on your `gh-pages` branch. These commits will:
+> - Pollute your git history
+> - Show up when you run `git log --all`
+> - Potentially get pushed to the remote if you're not careful
+>
+> Always use `./scripts/mike-serve.sh` for local testing. It handles the temporary branch automatically.
+
+#### Manual Mike Commands (CI/Production Only)
+
+The commands below are for reference and are primarily used in CI/CD pipelines. For local development, use the script above.
+
+```bash
+# Build all versions with mike (note: creates commits on gh-pages!)
+FDB_VERSION=7.1 mike deploy 7.1 --title="7.1 (Legacy)"
+FDB_VERSION=7.3 mike deploy 7.3 stable latest --title="7.3 (Stable)"
+FDB_VERSION=7.4 mike deploy 7.4 --title="7.4 (Pre-release)"
+
+# Set the default version
+mike set-default stable
+
+# Serve with version picker (from gh-pages)
+mike serve
 
 # List all deployed versions
 mike list
 ```
+
+Note: Mike requires a git repository and stores versions on the `gh-pages` branch.
+
+#### How the Version System Works
+
+The `main_hooks.py` file defines version-specific variables for each FoundationDB release:
+
+| Variable | 7.1 | 7.3 | 7.4 |
+|----------|-----|-----|-----|
+| `{{ api_version }}` | 710 | 730 | 740 |
+| `{{ fdb_release }}` | 7.1.67 | 7.3.71 | 7.4.6 |
+| `{{ docker_tag }}` | 7.1.67 | 7.3.71 | 7.4.6 |
+
+Template variables are rendered based on the `FDB_VERSION` environment variable set during build. For example:
+
+```python
+# This code in docs:
+fdb.api_version({{ api_version }})
+
+# Renders as (depending on version):
+fdb.api_version(710)  # 7.1
+fdb.api_version(730)  # 7.3
+fdb.api_version(740)  # 7.4
+```
+
+Version conditionals control content visibility:
+
+```jinja
+{{ if_version("7.3", "This feature is available!", "Upgrade to 7.3 for this feature.") }}
+```
+
+See `docs_versions/README.md` for the full list of available variables.
+
+#### Verifying Version-Specific Content
+
+When testing locally, verify:
+
+- **API versions** are correct (710, 730, 740) in code samples
+- **Version pills** appear on the correct pages (e.g., `{{ version_pill("7.3", "new") }}`)
+- **Version conditionals** show/hide content properly for each version
+- **Docker tags and release numbers** match the expected version
 
 #### ⚠️ Warning: Do NOT Run the Vercel Build Script Locally
 
