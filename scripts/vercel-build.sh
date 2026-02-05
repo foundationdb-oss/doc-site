@@ -51,7 +51,7 @@ mike deploy 7.4 --title="7.4 (Pre-release)" --alias-type=redirect
 
 # Set stable as the default version
 echo "Setting default version to stable..."
-mike set-default stable --alias-type=redirect
+mike set-default stable
 
 # Verify mike deployment
 echo "Verifying mike deployment..."
