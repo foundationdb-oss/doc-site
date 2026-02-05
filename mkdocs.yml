@@ -160,6 +160,7 @@ nav:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
       - First Application: getting-started/first-app.md
+      - Version Overview: getting-started/versions.md
   - Core Concepts:
       - concepts/index.md
       - Data Model: concepts/data-model.md
