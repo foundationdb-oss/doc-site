@@ -25,8 +25,21 @@ FoundationDB's backup system offers:
     - `fdbdr` - CLI for disaster recovery management
     - `dr_agent` - Background process for DR replication
 
-!!! tip "FoundationDB 7.4: Backup V2"
+{% if fdb_version >= "7.4" %}
+!!! tip "Backup V2 <span class="pill-improved">IMPROVED IN 7.4</span>"
     FoundationDB 7.4 introduces **Backup V2**, which reduces writes to the log system by approximately 50%. This improves commit latency and reduces the number of transaction logs required. Backup V2 is enabled automatically in 7.4 clusters.
+
+    **Key improvements:**
+
+    - **50% reduction** in backup-related writes to transaction logs
+    - **Lower commit latency** for write-heavy workloads
+    - **Fewer TLogs required** for backup operations
+    - Automatic enablement - no configuration needed
+{% endif %}
+{% if fdb_version < "7.4" %}
+!!! info "Backup System"
+    The backup system streams mutations from transaction logs to your backup destination with minimal overhead.
+{% endif %}
 
 ## Backup Architecture
 

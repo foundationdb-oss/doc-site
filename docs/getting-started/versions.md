@@ -75,19 +75,35 @@ The Redwood storage engine was renamed between versions:
 
     - **Backup V2**: 50% reduction in write amplification during backups
     - **Bulk Loading**: Experimental support for efficient data loading
+    - **Improved Tenant Support**: Enhanced multi-tenancy capabilities
+    - **Go Binding Change**: `Close()` now required on Database objects
     - All 7.3 features
 
 === "7.3 (Stable)"
 
-    - **Redwood renamed**: Storage engine name simplified
-    - **Improved stability**: Enhanced reliability and performance
+    - **Redwood Production Ready**: Storage engine name changed from `ssd-redwood-1-experimental` to `ssd-redwood-1`
+    - **Improved Stability**: Enhanced reliability and performance tuning
+    - **Better Monitoring**: Additional metrics and status reporting
     - All 7.1 features
 
 === "7.1 (Legacy)"
 
-    - **GetMappedRange**: Advanced range query capabilities
-    - **Version Vector**: Enhanced conflict detection
+    - **GetMappedRange**: Advanced range query capabilities for secondary indexes
+    - **Version Vector**: Enhanced conflict detection for improved transaction throughput
     - **RocksDB**: Experimental storage engine support
+    - **Tenant Management**: Basic multi-tenancy support
+
+### Feature Availability Matrix
+
+| Feature | 7.1 | 7.3 | 7.4 |
+|---------|:---:|:---:|:---:|
+| Redwood Storage Engine | ✅ (experimental) | ✅ (production) | ✅ (production) |
+| RocksDB Storage Engine | ✅ (experimental) | ✅ (experimental) | ✅ (experimental) |
+| GetMappedRange | ✅ | ✅ | ✅ |
+| Version Vectors | ✅ | ✅ | ✅ |
+| Tenant Management | ✅ | ✅ | ✅ (improved) |
+| Backup V2 | ❌ | ❌ | ✅ |
+| Bulk Loading | ❌ | ❌ | ✅ (experimental) |
 
 ## Storage Engine Compatibility
 
@@ -124,15 +140,53 @@ graph LR
 !!! warning "Pre-release Warning"
     Version 7.4 is a pre-release and should not be used in production environments. Wait for the stable release before upgrading production clusters.
 
+## API Version Compatibility
+
+FoundationDB uses API versioning to maintain backward compatibility. Clients specify which API version they target:
+
+| FDB Version | API Version | Min Supported API | Notes |
+|-------------|-------------|-------------------|-------|
+| **7.4** | `{{ "740" }}` | 510 | Latest API features |
+| **7.3** | `{{ "730" }}` | 510 | Stable API |
+| **7.1** | `{{ "710" }}` | 510 | Legacy API |
+
+!!! info "API Version Best Practice"
+    Always specify an explicit API version when opening a database connection. This ensures your application behaves consistently even when the underlying client library is upgraded.
+
+    ```python
+    import fdb
+    fdb.api_version(730)  # Lock to 7.3 API behavior
+    ```
+
 ## Client Library Versions
 
 Always match your client library version to your cluster version:
 
-| Cluster Version | Python | Java |
-|-----------------|--------|------|
-| 7.1.x | 7.1.x | `org.foundationdb:fdb-java:7.1.x` |
-| 7.3.x | 7.3.x | `org.foundationdb:fdb-java:7.3.x` |
-| 7.4.x | 7.4.x | `org.foundationdb:fdb-java:7.4.x` |
+| Cluster Version | Python | Java | Go |
+|-----------------|--------|------|----|
+| 7.1.x | 7.1.x | `org.foundationdb:fdb-java:7.1.x` | `github.com/apple/foundationdb/bindings/go@v7.1.x` |
+| 7.3.x | 7.3.x | `org.foundationdb:fdb-java:7.3.x` | `github.com/apple/foundationdb/bindings/go@v7.3.x` |
+| 7.4.x | 7.4.x | `org.foundationdb:fdb-java:7.4.x` | `github.com/apple/foundationdb/bindings/go@v7.4.x` |
+
+### Go Binding Breaking Change (7.4+)
+
+!!! warning "Go Binding: Close() Required in 7.4+"
+    Starting in version 7.4, the Go binding **requires** calling `Close()` on the `Database` object when you're done using it. Failure to call `Close()` will result in resource leaks.
+
+    **Before 7.4:**
+    ```go
+    db := fdb.MustOpenDefault()
+    // Use db... no Close() needed
+    ```
+
+    **7.4 and later:**
+    ```go
+    db := fdb.MustOpenDefault()
+    defer db.Close()  // Required!
+    // Use db...
+    ```
+
+    This change was made to properly release native resources and prevent memory leaks in long-running applications.
 
 ## Next Steps
 

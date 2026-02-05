@@ -57,7 +57,7 @@ cd class-scheduler
 Create `requirements.txt`:
 
 ```text title="requirements.txt"
-foundationdb>=7.3.0
+foundationdb>={{ fdb_version }}.0
 ```
 
 Install dependencies:
@@ -78,7 +78,7 @@ import fdb.tuple
 import itertools
 
 # Always specify API version first
-fdb.api_version(730)
+fdb.api_version({{ api_version }})
 
 # Open the database
 db = fdb.open()
@@ -419,6 +419,27 @@ if __name__ == "__main__":
 | **Composition** | Transactional functions can call other transactional functions |
 | **Concurrency** | FoundationDB handles conflicts transparently |
 | **Directories** | Use the Directory Layer for organized key namespaces |
+
+## Version-Specific Features
+
+{% if fdb_version == "7.4" %}
+!!! tip "{{ fdb_version }} Enhancements for Applications"
+    - **Bulk Loading** {{ version_pill("7.4", "experimental") }} — For initial data migration, consider using bulk loading APIs for faster ingestion
+    - **Range Locks** {{ version_pill("7.4", "experimental") }} — Fine-grained locking can improve concurrency for class scheduling scenarios
+    - **Go Users**: Remember to call `Close()` on Database objects when porting to Go
+
+{% elif fdb_version == "7.3" %}
+!!! info "{{ fdb_version }} Recommendations"
+    - Use the **Redwood storage engine** (`{{ redwood_engine }}`) for best performance
+    - **Gray failure detection** helps ensure your application remains responsive even with degraded nodes
+
+{% elif fdb_version == "7.1" %}
+!!! note "{{ fdb_version }} Performance Tips"
+    - Enable **USE_GRV_CACHE** on read-heavy transactions for reduced latency
+    - **GetMappedRange** can optimize secondary index lookups in your application
+    - Use `{{ redwood_engine }}` for Redwood storage (despite the `-experimental` suffix, it's production-ready)
+
+{% endif %}
 
 ## Next Steps
 

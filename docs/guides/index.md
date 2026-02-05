@@ -33,6 +33,24 @@ Practical guides for building applications with FoundationDB, from design patter
 
     [:octicons-arrow-right-24: Internals Overview](internals-overview.md)
 
+{% if fdb_version >= "7.3" %}
+-   :material-account-group:{ .lg .middle } **Tenants** <span class="pill-new">NEW in 7.3</span>
+
+    ---
+
+    Configure multi-tenant key-space isolation for workload separation.
+
+    [:octicons-arrow-right-24: Tenants](tenants.md)
+
+-   :material-shield-key:{ .lg .middle } **Authorization** <span class="pill-new">NEW in 7.3</span>
+
+    ---
+
+    Tenant-scoped access control with JWT tokens.
+
+    [:octicons-arrow-right-24: Authorization](authorization.md)
+{% endif %}
+
 </div>
 
 ## What You'll Learn

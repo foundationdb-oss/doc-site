@@ -5,7 +5,7 @@ description: Install FoundationDB on Linux, macOS, Docker, or Kubernetes
 
 # Installation
 
-Get FoundationDB running on your development machine or production cluster.
+Get FoundationDB {{ fdb_version }} ({{ version_label }}) running on your development machine or production cluster.
 
 ## System Requirements
 
@@ -25,8 +25,8 @@ Before installing, ensure your system meets these requirements:
     Download and install the client and server packages:
 
     ```bash
-    # Set version (check https://github.com/apple/foundationdb/releases for latest)
-    FDB_VERSION="7.3.63"
+    # Set version
+    FDB_VERSION="{{ fdb_release }}"
 
     # Download packages
     wget https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/foundationdb-clients_${FDB_VERSION}-1_amd64.deb
@@ -46,7 +46,7 @@ Before installing, ensure your system meets these requirements:
 
     ```bash
     # Set version
-    FDB_VERSION="7.3.63"
+    FDB_VERSION="{{ fdb_release }}"
 
     # Download packages
     wget https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/foundationdb-clients-${FDB_VERSION}-1.el7.x86_64.rpm
@@ -64,13 +64,13 @@ Before installing, ensure your system meets these requirements:
     ```bash
     # Download the package (check for latest version)
     # For Intel Macs:
-    curl -LO https://github.com/apple/foundationdb/releases/download/7.3.63/FoundationDB-7.3.63_x86_64.pkg
+    curl -LO https://github.com/apple/foundationdb/releases/download/{{ fdb_release }}/FoundationDB-{{ fdb_release }}_x86_64.pkg
 
     # For Apple Silicon (M1/M2/M3):
-    curl -LO https://github.com/apple/foundationdb/releases/download/7.3.63/FoundationDB-7.3.63_arm64.pkg
+    curl -LO https://github.com/apple/foundationdb/releases/download/{{ fdb_release }}/FoundationDB-{{ fdb_release }}_arm64.pkg
 
     # Install (opens GUI installer)
-    open FoundationDB-7.3.63_*.pkg
+    open FoundationDB-{{ fdb_release }}_*.pkg
     ```
 
     The installer includes both client libraries and a local development server.
@@ -84,12 +84,12 @@ Before installing, ensure your system meets these requirements:
 
     ```bash
     # Pull the official image
-    docker pull foundationdb/foundationdb:7.3.63
+    docker pull {{ docker_image }}
 
     # Run a single-node cluster
     docker run -d --name fdb \
       -p 4500:4500 \
-      foundationdb/foundationdb:7.3.63
+      {{ docker_image }}
 
     # Verify it's running
     docker exec fdb fdbcli --exec "status"
@@ -101,7 +101,7 @@ Before installing, ensure your system meets these requirements:
     docker run -d --name fdb \
       -p 4500:4500 \
       -v fdb-data:/var/fdb/data \
-      foundationdb/foundationdb:7.3.63
+      {{ docker_image }}
     ```
 
 === "Kubernetes"
@@ -171,8 +171,11 @@ FoundationDB provides client libraries for multiple languages:
 === "Python"
 
     ```bash
-    pip install foundationdb
+    pip install foundationdb=={{ package_version }}
     ```
+
+    !!! tip "Version Matching"
+        Install a Python client version matching your server: use `foundationdb=={{ fdb_version }}.*` for {{ fdb_version }} servers.
 
 === "Java"
 
@@ -182,21 +185,33 @@ FoundationDB provides client libraries for multiple languages:
     <dependency>
         <groupId>org.foundationdb</groupId>
         <artifactId>fdb-java</artifactId>
-        <version>7.3.63</version>
+        <version>{{ java_version }}</version>
     </dependency>
     ```
 
     Or with Gradle:
 
     ```groovy
-    implementation 'org.foundationdb:fdb-java:7.3.63'
+    implementation 'org.foundationdb:fdb-java:{{ java_version }}'
     ```
 
 === "Go"
 
     ```bash
-    go get github.com/apple/foundationdb/bindings/go/src/fdb
+    go get github.com/apple/foundationdb/bindings/go/src/fdb@v{{ package_version }}
     ```
+
+    The Go bindings require the matching FoundationDB C client library to be installed.
+{% if fdb_version >= "7.4" %}
+
+    !!! warning "Important: Close() Required in {{ fdb_version }}"
+        Starting in 7.4, you **must** call `Close()` on Database objects when done:
+
+        ```go
+        db := fdb.MustOpenDefault()
+        defer db.Close() // Required in 7.4+
+        ```
+{% endif %}
 
 === "Ruby"
 
@@ -222,6 +237,17 @@ After installation, FoundationDB runs with these defaults:
 
 !!! warning "Development Configuration"
     The default configuration is for local development only. For production, configure proper redundancy and use the SSD storage engine. See [Configuration](../operations/configuration.md).
+
+!!! tip "Recommended Storage Engine"
+    For production deployments, use the **Redwood** storage engine (`{{ redwood_engine }}`):
+
+    ```bash
+    fdbcli --exec "configure {{ redwood_engine }}"
+    ```
+{% if fdb_version == "7.1" %}
+
+    Note: In version 7.1, Redwood uses the name `ssd-redwood-1-experimental`, but it is production-ready.
+{% endif %}
 
 ## Managing the Service
 

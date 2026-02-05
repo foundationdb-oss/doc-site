@@ -907,3 +907,37 @@ body:has(.hero-parallax) .md-header__title {
 [data-md-color-scheme="slate"] body:has(.hero-parallax) .md-tabs {
   background: var(--md-primary-fg-color) !important;
 }
+
+/* ==========================================================================
+   Version Pills - Highlight version-specific features
+   ========================================================================== */
+
+.md-typeset .pill-new {
+  background-color: #4caf50;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+.md-typeset .pill-improved {
+  background-color: #2196f3;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+.md-typeset .pill-experimental {
+  background-color: #ff9800;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  font-weight: bold;
+  vertical-align: middle;
+}

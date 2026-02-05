@@ -36,17 +36,26 @@ echo "Starting versioned documentation build..."
 
 # Deploy each version with mike
 # mike deploy <version> [aliases...] --title="<title>"
+#
+# The FDB_VERSION environment variable is used by mkdocs-macros-plugin
+# (via main_hooks.py) to inject version-specific variables like:
+#   - api_version (710, 730, 740)
+#   - fdb_release (7.1.67, 7.3.71, 7.4.6)
+#   - docker_tag, java_version, etc.
 
 # 7.1 - Legacy version
 echo "Building FoundationDB 7.1 (Legacy)..."
+export FDB_VERSION="7.1"
 mike deploy 7.1 --title="7.1 (Legacy)" --alias-type=redirect
 
 # 7.3 - Current stable (gets stable and latest aliases)
 echo "Building FoundationDB 7.3 (Stable)..."
+export FDB_VERSION="7.3"
 mike deploy 7.3 stable latest --title="7.3 (Stable)" --alias-type=redirect
 
 # 7.4 - Pre-release
 echo "Building FoundationDB 7.4 (Pre-release)..."
+export FDB_VERSION="7.4"
 mike deploy 7.4 --title="7.4 (Pre-release)" --alias-type=redirect
 
 # Set stable as the default version
