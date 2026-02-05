@@ -11,7 +11,7 @@ theme:
   name: material
   custom_dir: docs/overrides
   language: en
-  logo: assets/images/foundationdb-logo.png
+  logo: assets/images/logo.png
   favicon: images/favicon.svg
   icon:
     repo: fontawesome/brands/github

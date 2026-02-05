@@ -303,10 +303,6 @@ body:has(.hero-parallax) .md-header__topic .md-version {
 }
 
 
-/* Hide site name in header since logo already contains the name */
-.md-header__topic .md-ellipsis {
-  display: none;
-}
 
 /* ==========================================================================
    Hero Parallax Section (MkDocs Material style)
