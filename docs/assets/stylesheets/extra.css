@@ -912,32 +912,40 @@ body:has(.hero-parallax) .md-header__title {
    Version Pills - Highlight version-specific features
    ========================================================================== */
 
+/* Base pill styles - smaller and more compact */
+.md-typeset .pill-new,
+.md-typeset .pill-improved,
+.md-typeset .pill-experimental {
+  display: inline-block;
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
 .md-typeset .pill-new {
   background-color: #4caf50;
   color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.75em;
-  font-weight: bold;
-  vertical-align: middle;
 }
 
 .md-typeset .pill-improved {
   background-color: #2196f3;
   color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.75em;
-  font-weight: bold;
-  vertical-align: middle;
 }
 
 .md-typeset .pill-experimental {
   background-color: #ff9800;
   color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.75em;
-  font-weight: bold;
+}
+
+/* Even smaller pills in page titles (h1) */
+.md-typeset h1 .pill-new,
+.md-typeset h1 .pill-improved,
+.md-typeset h1 .pill-experimental {
+  font-size: 0.5rem;
+  padding: 0.05em 0.3em;
   vertical-align: middle;
+  margin-left: 0.5em;
 }
