@@ -1,5 +1,24 @@
 {% extends "base.html" %}
 
+{% block styles %}
+  {{ super() }}
+  <style>
+    /* Hide version selector on landing page immediately (before external CSS loads)
+     * This inline CSS ensures the hiding happens on initial hard page load,
+     * not just after SPA navigation when external CSS has already loaded.
+     */
+    body:has(.hero-parallax) .md-version {
+      display: none !important;
+      visibility: hidden !important;
+    }
+
+    /* Also hide the version warning banner on landing page */
+    body:has(.hero-parallax) .md-banner--warning {
+      display: none !important;
+    }
+  </style>
+{% endblock %}
+
 {% block outdated %}
   You're not viewing the latest stable version.
   <a href="{{ '../' ~ base_url }}">
