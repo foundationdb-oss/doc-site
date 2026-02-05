@@ -17,14 +17,14 @@ The Java client provides a modern async API using `CompletableFuture` for non-bl
     <dependency>
         <groupId>org.foundationdb</groupId>
         <artifactId>fdb-java</artifactId>
-        <version>7.3.0</version>
+        <version>7.3.71</version>
     </dependency>
     ```
 
 === "Gradle"
 
     ```groovy
-    implementation 'org.foundationdb:fdb-java:7.3.0'
+    implementation 'org.foundationdb:fdb-java:7.3.71'
     ```
 
 !!! note "Prerequisites"
