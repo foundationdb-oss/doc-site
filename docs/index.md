@@ -218,25 +218,26 @@ flowchart LR
 
 <div class="feature-highlight" markdown>
 <div class="feature-highlight__content" markdown>
-### :material-earth: Multi-Region Replication
+### :material-earth: Multi-Datacenter Replication
 
-Deploy FoundationDB across data centers for disaster recovery and low-latency reads worldwide. Synchronous replication ensures no data loss, while configurable consistency levels let you tune the tradeoff between latency and freshness.
+Deploy FoundationDB across multiple datacenters within up to two regions for disaster recovery and high availability. Satellite datacenters provide synchronous durability without WAN latency, while asynchronous replication between regions enables automatic failover.
 
 [Configure replication :octicons-arrow-right-24:](operations/configuration.md)
 </div>
 <div class="feature-highlight__visual" markdown>
 ```mermaid
 flowchart LR
-    subgraph A[Region A]
-        A1((N))
+    subgraph R1[Region 1]
+        P1[Primary DC]
+        S1[Satellite DC]
     end
-    subgraph B[Region B]
-        B1((N))
+    subgraph R2[Region 2]
+        P2[Primary DC]
+        S2[Satellite DC]
     end
-    subgraph C[Region C]
-        C1((N))
-    end
-    A <--> B <--> C <--> A
+    P1 <--> S1
+    P2 <--> S2
+    R1 -.->|async replication| R2
 ```
 </div>
 </div>
