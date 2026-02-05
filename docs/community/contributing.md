@@ -213,75 +213,81 @@ We use [mike](https://github.com/jimporter/mike){ target="_blank" } with MkDocs 
 
 | Version | Alias | Description |
 |---------|-------|-------------|
-| `7.x` | `stable`, `latest` | Current stable release (default) |
-| `7.3` | - | Specific 7.3 release |
-| `7.2` | - | Previous minor release |
-| `dev` | - | Development/main branch |
+| `7.3` | `stable`, `latest` | **Current stable release** (default) |
+| `7.4` | - | Pre-release version |
+| `7.1` | - | Legacy version |
+
+!!! note "Version Banners"
+    - **7.4** displays a pre-release warning banner
+    - **7.1** displays a legacy version warning banner
+    - **7.3** is the recommended production version
 
 ### Maintainer Workflow
 
-#### Initial Setup
+#### Local Development
 
 ```bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Initialize gh-pages branch (first time only)
-mike deploy --push --update-aliases 7.x stable latest
-mike set-default --push 7.x
+# Preview versioned docs locally
+mike serve
+
+# Build a specific version locally (for testing)
+mike deploy 7.3 stable latest --title="7.3 (Stable)"
 ```
 
-#### Deploying a New Version
+#### Deploying Versions
+
+Mike commands deploy documentation versions. On this project, **deployments happen automatically via Vercel** when changes are pushed to main.
 
 ```bash
-# Deploy current docs as version 7.x with aliases
-mike deploy --push --update-aliases 7.x stable latest
+# Deploy stable version with aliases
+mike deploy 7.3 stable latest --title="7.3 (Stable)"
 
-# Deploy a specific version (e.g., for 7.3 release)
-mike deploy --push 7.3
+# Deploy pre-release version
+mike deploy 7.4 --title="7.4 (Pre-release)"
 
-# Update default version
-mike set-default --push 7.x
+# Deploy legacy version
+mike deploy 7.1 --title="7.1 (Legacy)"
+
+# Set the default version
+mike set-default stable
 ```
 
-#### Updating an Existing Version
-
-```bash
-# Update docs for existing version (e.g., patch fixes)
-mike deploy --push 7.x
-```
-
-#### Managing Old Versions
+#### Managing Versions
 
 ```bash
 # List all deployed versions
 mike list
 
-# Delete an old version
-mike delete --push 6.x
+# Delete an old version (use with caution)
+mike delete 6.x
 ```
 
 ### URL Structure
 
-With mike, documentation URLs follow this pattern:
+Documentation URLs follow this pattern:
 
-- `https://docs.foundationdb.org/` → Redirects to default (7.x)
-- `https://docs.foundationdb.org/7.x/` → Current stable docs
-- `https://docs.foundationdb.org/7.3/` → Specific 7.3 version
-- `https://docs.foundationdb.org/dev/` → Development docs
+| URL | Content |
+|-----|---------|
+| `https://docs.foundationdb.org/` | 7.3 content (stable at root) |
+| `https://docs.foundationdb.org/stable/` | Alias → 7.3 |
+| `https://docs.foundationdb.org/latest/` | Alias → 7.3 |
+| `https://docs.foundationdb.org/7.3/` | 7.3 docs |
+| `https://docs.foundationdb.org/7.4/` | 7.4 docs (pre-release) |
+| `https://docs.foundationdb.org/7.1/` | 7.1 docs (legacy) |
 
-### Local Development
+### CI/CD Integration
 
-```bash
-# Preview versioned docs locally
-mike serve
+Deployments are automated via Vercel:
 
-# Build without pushing (for testing)
-mike deploy 7.x stable latest
-```
+1. Push changes to `main` branch
+2. Vercel runs the build script which uses Mike to build all versions
+3. Site is deployed with versioned documentation
 
-!!! tip "CI/CD Integration"
-    For automated deployments, add mike commands to your CI/CD pipeline. Deploy on tagged releases to main branch.
+!!! tip "Testing Changes"
+    Always use `mike serve` locally to preview versioned documentation before pushing changes.
 
 ---
 
