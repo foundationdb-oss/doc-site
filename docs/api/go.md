@@ -107,7 +107,7 @@ db, err := fdb.OpenDefault(fdb.DefaultClusterFile)
 ```
 
 {% if fdb_version >= "7.4" %}
-!!! warning "Breaking Change in 7.4: Close() Required <span class="pill-new">NEW in 7.4</span>"
+!!! warning "Breaking Change in 7.4: Close() Required <span class="pill-new">NEW IN 7.4</span>"
     Starting with FoundationDB 7.4, **you must call `Close()` on Database objects** when you're done using them. Failure to call `Close()` will result in resource leaks.
 
     ```go

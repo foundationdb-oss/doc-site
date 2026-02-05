@@ -3,7 +3,7 @@ title: Restore Validation
 description: Verify backup restore integrity with automated validation
 ---
 
-# Restore Validation <span class="pill-new">NEW in 7.4</span>
+# Restore Validation <span class="pill-new">NEW IN 7.4</span>
 
 {% if fdb_version < "7.4" %}
 !!! warning "Version Notice"

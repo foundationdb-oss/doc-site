@@ -3,7 +3,7 @@ title: Range Lock
 description: Block write traffic to specific key ranges for data operations
 ---
 
-# Range Lock <span class="pill-new">NEW in 7.4</span> <span class="pill-experimental">EXPERIMENTAL</span>
+# Range Lock <span class="pill-new">NEW IN 7.4</span> <span class="pill-experimental">EXPERIMENTAL</span>
 
 {% if fdb_version < "7.4" %}
 !!! warning "Version Notice"

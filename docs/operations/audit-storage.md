@@ -3,7 +3,7 @@ title: Audit Storage
 description: Validate data consistency across replicas and location metadata
 ---
 
-# Audit Storage <span class="pill-new">NEW in 7.4</span>
+# Audit Storage <span class="pill-new">NEW IN 7.4</span>
 
 {% if fdb_version < "7.4" %}
 !!! warning "Version Notice"

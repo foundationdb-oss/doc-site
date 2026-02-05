@@ -42,7 +42,7 @@ Guides for operating FoundationDB in production environments.
     [:octicons-arrow-right-24: Troubleshooting](troubleshooting.md)
 
 {% if fdb_version >= "7.3" %}
--   :material-check-all:{ .lg .middle } **Consistency Check Urgent** <span class="pill-new">NEW in 7.3</span>
+-   :material-check-all:{ .lg .middle } **Consistency Check Urgent** <span class="pill-new">NEW IN 7.3</span>
 
     ---
 
