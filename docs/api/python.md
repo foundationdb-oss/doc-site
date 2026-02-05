@@ -14,7 +14,8 @@ The Python client provides a Pythonic interface to FoundationDB with decorators,
 === "pip"
 
     ```bash
-    pip install foundationdb
+    # Install version matching your FoundationDB server
+    pip install foundationdb==7.3.71  # For FoundationDB 7.3 (stable)
     ```
 
 === "conda"
@@ -25,6 +26,9 @@ The Python client provides a Pythonic interface to FoundationDB with decorators,
 
 !!! note "Prerequisites"
     The FoundationDB client library must be installed on your system. See [Installation](../getting-started/installation.md).
+
+!!! tip "Version Matching"
+    Always install a Python client version that matches your FoundationDB server version. For example, use `foundationdb==7.3.x` with a 7.3 server.
 
 ## Quick Start
 
@@ -172,6 +176,34 @@ def get_with_options(tr):
 
     # Streaming mode for large ranges
     result = tr.get_range(start, end, streaming_mode=fdb.StreamingMode.want_all)
+```
+
+### GetMappedRange (7.1+)
+
+!!! info "Added in FoundationDB 7.1"
+    GetMappedRange is available in FoundationDB 7.1 and later versions.
+
+GetMappedRange allows efficient secondary index lookups by fetching related data in a single operation:
+
+```python
+@fdb.transactional
+def get_users_by_city(tr, city):
+    """Fetch users using a city index with GetMappedRange."""
+    # Index: ('city_index', city, user_id) -> b''
+    # Data:  ('users', user_id) -> user_data
+
+    index_start = fdb.tuple.pack(('city_index', city))
+    index_end = fdb.tuple.pack(('city_index', city, None))
+
+    # Define mapper to fetch user data for each index entry
+    mapper = fdb.tuple.pack(('users',)) + b'{K[2]}'
+
+    results = tr.get_mapped_range(
+        index_start, index_end,
+        mapper=mapper
+    )
+
+    return [(key, value) for key, value in results]
 ```
 
 ## Writing Data
