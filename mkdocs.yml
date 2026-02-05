@@ -66,6 +66,8 @@ plugins:
       pipeline:
         - stopWordFilter
         - trimmer
+  - macros:
+      module_name: main_hooks  # Provides version variables (fdb_version, api_version, etc.)
   - minify:
       minify_html: true
   - git-revision-date-localized:
@@ -172,6 +174,8 @@ nav:
       - guides/index.md
       - Design Recipes: guides/design-recipes.md
       - Best Practices: guides/best-practices.md
+      - Tenants: guides/tenants.md
+      - Authorization: guides/authorization.md
       - Internals & Deep Dives:
           - Overview: guides/internals-overview.md
           - Simulation Testing: guides/simulation-testing.md
@@ -188,6 +192,12 @@ nav:
       - Configuration: operations/configuration.md
       - Monitoring: operations/monitoring.md
       - Backup & Recovery: operations/backup.md
+      - Bulk Load & Dump: operations/bulk-load.md
+      - Range Lock: operations/range-lock.md
+      - Audit Storage: operations/audit-storage.md
+      - Consistency Scan: operations/consistency-scan.md
+      - Consistency Check Urgent: operations/consistency-check.md
+      - Restore Validation: operations/restore-validation.md
       - Troubleshooting: operations/troubleshooting.md
   - Community:
       - community/index.md

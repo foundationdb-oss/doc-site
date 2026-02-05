@@ -37,7 +37,7 @@ You should see `The database is available.`
     <dependency>
         <groupId>org.foundationdb</groupId>
         <artifactId>fdb-java</artifactId>
-        <version>7.3.71</version>
+        <version>{{ java_version }}</version>
     </dependency>
     ```
 
@@ -57,7 +57,7 @@ Create a simple program that connects to the database and writes your first key-
     import fdb
 
     # Always specify the API version first
-    fdb.api_version(730)
+    fdb.api_version({{ api_version }})
 
     # Open the default database
     db = fdb.open()
@@ -86,7 +86,7 @@ Create a simple program that connects to the database and writes your first key-
     public class HelloFDB {
         public static void main(String[] args) {
             // Always specify the API version first
-            FDB fdb = FDB.selectAPIVersion(730);
+            FDB fdb = FDB.selectAPIVersion({{ api_version }});
 
             // Open the default database
             try (Database db = fdb.open()) {
@@ -120,10 +120,13 @@ Create a simple program that connects to the database and writes your first key-
 
     func main() {
         // Always specify the API version first
-        fdb.MustAPIVersion(730)
+        fdb.MustAPIVersion({{ api_version }})
 
         // Open the default database
         db := fdb.MustOpenDefault()
+{% if fdb_version >= "7.4" %}
+        defer db.Close() // Required in 7.4+
+{% endif %}
 
         // Write a key-value pair
         _, err := db.Transact(func(tr fdb.Transaction) (interface{}, error) {
@@ -146,6 +149,12 @@ Create a simple program that connects to the database and writes your first key-
         fmt.Println("✓ Connected to FoundationDB!")
     }
     ```
+{% if fdb_version >= "7.4" %}
+
+    !!! warning "Go Binding Change in 7.4"
+        Starting in 7.4, you **must** call `Close()` on Database objects when done. Use `defer db.Close()` immediately after opening.
+
+{% endif %}
 
     Run it:
 
@@ -161,7 +170,7 @@ Transactions are the core of FoundationDB. They ensure all-or-nothing execution 
 
     ```python title="transaction_example.py"
     import fdb
-    fdb.api_version(730)
+    fdb.api_version({{ api_version }})
     db = fdb.open()
 
     # The @fdb.transactional decorator handles retries automatically
@@ -201,7 +210,7 @@ Transactions are the core of FoundationDB. They ensure all-or-nothing execution 
 
     public class TransactionExample {
         public static void main(String[] args) {
-            FDB fdb = FDB.selectAPIVersion(730);
+            FDB fdb = FDB.selectAPIVersion({{ api_version }});
 
             try (Database db = fdb.open()) {
                 byte[] aliceKey = "account:alice".getBytes();
@@ -253,7 +262,7 @@ Transactions are the core of FoundationDB. They ensure all-or-nothing execution 
     )
 
     func main() {
-        fdb.MustAPIVersion(730)
+        fdb.MustAPIVersion({{ api_version }})
         db := fdb.MustOpenDefault()
 
         aliceKey := fdb.Key("account:alice")
@@ -311,7 +320,7 @@ FoundationDB stores keys in sorted order, making range queries efficient:
 
     ```python
     import fdb
-    fdb.api_version(730)
+    fdb.api_version({{ api_version }})
     db = fdb.open()
 
     # Store some users
@@ -379,6 +388,27 @@ FoundationDB stores keys in sorted order, making range queries efficient:
 :white_check_mark: Writing and reading key-value pairs
 :white_check_mark: Using transactions for atomic operations
 :white_check_mark: Performing range queries on sorted keys
+
+## Version-Specific Tips
+
+{% if fdb_version == "7.4" %}
+!!! tip "Optimizations Available in {{ fdb_version }}"
+    - Use **Backup V2** for 50% less write amplification during backups
+    - Try **bulk loading** {{ version_pill("7.4", "experimental") }} for large data migrations
+    - Remember to call `Close()` on Go Database objects
+
+{% elif fdb_version == "7.3" %}
+!!! tip "Recommended Settings for {{ fdb_version }}"
+    - Use `{{ redwood_engine }}` storage engine for best performance (now production-ready)
+    - Take advantage of improved **gray failure detection** for better cluster reliability
+
+{% elif fdb_version == "7.1" %}
+!!! tip "Performance Options in {{ fdb_version }}"
+    - Enable **USE_GRV_CACHE** transaction option for read-heavy workloads
+    - Try **GetMappedRange** for efficient secondary index lookups
+    - Use `{{ redwood_engine }}` for the Redwood storage engine
+
+{% endif %}
 
 ## Next Steps
 

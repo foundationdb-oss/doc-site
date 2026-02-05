@@ -46,10 +46,13 @@ import (
 
 func main() {
     // REQUIRED: Set API version (must match or be less than installed version)
-    fdb.MustAPIVersion(730)
+    fdb.MustAPIVersion({{ api_version }})
 
     // Open the default database
     db := fdb.MustOpenDefault()
+{% if fdb_version >= "7.4" %}
+    defer db.Close()  // REQUIRED in 7.4+
+{% endif %}
 
     // Run a transaction
     _, err := db.Transact(func(tr fdb.Transaction) (interface{}, error) {
@@ -102,6 +105,32 @@ if err != nil {
 // With options
 db, err := fdb.OpenDefault(fdb.DefaultClusterFile)
 ```
+
+{% if fdb_version >= "7.4" %}
+!!! warning "Breaking Change in 7.4: Close() Required <span class="pill-new">NEW in 7.4</span>"
+    Starting with FoundationDB 7.4, **you must call `Close()` on Database objects** when you're done using them. Failure to call `Close()` will result in resource leaks.
+
+    ```go
+    db := fdb.MustOpenDefault()
+    defer db.Close()  // REQUIRED in 7.4+
+
+    // Use the database...
+    _, err := db.Transact(func(tr fdb.Transaction) (interface{}, error) {
+        tr.Set(fdb.Key("hello"), []byte("world"))
+        return nil, nil
+    })
+    ```
+
+    **Migration steps:**
+
+    1. Locate all `fdb.Open*` calls in your codebase
+    2. Add `defer db.Close()` immediately after each successful open
+    3. For long-lived database handles, ensure `Close()` is called during graceful shutdown
+
+    **Why this change?**
+
+    The Go binding now properly manages native resources. Calling `Close()` ensures that network threads and memory are properly cleaned up.
+{% endif %}
 
 ## Transactions
 
@@ -455,12 +484,18 @@ result, err := db.Transact(func(tr fdb.Transaction) (interface{}, error) {
     - Use `MustGet()` only when errors are truly unexpected
     - Use the tuple layer for structured keys
     - Handle `fdb.Error` appropriately in production
+{% if fdb_version >= "7.4" %}
+    - **Always call `db.Close()`** when done with Database objects (7.4+)
+{% endif %}
 
 !!! failure "Don't"
     - Don't ignore errors from FDB operations
     - Don't store values larger than 100KB
     - Don't hold transactions open for long periods
     - Don't use `panic()` in production transaction code
+{% if fdb_version >= "7.4" %}
+    - Don't forget to call `db.Close()` - it will leak resources (7.4+)
+{% endif %}
 
 ## Further Reading
 

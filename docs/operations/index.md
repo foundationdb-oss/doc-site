@@ -41,6 +41,58 @@ Guides for operating FoundationDB in production environments.
 
     [:octicons-arrow-right-24: Troubleshooting](troubleshooting.md)
 
+{% if fdb_version >= "7.3" %}
+-   :material-check-all:{ .lg .middle } **Consistency Check Urgent** <span class="pill-new">NEW in 7.3</span>
+
+    ---
+
+    Validate data consistency across storage server replicas.
+
+    [:octicons-arrow-right-24: Consistency Check Urgent](consistency-check.md)
+{% endif %}
+
+{% if fdb_version >= "7.4" %}
+-   :material-database-import:{ .lg .middle } **Bulk Load & Dump** <span class="pill-new">NEW</span>
+
+    ---
+
+    Load and dump large datasets efficiently using SST files.
+
+    [:octicons-arrow-right-24: Bulk Load & Dump](bulk-load.md)
+
+-   :material-lock:{ .lg .middle } **Range Lock** <span class="pill-experimental">EXPERIMENTAL</span>
+
+    ---
+
+    Block write traffic to specific key ranges.
+
+    [:octicons-arrow-right-24: Range Lock](range-lock.md)
+
+-   :material-shield-check:{ .lg .middle } **Audit Storage** <span class="pill-new">NEW</span>
+
+    ---
+
+    Validate data consistency across replicas.
+
+    [:octicons-arrow-right-24: Audit Storage](audit-storage.md)
+
+-   :material-radar:{ .lg .middle } **Consistency Scan** <span class="pill-new">NEW</span>
+
+    ---
+
+    Continuous background consistency verification.
+
+    [:octicons-arrow-right-24: Consistency Scan](consistency-scan.md)
+
+-   :material-restore:{ .lg .middle } **Restore Validation** <span class="pill-new">NEW</span>
+
+    ---
+
+    Verify backup restore integrity.
+
+    [:octicons-arrow-right-24: Restore Validation](restore-validation.md)
+{% endif %}
+
 </div>
 
 ## Operations Overview
