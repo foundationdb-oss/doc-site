@@ -114,15 +114,70 @@ mkdocs build
 
 ## 📚 Documentation Versioning
 
-We use [mike](https://github.com/jimporter/mike) for multi-version docs:
+We use [mike](https://github.com/jimporter/mike) for multi-version documentation. This allows users to switch between different FoundationDB releases.
+
+### Current Versions
+
+| Version | Alias | Description |
+|---------|-------|-------------|
+| `7.3` | `stable`, `latest` | **Current stable release** (default) |
+| `7.4` | - | Pre-release version |
+| `7.1` | - | Legacy version |
+
+### Local Testing with Mike
 
 ```bash
-# Deploy a new version
-mike deploy 7.3 latest --push
+# Preview versioned docs locally
+mike serve
 
-# Set default version
-mike set-default latest --push
+# Build a specific version locally (for testing)
+mike deploy 7.3 stable latest --title="7.3 (Stable)"
+
+# List all deployed versions
+mike list
 ```
+
+### Version Deployment Workflow
+
+> **Note:** Production deployments happen automatically via Vercel when changes are pushed to main. The commands below are for manual deployments or local testing.
+
+```bash
+# Deploy stable version with aliases
+mike deploy 7.3 stable latest --title="7.3 (Stable)" --push
+
+# Deploy pre-release version
+mike deploy 7.4 --title="7.4 (Pre-release)" --push
+
+# Deploy legacy version
+mike deploy 7.1 --title="7.1 (Legacy)" --push
+
+# Set the default version
+mike set-default stable --push
+
+# Delete an old version (use with caution)
+mike delete 6.x --push
+```
+
+### URL Structure
+
+| URL | Content |
+|-----|---------|
+| `/` | 7.3 content (stable at root) |
+| `/stable/` | Alias → 7.3 |
+| `/latest/` | Alias → 7.3 |
+| `/7.3/` | 7.3 docs |
+| `/7.4/` | 7.4 docs (pre-release) |
+| `/7.1/` | 7.1 docs (legacy) |
+
+### CI/CD Build Process
+
+The Vercel build script (`scripts/vercel-build.sh`) handles versioned deployments:
+
+1. Initializes a git repository (required by mike)
+2. Deploys each version with appropriate aliases
+3. Sets the default version to `stable`
+4. Extracts the built site from the `gh-pages` branch
+5. Copies stable version content to root for backward compatibility
 
 ## 🛠 Tech Stack
 
