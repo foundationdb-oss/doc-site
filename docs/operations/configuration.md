@@ -416,7 +416,7 @@ FoundationDB supports multiple storage engines optimized for different workloads
 | Engine | Best For | Notes |
 |--------|----------|-------|
 | `ssd` | Production with SSDs | B-tree optimized for SSDs, recommended default |
-| `ssd-redwood-v1` | High throughput | Improved B-tree, lower write amplification |
+| `ssd-redwood-1` | High throughput | Improved B-tree, lower write amplification |
 | `ssd-rocksdb-v1` | Write-heavy workloads | LSM-tree based, tunable compression |
 | `memory` | Small datasets | Data in memory, logged to disk |
 
@@ -436,7 +436,7 @@ Configuration changed.
 - Deferred space reclamation after deletes
 - Poor performance on spinning disks
 
-**Redwood Engine (`ssd-redwood-v1`)**
+**Redwood Engine (`ssd-redwood-1`)**
 
 - Improved B-tree implementation
 - Higher throughput than standard SSD engine
@@ -630,7 +630,7 @@ fdb> setclass 10.0.4.1:4500 storage
 ### Configuration Best Practices
 
 1. **Start with `triple` redundancy** for production clusters of 5+ machines
-2. **Use `ssd` or `ssd-redwood-v1`** storage engine for most workloads
+2. **Use `ssd` or `ssd-redwood-1`** storage engine for most workloads
 3. **Place coordinators** in different failure domains
 4. **Assign process classes** to optimize resource usage
 5. **Enable TLS** for production deployments

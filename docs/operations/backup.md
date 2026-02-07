@@ -251,7 +251,7 @@ fdbbackup wait -t default
 | Option | Description |
 |--------|-------------|
 | `-C, --cluster-file` | Path to cluster file |
-| `-d, --dest-url` | Backup destination URL |
+| `-d, --destcontainer` | Backup destination URL |
 | `-t, --tag` | Backup tag (default: `default`) |
 | `-k, --keys` | Key range to back up |
 | `-z, --no-stop-when-done` | Continue after snapshot |
