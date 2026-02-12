@@ -75,7 +75,6 @@ The Redwood storage engine was renamed between versions:
 
     - **Backup V2**: 50% reduction in write amplification during backups
     - **Bulk Loading**: Experimental support for efficient data loading
-    - **Improved Tenant Support**: Enhanced multi-tenancy capabilities
     - **Go Binding Change**: `Close()` now required on Database objects
     - All 7.3 features
 
@@ -91,7 +90,6 @@ The Redwood storage engine was renamed between versions:
     - **GetMappedRange**: Advanced range query capabilities for secondary indexes
     - **Version Vector**: Enhanced conflict detection for improved transaction throughput
     - **RocksDB**: Experimental storage engine support
-    - **Tenant Management**: Basic multi-tenancy support
 
 ### Feature Availability Matrix
 
@@ -101,7 +99,6 @@ The Redwood storage engine was renamed between versions:
 | RocksDB Storage Engine | ✅ (experimental) | ✅ (experimental) | ✅ (experimental) |
 | GetMappedRange | ✅ | ✅ | ✅ |
 | Version Vectors | ✅ | ✅ | ✅ |
-| Tenant Management | ✅ | ✅ | ✅ (improved) |
 | Backup V2 | ❌ | ❌ | ✅ |
 | Bulk Loading | ❌ | ❌ | ✅ (experimental) |
 
