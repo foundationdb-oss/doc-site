@@ -11,7 +11,7 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
 <div class="grid cards" markdown>
 
--   :fontawesome-brands-python:{ .lg .middle } **Python**
+-   :fontawesome-brands-python:{ .lg .middle } **Python** :material-check-decagram:{ .middle } Official
 
     ---
 
@@ -19,7 +19,7 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-arrow-right-24: Python API](python.md)
 
--   :fontawesome-brands-java:{ .lg .middle } **Java**
+-   :fontawesome-brands-java:{ .lg .middle } **Java** :material-check-decagram:{ .middle } Official
 
     ---
 
@@ -27,7 +27,7 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-arrow-right-24: Java API](java.md)
 
--   :fontawesome-brands-golang:{ .lg .middle } **Go**
+-   :fontawesome-brands-golang:{ .lg .middle } **Go** :material-check-decagram:{ .middle } Official
 
     ---
 
@@ -35,13 +35,45 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-arrow-right-24: Go API](go.md)
 
--   :material-language-c:{ .lg .middle } **C**
+-   :material-language-c:{ .lg .middle } **C** :material-check-decagram:{ .middle } Official
 
     ---
 
     Low-level C API for maximum control. Foundation for all other bindings.
 
     [:octicons-arrow-right-24: C API](c.md)
+
+-   :material-language-ruby:{ .lg .middle } **Ruby** :material-check-decagram:{ .middle } Official
+
+    ---
+
+    Official Ruby bindings shipped with the FoundationDB source. Maintained by Apple.
+
+    [:octicons-mark-github-16: GitHub](https://github.com/apple/foundationdb/tree/main/bindings/ruby)
+
+-   :fontawesome-brands-rust:{ .lg .middle } **Rust** :octicons-people-16:{ .middle } Community
+
+    ---
+
+    Community-maintained Rust bindings with async support.
+
+    [:octicons-mark-github-16: GitHub](https://github.com/foundationdb-rs/foundationdb-rs)
+
+-   :fontawesome-brands-node-js:{ .lg .middle } **Node.js** :octicons-people-16:{ .middle } Community
+
+    ---
+
+    Community-maintained Node.js bindings.
+
+    [:octicons-mark-github-16: GitHub](https://github.com/josephg/node-foundationdb)
+
+-   :material-dot-net:{ .lg .middle } **.NET** :octicons-people-16:{ .middle } Community
+
+    ---
+
+    Community-maintained .NET client library.
+
+    [:octicons-mark-github-16: GitHub](https://github.com/Doxense/foundationdb-dotnet-client)
 
 </div>
 
@@ -269,28 +301,6 @@ All bindings handle transient errors through automatic retry:
 | 2000 | `client_invalid_operation` | Fix code |
 
 See individual language pages for error handling details.
-
-## Additional Bindings
-
-### Official Bindings
-
-| Language | Repository |
-|----------|------------|
-| **Ruby** | [apple/foundationdb](https://github.com/apple/foundationdb/tree/main/bindings/ruby) |
-
-Ruby is shipped with the FoundationDB source code and maintained by Apple.
-
-### Community Bindings
-
-Community-maintained bindings are available for:
-
-| Language | Repository |
-|----------|------------|
-| **Rust** | [foundationdb-rs](https://github.com/foundationdb-rs/foundationdb-rs) |
-| **Node.js** | [node-foundationdb](https://github.com/josephg/node-foundationdb) |
-| **.NET** | [FoundationDB.Client](https://github.com/Doxense/foundationdb-dotnet-client) |
-
-See [Community Resources](../community/resources.md) for more details.
 
 ## Next Steps
 
