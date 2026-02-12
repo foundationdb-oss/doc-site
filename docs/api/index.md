@@ -11,7 +11,9 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
 <div class="grid cards" markdown>
 
--   :fontawesome-brands-python:{ .lg .middle } **Python** :material-check-decagram:{ .middle } Official
+-   :fontawesome-brands-python:{ .lg .middle } **Python**
+
+    :material-check-decagram:{ .middle } Official
 
     ---
 
@@ -19,7 +21,9 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-arrow-right-24: Python API](python.md)
 
--   :fontawesome-brands-java:{ .lg .middle } **Java** :material-check-decagram:{ .middle } Official
+-   :fontawesome-brands-java:{ .lg .middle } **Java**
+
+    :material-check-decagram:{ .middle } Official
 
     ---
 
@@ -27,7 +31,9 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-arrow-right-24: Java API](java.md)
 
--   :fontawesome-brands-golang:{ .lg .middle } **Go** :material-check-decagram:{ .middle } Official
+-   :fontawesome-brands-golang:{ .lg .middle } **Go**
+
+    :material-check-decagram:{ .middle } Official
 
     ---
 
@@ -35,7 +41,9 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-arrow-right-24: Go API](go.md)
 
--   :material-language-c:{ .lg .middle } **C** :material-check-decagram:{ .middle } Official
+-   :material-language-c:{ .lg .middle } **C**
+
+    :material-check-decagram:{ .middle } Official
 
     ---
 
@@ -43,7 +51,9 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-arrow-right-24: C API](c.md)
 
--   :material-language-ruby:{ .lg .middle } **Ruby** :material-check-decagram:{ .middle } Official
+-   :material-language-ruby:{ .lg .middle } **Ruby**
+
+    :material-check-decagram:{ .middle } Official
 
     ---
 
@@ -51,7 +61,9 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-mark-github-16: GitHub](https://github.com/apple/foundationdb/tree/main/bindings/ruby)
 
--   :fontawesome-brands-rust:{ .lg .middle } **Rust** :octicons-people-16:{ .middle } Community
+-   :fontawesome-brands-rust:{ .lg .middle } **Rust**
+
+    :octicons-people-16:{ .middle } Community
 
     ---
 
@@ -59,7 +71,9 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-mark-github-16: GitHub](https://github.com/foundationdb-rs/foundationdb-rs)
 
--   :fontawesome-brands-node-js:{ .lg .middle } **Node.js** :octicons-people-16:{ .middle } Community
+-   :fontawesome-brands-node-js:{ .lg .middle } **Node.js**
+
+    :octicons-people-16:{ .middle } Community
 
     ---
 
@@ -67,7 +81,9 @@ Complete reference for FoundationDB client libraries. Choose your language to ge
 
     [:octicons-mark-github-16: GitHub](https://github.com/josephg/node-foundationdb)
 
--   :material-dot-net:{ .lg .middle } **.NET** :octicons-people-16:{ .middle } Community
+-   :material-dot-net:{ .lg .middle } **.NET**
+
+    :octicons-people-16:{ .middle } Community
 
     ---
 
