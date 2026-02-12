@@ -908,6 +908,12 @@ body:has(.hero-parallax) .md-header__title {
   background: var(--md-primary-fg-color) !important;
 }
 
+/* Hide sidebars on landing page (fixes tablet view nav leak) */
+body:has(.hero-parallax) .md-sidebar--primary,
+body:has(.hero-parallax) .md-sidebar--secondary {
+  display: none !important;
+}
+
 /* ==========================================================================
    Version Pills - Highlight version-specific features
    ========================================================================== */
