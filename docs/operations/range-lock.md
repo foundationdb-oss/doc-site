@@ -144,16 +144,13 @@ Range lock metadata is stored in system key space:
 |---------|---------------|
 | **Database Lock** | Range locks work independently; lock-aware transactions can still update lock metadata |
 | **Backup/Restore** | May cause mutation loss during restore; auto-retry from clean state |
-| **ChangeFeed** | May trigger assertion failures (under investigation) |
 | **Version Vector** | Not compatible; disable version vector when using range locks |
-| **Encryption/Tenant** | Not supported when encryption or tenants are enabled |
 
 ## Limitations
 
 - Exclusive read lock is currently the only lock type
 - Range must be within user key space
 - Not compatible with version vector mode
-- Cannot be used with encryption or multi-tenant configurations
 
 ## See Also
 
