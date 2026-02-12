@@ -272,14 +272,23 @@ See individual language pages for error handling details.
 
 ## Additional Bindings
 
+### Official Bindings
+
+| Language | Repository |
+|----------|------------|
+| **Ruby** | [apple/foundationdb](https://github.com/apple/foundationdb/tree/main/bindings/ruby) |
+
+Ruby is shipped with the FoundationDB source code and maintained by Apple.
+
+### Community Bindings
+
 Community-maintained bindings are available for:
 
-| Language | Repository | Status |
-|----------|------------|--------|
-| **Ruby** | [apple/foundationdb](https://github.com/apple/foundationdb/tree/main/bindings/ruby) | Official |
-| **Rust** | [foundationdb-rs](https://github.com/foundationdb-rs/foundationdb-rs) | Community |
-| **Node.js** | [node-foundationdb](https://github.com/josephg/node-foundationdb) | Community |
-| **.NET** | [FoundationDB.Client](https://github.com/Doxense/foundationdb-dotnet-client) | Community |
+| Language | Repository |
+|----------|------------|
+| **Rust** | [foundationdb-rs](https://github.com/foundationdb-rs/foundationdb-rs) |
+| **Node.js** | [node-foundationdb](https://github.com/josephg/node-foundationdb) |
+| **.NET** | [FoundationDB.Client](https://github.com/Doxense/foundationdb-dotnet-client) |
 
 See [Community Resources](../community/resources.md) for more details.
 
