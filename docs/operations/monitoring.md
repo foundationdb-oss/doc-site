@@ -352,16 +352,40 @@ sys.exit(0)
 
 ## Prometheus Integration
 
-### Using fdb-prometheus-exporter
+### Available Exporters
 
-Export FoundationDB metrics to Prometheus:
+Several community-maintained Prometheus exporters are available for FoundationDB:
+
+| Exporter | Language | Maintainer | Status | Link |
+|----------|----------|------------|--------|------|
+| **fdbexporter** | Rust | Clever Cloud | Actively maintained, production use, v2.3.1 (Jan 2026), Docker images, supports FDB 7.1 & 7.3 | [CleverCloud/fdbexporter](https://github.com/CleverCloud/fdbexporter) |
+| **fdb-exporter** | Go | Tigris Data | Community | [tigrisdata/fdb-exporter](https://github.com/tigrisdata/fdb-exporter) |
+| **foundationdb-exporter** | TypeScript | @aikoven | Community | [aikoven/foundationdb-exporter](https://github.com/aikoven/foundationdb-exporter) |
+| **fdb-prometheus-exporter** | Go | @PierreZ | Legacy / unmaintained | [PierreZ/fdb-prometheus-exporter](https://github.com/PierreZ/fdb-prometheus-exporter) |
+
+### Using fdbexporter (Recommended)
+
+The [CleverCloud/fdbexporter](https://github.com/CleverCloud/fdbexporter) is actively maintained and recommended for production use.
+
+**Docker Usage:**
+
+```bash
+docker run -d \
+  --name fdbexporter \
+  -p 9090:9090 \
+  -e FDB_CLUSTER_FILE=/etc/foundationdb/fdb.cluster \
+  -v /etc/foundationdb:/etc/foundationdb:ro \
+  clevercloud/fdbexporter:2.3.1-7.3.69
+```
+
+**Prometheus Configuration:**
 
 ```yaml
 # prometheus.yml
 scrape_configs:
   - job_name: 'foundationdb'
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: ['localhost:9090']
     scrape_interval: 15s
 ```
 
