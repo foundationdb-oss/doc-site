@@ -143,7 +143,10 @@ FoundationDB's layered architecture enables building specialized databases on to
 
 | Tool | Description | Link |
 |------|-------------|------|
-| **fdb_exporter** | Prometheus metrics exporter | [:octicons-mark-github-16:](https://github.com/leoluk/fdb_exporter){ target="_blank" } |
+| **fdbexporter** | Prometheus metrics exporter (Rust, actively maintained) | [:octicons-mark-github-16:](https://github.com/CleverCloud/fdbexporter){ target="_blank" } |
+| **fdb-exporter** | Prometheus metrics exporter (Go) | [:octicons-mark-github-16:](https://github.com/tigrisdata/fdb-exporter){ target="_blank" } |
+| **foundationdb-exporter** | Prometheus metrics exporter (TypeScript) | [:octicons-mark-github-16:](https://github.com/aikoven/foundationdb-exporter){ target="_blank" } |
+| **fdb-prometheus-exporter** | Prometheus metrics exporter (Go, legacy) | [:octicons-mark-github-16:](https://github.com/PierreZ/fdb-prometheus-exporter){ target="_blank" } |
 | **wavefront-fdb-tailer** | Wavefront integration | [:octicons-mark-github-16:](https://github.com/wavefrontHQ/wavefront-fdb-tailer){ target="_blank" } |
 
 ### Kubernetes
@@ -198,6 +201,7 @@ FoundationDB powers critical infrastructure at:
 | **Wavefront (VMware)** | Cloud monitoring and analytics |
 | **Tigris Data** | Global metadata storage |
 | **Adobe** | Identity graph database |
+| **Clever Cloud** | FoundationDB operations and monitoring tooling |
 
 ---
 
