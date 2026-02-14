@@ -194,6 +194,8 @@ nav:
       - Monitoring: operations/monitoring.md
       - Backup & Recovery: operations/backup.md
       - Upgrading: operations/upgrading.md
+      - Kubernetes Deployment: operations/kubernetes.md
+      - Docker Development: operations/docker.md
       - Bulk Load & Dump: operations/bulk-load.md
       - Range Lock: operations/range-lock.md
       - Audit Storage: operations/audit-storage.md
@@ -204,6 +206,7 @@ nav:
   - Community:
       - community/index.md
       - Contributing: community/contributing.md
+      - Building from Source: community/building.md
       - Resources: community/resources.md
 
 

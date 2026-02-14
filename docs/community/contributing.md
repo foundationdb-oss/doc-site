@@ -93,8 +93,31 @@ ninja
 ctest --output-on-failure
 ```
 
-!!! note "Build Documentation"
-    For detailed build instructions including platform-specific guides, see the [official build documentation](https://github.com/apple/foundationdb/blob/main/BUILDING.md){ target="_blank" }.
+!!! note "Comprehensive Build Guide"
+    For detailed build instructions including platform-specific guides, CMake options, and troubleshooting, see our [Building from Source](building.md) guide.
+
+---
+
+## :material-folder-multiple: Repository Structure
+
+Understanding the codebase helps you navigate and contribute effectively:
+
+| Directory | Description |
+|-----------|-------------|
+| `fdbserver/` | Server processes: storage server, TLog, proxy, resolver, data distributor |
+| `fdbclient/` | Client library: transactions, database connections, key-value API |
+| `flow/` | Flow runtime and actor framework (enables deterministic simulation) |
+| `fdbrpc/` | RPC layer, networking, serialization |
+| `fdbmonitor/` | Process monitor that manages server lifecycles |
+| `fdbcli/` | Command-line interface for cluster management |
+| `bindings/` | Language bindings: Python, Java, Go, C |
+| `tests/` | Simulation test definitions (`.toml` files) |
+| `documentation/` | Sphinx source for official docs |
+
+!!! info "Flow Language"
+    FoundationDB uses **Flow**, a custom C++ dialect for deterministic simulation. Files ending in `.actor.cpp` are Flow actors that compile to standard C++.
+
+    Learn more: [Building from Source → Flow Primer](building.md#flow-language-primer) | [Internals Overview](../guides/internals-overview.md#the-flow-language)
 
 ---
 

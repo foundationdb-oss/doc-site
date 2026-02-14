@@ -83,6 +83,14 @@ Explore talks, papers, and resources created by and for the FoundationDB communi
 
     [:octicons-arrow-right-24: Get Started](contributing.md)
 
+-   :material-hammer-wrench:{ .lg .middle } **Build from Source**
+
+    ---
+
+    Build FoundationDB from source code. Prerequisites, CMake options, and troubleshooting.
+
+    [:octicons-arrow-right-24: Build Guide](building.md)
+
 -   :material-tools:{ .lg .middle } **Tools & Integrations**
 
     ---
