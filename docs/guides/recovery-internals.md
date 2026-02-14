@@ -62,21 +62,16 @@ Recovery proceeds through four distinct phases:
 ```mermaid
 stateDiagram-v2
     [*] --> CoordinatorLock: Failure Detected
-    
-    CoordinatorLock: Phase 1: Lock Coordinators
-    MasterRecruit: Phase 2: Recruit Master
-    TransactionRecovery: Phase 3: Transaction System Recovery
-    AcceptCommits: Phase 4: Resume Operations
-    
+
+    CoordinatorLock: Phase 1 — Lock Coordinators (~5-20 ms)
+    MasterRecruit: Phase 2 — Recruit Master (~10-50 ms)
+    TransactionRecovery: Phase 3 — Transaction System Recovery (~50-200 ms)
+    AcceptCommits: Phase 4 — Resume Operations
+
     CoordinatorLock --> MasterRecruit: Lock acquired
     MasterRecruit --> TransactionRecovery: Master elected
     TransactionRecovery --> AcceptCommits: Recovery complete
     AcceptCommits --> [*]: Cluster operational
-    
-    note right of CoordinatorLock: ~5-20 ms
-    note right of MasterRecruit: ~10-50 ms
-    note right of TransactionRecovery: ~50-200 ms
-    note right of AcceptCommits: Ready to serve
 ```
 
 ### Phase 1: Lock Coordinators
