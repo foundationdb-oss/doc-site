@@ -49,6 +49,22 @@ Guides for operating FoundationDB in production environments.
 
     [:octicons-arrow-right-24: Troubleshooting](troubleshooting.md)
 
+-   :material-kubernetes:{ .lg .middle } **Kubernetes Deployment**
+
+    ---
+
+    Deploy on Kubernetes using the fdb-kubernetes-operator.
+
+    [:octicons-arrow-right-24: Kubernetes](kubernetes.md)
+
+-   :material-docker:{ .lg .middle } **Docker Development**
+
+    ---
+
+    Run FDB in Docker for local development and testing.
+
+    [:octicons-arrow-right-24: Docker](docker.md)
+
 {% if fdb_version >= "7.3" %}
 -   :material-check-all:{ .lg .middle } **Consistency Check Urgent** <span class="pill-new">NEW IN 7.3</span>
 
