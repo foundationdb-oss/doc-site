@@ -1181,6 +1181,9 @@ body:has(.hero-parallax) .md-sidebar--primary {
 
 /* Style for mermaid element when in fullscreen mode */
 .mermaid-in-fullscreen {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.05s ease-out;
   user-select: none;
   -webkit-user-drag: none;
