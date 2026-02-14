@@ -179,6 +179,9 @@ nav:
           - Simulation Testing: guides/simulation-testing.md
           - Architecture Deep Dive: guides/architecture-deep-dive.md
           - Storage Engines: guides/storage-engines.md
+          - Data Distribution: guides/data-distribution.md
+          - Transaction Pipeline: guides/transaction-pipeline.md
+          - Recovery Internals: guides/recovery-internals.md
   - API Reference:
       - api/index.md
       - Python: api/python.md
