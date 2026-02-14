@@ -82,6 +82,12 @@ if (typeof document$ !== "undefined") {
 // ==========================================================================
 // Mermaid Fullscreen Viewer
 // Provides fullscreen overlay with zoom and pan for Mermaid diagrams
+//
+// IMPORTANT: Material for MkDocs renders Mermaid SVGs inside a CLOSED shadow DOM.
+// - Cannot use querySelector('svg') on .mermaid elements (returns null)
+// - Cannot append children to .mermaid elements (won't render)
+// - CAN apply CSS transforms to .mermaid element itself (affects visual rendering)
+// - CAN move .mermaid elements in DOM (shadow DOM moves with them)
 // ==========================================================================
 
 (function() {
@@ -107,13 +113,34 @@ if (typeof document$ !== "undefined") {
   // Track cleanup functions for event listeners
   var cleanupFns = [];
 
-  // Create the overlay element (once)
+  // Overlay elements
   var overlay = null;
-  var svgContainer = null;
+  var diagramContainer = null;
   var zoomIndicator = null;
   var closeBtn = null;
   var previousFocus = null;
 
+  // Track the currently displayed mermaid element and its original wrapper
+  var currentMermaidEl = null;
+  var originalWrapper = null;
+
+  /**
+   * Check if a .mermaid element is a rendered diagram (not an unrendered <pre>)
+   * Material renders to <div class="mermaid"> with shadow DOM containing SVG
+   */
+  function isRenderedMermaid(el) {
+    // Must be a DIV (rendered diagrams are divs, unrendered are pre)
+    if (el.tagName !== 'DIV') return false;
+    // Must have visual height (rendered)
+    if (el.offsetHeight === 0) return false;
+    // Must have class mermaid
+    if (!el.classList.contains('mermaid')) return false;
+    return true;
+  }
+
+  /**
+   * Create the fullscreen overlay (once)
+   */
   function createOverlay() {
     if (overlay) return;
 
@@ -132,13 +159,13 @@ if (typeof document$ !== "undefined") {
       '    <button class="mermaid-zoom-btn" data-action="zoom-reset" aria-label="Reset zoom">⟲</button>',
       '    <button class="mermaid-close-btn" aria-label="Close fullscreen view">✕</button>',
       '  </div>',
-      '  <div class="mermaid-fullscreen-svg-container"></div>',
+      '  <div class="mermaid-fullscreen-diagram-container"></div>',
       '</div>'
     ].join('\n');
 
     document.body.appendChild(overlay);
 
-    svgContainer = overlay.querySelector('.mermaid-fullscreen-svg-container');
+    diagramContainer = overlay.querySelector('.mermaid-fullscreen-diagram-container');
     zoomIndicator = overlay.querySelector('.mermaid-zoom-indicator');
     closeBtn = overlay.querySelector('.mermaid-close-btn');
 
@@ -167,12 +194,16 @@ if (typeof document$ !== "undefined") {
     state.lastPanY = 0;
   }
 
+  /**
+   * Apply transform to the mermaid element itself (shadow DOM renders visually)
+   */
   function updateTransform() {
-    var svg = svgContainer.querySelector('svg');
-    if (svg) {
-      svg.style.transform = 'translate(' + state.panX + 'px, ' + state.panY + 'px) scale(' + state.zoom + ')';
+    if (currentMermaidEl) {
+      currentMermaidEl.style.transform = 'translate(' + state.panX + 'px, ' + state.panY + 'px) scale(' + state.zoom + ')';
     }
-    zoomIndicator.textContent = Math.round(state.zoom * 100) + '%';
+    if (zoomIndicator) {
+      zoomIndicator.textContent = Math.round(state.zoom * 100) + '%';
+    }
   }
 
   function zoomBy(delta) {
@@ -182,7 +213,7 @@ if (typeof document$ !== "undefined") {
 
   function zoomTo(newZoom, centerX, centerY) {
     // Zoom toward the given point
-    var rect = svgContainer.getBoundingClientRect();
+    var rect = diagramContainer.getBoundingClientRect();
     var relX = centerX - rect.left - rect.width / 2;
     var relY = centerY - rect.top - rect.height / 2;
 
@@ -203,24 +234,26 @@ if (typeof document$ !== "undefined") {
     updateTransform();
   }
 
-  function openOverlay(mermaidEl) {
+  /**
+   * Open fullscreen overlay by MOVING the mermaid element into the overlay
+   */
+  function openOverlay(mermaidEl, wrapper) {
     createOverlay();
     resetState();
 
-    // Clone the SVG
-    var svg = mermaidEl.querySelector('svg');
-    if (!svg) return;
+    // Store references for closing
+    currentMermaidEl = mermaidEl;
+    originalWrapper = wrapper;
 
-    var clonedSvg = svg.cloneNode(true);
-    clonedSvg.style.maxWidth = '90vw';
-    clonedSvg.style.maxHeight = '80vh';
-    clonedSvg.style.width = 'auto';
-    clonedSvg.style.height = 'auto';
-    clonedSvg.style.transformOrigin = 'center center';
-    clonedSvg.style.cursor = 'grab';
+    // Style the mermaid element for fullscreen display
+    mermaidEl.style.maxWidth = '90vw';
+    mermaidEl.style.maxHeight = '80vh';
+    mermaidEl.style.transformOrigin = 'center center';
+    mermaidEl.style.cursor = 'grab';
+    mermaidEl.classList.add('mermaid-in-fullscreen');
 
-    svgContainer.innerHTML = '';
-    svgContainer.appendChild(clonedSvg);
+    // Move the mermaid element from its wrapper into the overlay container
+    diagramContainer.appendChild(mermaidEl);
 
     // Store previous focus for restoration
     previousFocus = document.activeElement;
@@ -238,8 +271,26 @@ if (typeof document$ !== "undefined") {
     attachOverlayListeners();
   }
 
+  /**
+   * Close overlay and move mermaid element back to its original wrapper
+   */
   function closeOverlay() {
-    if (!overlay) return;
+    if (!overlay || !currentMermaidEl || !originalWrapper) return;
+
+    // Reset transform styles
+    currentMermaidEl.style.transform = '';
+    currentMermaidEl.style.maxWidth = '';
+    currentMermaidEl.style.maxHeight = '';
+    currentMermaidEl.style.transformOrigin = '';
+    currentMermaidEl.style.cursor = '';
+    currentMermaidEl.classList.remove('mermaid-in-fullscreen');
+
+    // Move mermaid element back to its original wrapper
+    originalWrapper.appendChild(currentMermaidEl);
+
+    // Clear references
+    currentMermaidEl = null;
+    originalWrapper = null;
 
     overlay.classList.remove('active');
     document.body.style.overflow = '';
@@ -255,8 +306,6 @@ if (typeof document$ !== "undefined") {
   }
 
   function attachOverlayListeners() {
-    var svg = svgContainer.querySelector('svg');
-
     // Keyboard - Escape to close
     function handleKeydown(e) {
       if (e.key === 'Escape') {
@@ -274,9 +323,9 @@ if (typeof document$ !== "undefined") {
       var delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
       zoomTo(state.zoom + delta, e.clientX, e.clientY);
     }
-    svgContainer.addEventListener('wheel', handleWheel, { passive: false });
+    diagramContainer.addEventListener('wheel', handleWheel, { passive: false });
     cleanupFns.push(function() {
-      svgContainer.removeEventListener('wheel', handleWheel);
+      diagramContainer.removeEventListener('wheel', handleWheel);
     });
 
     // Pan with mouse drag
@@ -287,7 +336,7 @@ if (typeof document$ !== "undefined") {
       state.startY = e.clientY;
       state.lastPanX = state.panX;
       state.lastPanY = state.panY;
-      svg.style.cursor = 'grabbing';
+      if (currentMermaidEl) currentMermaidEl.style.cursor = 'grabbing';
     }
     function handleMouseMove(e) {
       if (!state.isPanning) return;
@@ -299,21 +348,20 @@ if (typeof document$ !== "undefined") {
     }
     function handleMouseUp() {
       state.isPanning = false;
-      if (svg) svg.style.cursor = 'grab';
+      if (currentMermaidEl) currentMermaidEl.style.cursor = 'grab';
     }
 
-    svgContainer.addEventListener('mousedown', handleMouseDown);
+    diagramContainer.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
     cleanupFns.push(function() {
-      svgContainer.removeEventListener('mousedown', handleMouseDown);
+      diagramContainer.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     });
 
     // Touch support for pinch zoom and pan
     var lastTouchDist = 0;
-    var lastTouchCenter = { x: 0, y: 0 };
 
     function getTouchDistance(touches) {
       var dx = touches[0].clientX - touches[1].clientX;
@@ -337,7 +385,6 @@ if (typeof document$ !== "undefined") {
       } else if (e.touches.length === 2) {
         state.isPanning = false;
         lastTouchDist = getTouchDistance(e.touches);
-        lastTouchCenter = getTouchCenter(e.touches);
       }
     }
     function handleTouchMove(e) {
@@ -354,69 +401,107 @@ if (typeof document$ !== "undefined") {
         var scale = newDist / lastTouchDist;
         zoomTo(state.zoom * scale, center.x, center.y);
         lastTouchDist = newDist;
-        lastTouchCenter = center;
       }
     }
     function handleTouchEnd() {
       state.isPanning = false;
     }
 
-    svgContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
-    svgContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
-    svgContainer.addEventListener('touchend', handleTouchEnd);
+    diagramContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+    diagramContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    diagramContainer.addEventListener('touchend', handleTouchEnd);
     cleanupFns.push(function() {
-      svgContainer.removeEventListener('touchstart', handleTouchStart);
-      svgContainer.removeEventListener('touchmove', handleTouchMove);
-      svgContainer.removeEventListener('touchend', handleTouchEnd);
+      diagramContainer.removeEventListener('touchstart', handleTouchStart);
+      diagramContainer.removeEventListener('touchmove', handleTouchMove);
+      diagramContainer.removeEventListener('touchend', handleTouchEnd);
     });
   }
 
-  function addExpandButtons() {
-    // Find all mermaid containers that have been rendered (contain SVG)
-    var mermaidContainers = document.querySelectorAll('pre.mermaid');
+  /**
+   * Wrap a rendered mermaid element and add expand button
+   * Button is on the wrapper (not on .mermaid) because shadow DOM prevents light DOM children
+   */
+  function wrapMermaidElement(mermaidEl) {
+    // Skip if already wrapped
+    if (mermaidEl.parentElement && mermaidEl.parentElement.classList.contains('mermaid-wrapper')) {
+      return;
+    }
 
-    mermaidContainers.forEach(function(container) {
-      // Skip if already processed or no SVG yet
-      if (container.querySelector('.mermaid-expand-btn')) return;
-      if (!container.querySelector('svg')) return;
+    // Create wrapper div
+    var wrapper = document.createElement('div');
+    wrapper.className = 'mermaid-wrapper';
+    wrapper.style.position = 'relative';
 
-      // Create expand button
-      var btn = document.createElement('button');
-      btn.className = 'mermaid-expand-btn';
-      btn.setAttribute('aria-label', 'View diagram in fullscreen');
-      btn.setAttribute('title', 'View fullscreen');
-      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
+    // Insert wrapper before mermaid element, then move mermaid inside
+    mermaidEl.parentNode.insertBefore(wrapper, mermaidEl);
+    wrapper.appendChild(mermaidEl);
 
-      // Make container position relative for button positioning
-      container.style.position = 'relative';
+    // Create expand button on the wrapper
+    var btn = document.createElement('button');
+    btn.className = 'mermaid-expand-btn';
+    btn.setAttribute('aria-label', 'View diagram in fullscreen');
+    btn.setAttribute('title', 'View fullscreen');
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
 
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openOverlay(container);
-      });
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openOverlay(mermaidEl, wrapper);
+    });
 
-      container.appendChild(btn);
+    wrapper.appendChild(btn);
+  }
+
+  /**
+   * Scan for rendered mermaid diagrams and wrap them
+   */
+  function processMermaidDiagrams() {
+    var mermaidElements = document.querySelectorAll('.mermaid');
+
+    mermaidElements.forEach(function(el) {
+      // Only process rendered diagrams (DIV with height, not PRE)
+      if (!isRenderedMermaid(el)) return;
+
+      // Skip if already wrapped
+      if (el.parentElement && el.parentElement.classList.contains('mermaid-wrapper')) return;
+
+      // Skip if currently in fullscreen
+      if (el.classList.contains('mermaid-in-fullscreen')) return;
+
+      wrapMermaidElement(el);
     });
   }
 
+  /**
+   * Initialize the fullscreen viewer
+   */
   function initMermaidFullscreen() {
-    // Use MutationObserver to detect when mermaid finishes rendering
-    // Mermaid transforms <pre class="mermaid"><code>...</code></pre> into <pre class="mermaid"><svg>...</svg></pre>
+    // Use MutationObserver to detect when Material for MkDocs renders mermaid diagrams
+    // It transforms <pre class="mermaid"> into <div class="mermaid"> with closed shadow DOM
     var observer = new MutationObserver(function(mutations) {
-      var shouldAddButtons = false;
+      var shouldProcess = false;
+
       mutations.forEach(function(mutation) {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach(function(node) {
-            if (node.nodeName === 'SVG' || (node.querySelector && node.querySelector('svg'))) {
-              shouldAddButtons = true;
+            // Check if added node is a rendered mermaid div
+            if (node.nodeType === 1 && node.classList && node.classList.contains('mermaid') && node.tagName === 'DIV') {
+              shouldProcess = true;
+            }
+            // Also check for containers that might have mermaid divs
+            if (node.nodeType === 1 && node.querySelectorAll) {
+              var hasMermaid = node.querySelectorAll('div.mermaid');
+              if (hasMermaid.length > 0) {
+                shouldProcess = true;
+              }
             }
           });
         }
       });
-      if (shouldAddButtons) {
-        // Small delay to ensure mermaid is fully done
-        setTimeout(addExpandButtons, 100);
+
+      if (shouldProcess) {
+        // Small delay to ensure rendering is complete and element has height
+        setTimeout(processMermaidDiagrams, 100);
       }
     });
 
@@ -426,11 +511,16 @@ if (typeof document$ !== "undefined") {
       observer.observe(contentArea, { childList: true, subtree: true });
     }
 
-    // Also try immediately in case diagrams are already rendered
-    addExpandButtons();
-    // And with a small delay as fallback
-    setTimeout(addExpandButtons, 500);
-    setTimeout(addExpandButtons, 1000);
+    // Also observe body in case content area doesn't exist yet
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Process any already-rendered diagrams
+    processMermaidDiagrams();
+
+    // Retry with delays as fallback (mermaid rendering can be async)
+    setTimeout(processMermaidDiagrams, 300);
+    setTimeout(processMermaidDiagrams, 600);
+    setTimeout(processMermaidDiagrams, 1000);
   }
 
   // Initialize on DOM ready
@@ -443,10 +533,11 @@ if (typeof document$ !== "undefined") {
   // Re-initialize on SPA navigation (MkDocs Material instant loading)
   if (typeof document$ !== 'undefined') {
     document$.subscribe(function() {
-      // Delay to let mermaid render
-      setTimeout(addExpandButtons, 300);
-      setTimeout(addExpandButtons, 600);
-      setTimeout(addExpandButtons, 1000);
+      // Process diagrams after navigation with delays for rendering
+      setTimeout(processMermaidDiagrams, 100);
+      setTimeout(processMermaidDiagrams, 300);
+      setTimeout(processMermaidDiagrams, 600);
+      setTimeout(processMermaidDiagrams, 1000);
     });
   }
 })();
