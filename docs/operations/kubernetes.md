@@ -127,7 +127,7 @@ kind: FoundationDBCluster
 metadata:
   name: my-fdb-cluster
 spec:
-  version: 7.3.43
+  version: {{ docker_tag }}
   processGroupIDPrefix: my-fdb
   databaseConfiguration:
     redundancy_mode: double
@@ -231,7 +231,7 @@ The operator supports rolling upgrades with zero downtime.
 
 ```yaml
 spec:
-  version: 7.3.47    # Updated from 7.3.43
+  version: {{ docker_tag }}    # Update to latest patch
 ```
 
 **Step 2: Apply and monitor:**

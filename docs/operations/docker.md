@@ -16,13 +16,13 @@ The fastest way to get FoundationDB running locally:
 
 ```bash
 # Pull the official image
-docker pull foundationdb/foundationdb:7.3.43
+docker pull foundationdb/foundationdb:{{ docker_tag }}
 
 # Run a single-node cluster
 docker run -d \
   --name fdb \
   -p 4500:4500 \
-  foundationdb/foundationdb:7.3.43
+  foundationdb/foundationdb:{{ docker_tag }}
 
 # Initialize the database (first time only)
 docker exec fdb fdbcli --exec "configure new single ssd"
@@ -43,13 +43,13 @@ FoundationDB provides official Docker images:
 
 | Image | Description |
 |-------|-------------|
-| `foundationdb/foundationdb:7.3.43` | FoundationDB server with fdbcli |
-| `foundationdb/foundationdb:7.3.43-local` | Pre-configured for local development |
-| `foundationdb/fdb-kubernetes-sidecar:7.3.43` | Sidecar for Kubernetes deployments |
+| `foundationdb/foundationdb:{{ docker_tag }}` | FoundationDB server with fdbcli |
+| `foundationdb/foundationdb:{{ docker_tag }}-local` | Pre-configured for local development |
+| `foundationdb/fdb-kubernetes-sidecar:{{ docker_tag }}` | Sidecar for Kubernetes deployments |
 
 **Image tags:**
 
-- `7.3.43` — Specific version (recommended)
+- `{{ docker_tag }}` — Specific version (recommended)
 - `7.3` — Latest patch version in 7.3.x series
 - `latest` — Latest stable release
 
@@ -66,7 +66,7 @@ docker run -d \
   --name fdb \
   -p 4500:4500 \
   -v fdb-data:/var/fdb/data \
-  foundationdb/foundationdb:7.3.43
+  foundationdb/foundationdb:{{ docker_tag }}
 ```
 
 Or use a bind mount to a local directory:
@@ -78,7 +78,7 @@ docker run -d \
   --name fdb \
   -p 4500:4500 \
   -v $(pwd)/fdb-data:/var/fdb/data \
-  foundationdb/foundationdb:7.3.43
+  foundationdb/foundationdb:{{ docker_tag }}
 ```
 
 ## Multi-Container Cluster with Docker Compose
@@ -91,7 +91,7 @@ version: '3.8'
 
 services:
   fdb-coordinator:
-    image: foundationdb/foundationdb:7.3.43
+    image: foundationdb/foundationdb:{{ docker_tag }}
     container_name: fdb-coordinator
     hostname: fdb-coordinator
     ports:
@@ -105,7 +105,7 @@ services:
       - fdb-network
 
   fdb-storage-1:
-    image: foundationdb/foundationdb:7.3.43
+    image: foundationdb/foundationdb:{{ docker_tag }}
     container_name: fdb-storage-1
     hostname: fdb-storage-1
     volumes:
@@ -117,7 +117,7 @@ services:
       - fdb-network
 
   fdb-storage-2:
-    image: foundationdb/foundationdb:7.3.43
+    image: foundationdb/foundationdb:{{ docker_tag }}
     container_name: fdb-storage-2
     hostname: fdb-storage-2
     volumes:
@@ -129,7 +129,7 @@ services:
       - fdb-network
 
   fdb-storage-3:
-    image: foundationdb/foundationdb:7.3.43
+    image: foundationdb/foundationdb:{{ docker_tag }}
     container_name: fdb-storage-3
     hostname: fdb-storage-3
     volumes:
@@ -276,7 +276,7 @@ docker run -d \
   --name fdb \
   -v $(pwd)/foundationdb.conf:/etc/foundationdb/foundationdb.conf:ro \
   -v fdb-data:/var/fdb/data \
-  foundationdb/foundationdb:7.3.43
+  foundationdb/foundationdb:{{ docker_tag }}
 ```
 
 Example `foundationdb.conf` for development:
@@ -314,7 +314,7 @@ docker run -d \
   --name fdb \
   --memory 8g \
   --memory-swap 8g \
-  foundationdb/foundationdb:7.3.43
+  foundationdb/foundationdb:{{ docker_tag }}
 ```
 
 !!! note "Memory Planning"
