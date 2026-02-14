@@ -312,7 +312,7 @@ fdb> status details
 
 ## Source Code References
 
-[:material-github: MasterProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/MasterProxyServer.actor.cpp)
+[:material-github: masterserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/masterserver.actor.cpp)
 : Master and recovery coordination
 
 [:material-github: ClusterController.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/ClusterController.actor.cpp)
