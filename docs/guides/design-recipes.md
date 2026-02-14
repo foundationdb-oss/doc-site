@@ -25,6 +25,24 @@ FoundationDB's ordered key-value store with ACID transactions enables building s
 | [Vectors](#vectors) | Array-like data structures |
 | [Hierarchical Documents](#hierarchical-documents) | JSON-like nested data |
 | [Blob Storage](#blob-storage) | Large binary objects |
+| [Spatial Indexing](#spatial-indexing) | 2D coordinate queries |
+| [Indirect Workspaces](#indirect-workspaces) | Blue/green data updates |
+
+### Language Availability
+
+These recipes have reference implementations in the [FoundationDB repository](https://github.com/apple/foundationdb/tree/main/recipes):
+
+| Recipe | Python | Java | Go | Ruby |
+|--------|--------|------|----|------|
+| Simple Indexes | — | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroIndexes.java) | — | — |
+| Tables | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/python-recipes/micro_table.py) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroTable.java) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/go-recipes/table.go) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/ruby-recipes/micro_table.rb) |
+| Queues | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/python-recipes/micro_queue.py) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroQueue.java) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/go-recipes/queue.go) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/ruby-recipes/micro_queue.rb) |
+| Priority Queues | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/python-recipes/micro_priority.py) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroPriority.java) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/go-recipes/priority.go) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/ruby-recipes/micro_priority.rb) |
+| Vectors | — | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroVector.java) | — | — |
+| Hierarchical Documents | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/python-recipes/micro_doc.py) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroDoc.java) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/go-recipes/doc.go) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/ruby-recipes/micro_doc.rb) |
+| Blob Storage | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/python-recipes/micro_blob.py) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroBlob.java) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/go-recipes/blob.go) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/ruby-recipes/micro_blob.rb) |
+| Spatial Indexing | — | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroSpatial.java) | — | — |
+| Indirect Workspaces | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/python-recipes/micro_indirect.py) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroIndirect.java) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/go-recipes/indirect.go) | [:material-github:](https://github.com/apple/foundationdb/blob/main/recipes/ruby-recipes/micro_indirect.rb) |
 
 ---
 
@@ -855,6 +873,405 @@ header = read_blob_range(db, 'my-blob-id', 0, 1024)
     - **10KB**: Good default for most use cases
     - **Smaller (1-5KB)**: Better for random access patterns
     - **Larger (50-100KB)**: Better for sequential reads, but approaches value size limits
+
+---
+
+## Spatial Indexing
+
+Index 2D spatial data for efficient bounding box queries using Z-order curves.
+
+[:material-github: Java Source](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroSpatial.java){ .md-button .md-button--text }
+
+### Challenge
+
+You need to efficiently query data by 2D coordinates—for example, "find all items within this bounding box"—without scanning the entire dataset.
+
+### Strategy
+
+Use Z-order (Morton) encoding to map 2D coordinates to a single 1D value. This preserves spatial locality: points that are close in 2D space tend to be close in Z-order. Store data keyed by Z-value, then use range queries for spatial lookups.
+
+### Pattern
+
+```
+Label to Z:  (label_z, label, z_value) = ''
+Z to Label:  (z_label, z_value, label) = ''
+```
+
+Two indexes provide efficient lookups in either direction—finding a label's location or finding all labels near a location.
+
+### Code
+
+=== "Python"
+
+    ```python
+    import fdb
+    fdb.api_version(730)
+
+    label_z = fdb.Subspace(('L',))  # label -> z-value
+    z_label = fdb.Subspace(('Z',))  # z-value -> label
+
+    def xy_to_z(x, y):
+        """Convert 2D coordinates to Z-order value (Morton code).
+
+        Interleaves bits of x and y to create a single value
+        that preserves spatial locality.
+        """
+        z = 0
+        for i in range(32):
+            z |= ((x >> i) & 1) << (2 * i)
+            z |= ((y >> i) & 1) << (2 * i + 1)
+        return z
+
+    def z_to_xy(z):
+        """Convert Z-order value back to 2D coordinates."""
+        x = y = 0
+        for i in range(32):
+            x |= ((z >> (2 * i)) & 1) << i
+            y |= ((z >> (2 * i + 1)) & 1) << i
+        return x, y
+
+    @fdb.transactional
+    def set_location(tr, label, x, y):
+        """Set or update an item's location."""
+        # Remove old location if it exists
+        old_z = None
+        for k, _ in tr[label_z[label].range()]:
+            old_z = label_z.unpack(k)[1]
+            break
+
+        if old_z is not None:
+            del tr[label_z[label][old_z]]
+            del tr[z_label[old_z][label]]
+
+        # Set new location
+        new_z = xy_to_z(x, y)
+        tr[label_z[label][new_z]] = b''
+        tr[z_label[new_z][label]] = b''
+
+    @fdb.transactional
+    def get_location(tr, label):
+        """Get an item's current location."""
+        for k, _ in tr[label_z[label].range()]:
+            z = label_z.unpack(k)[1]
+            return z_to_xy(z)
+        return None
+
+    @fdb.transactional
+    def get_in_box(tr, x_min, y_min, x_max, y_max):
+        """Find all labels within a bounding box.
+
+        Note: Z-order ranges are an approximation. Some false positives
+        outside the box may be returned and need filtering.
+        """
+        results = []
+        z_min = xy_to_z(x_min, y_min)
+        z_max = xy_to_z(x_max, y_max)
+
+        # Scan the Z-range and filter to exact box
+        for k, _ in tr[z_label[z_min] : z_label[z_max + 1]]:
+            z, label = z_label.unpack(k)
+            x, y = z_to_xy(z)
+            if x_min <= x <= x_max and y_min <= y <= y_max:
+                results.append((label, x, y))
+        return results
+    ```
+
+=== "Java"
+
+    ```java
+    import com.apple.foundationdb.*;
+    import com.apple.foundationdb.tuple.*;
+    import java.util.ArrayList;
+    import java.util.List;
+
+    public class SpatialIndex {
+        private static final Subspace labelZ = new Subspace(Tuple.from("L"));
+        private static final Subspace zLabel = new Subspace(Tuple.from("Z"));
+
+        /** Convert 2D coordinates to Z-order value (Morton code). */
+        public static long xyToZ(long x, long y) {
+            long z = 0;
+            for (int i = 0; i < 32; i++) {
+                z |= ((x >> i) & 1) << (2 * i);
+                z |= ((y >> i) & 1) << (2 * i + 1);
+            }
+            return z;
+        }
+
+        /** Convert Z-order value back to 2D coordinates. */
+        public static long[] zToXy(long z) {
+            long x = 0, y = 0;
+            for (int i = 0; i < 32; i++) {
+                x |= ((z >> (2 * i)) & 1) << i;
+                y |= ((z >> (2 * i + 1)) & 1) << i;
+            }
+            return new long[]{x, y};
+        }
+
+        /** Set or update an item's location. */
+        public static void setLocation(TransactionContext tcx,
+                                       String label, long x, long y) {
+            tcx.run(tr -> {
+                // Remove old location if exists
+                Long oldZ = null;
+                for (KeyValue kv : tr.getRange(
+                        labelZ.subspace(Tuple.from(label)).range(), 1)) {
+                    oldZ = labelZ.unpack(kv.getKey()).getLong(1);
+                }
+
+                if (oldZ != null) {
+                    tr.clear(labelZ.pack(Tuple.from(label, oldZ)));
+                    tr.clear(zLabel.pack(Tuple.from(oldZ, label)));
+                }
+
+                // Set new location
+                long newZ = xyToZ(x, y);
+                tr.set(labelZ.pack(Tuple.from(label, newZ)),
+                       Tuple.from().pack());
+                tr.set(zLabel.pack(Tuple.from(newZ, label)),
+                       Tuple.from().pack());
+                return null;
+            });
+        }
+
+        /** Find all labels within a bounding box. */
+        public static List<String> getInBox(TransactionContext tcx,
+                long xMin, long yMin, long xMax, long yMax) {
+            return tcx.run(tr -> {
+                List<String> results = new ArrayList<>();
+                long zMin = xyToZ(xMin, yMin);
+                long zMax = xyToZ(xMax, yMax);
+
+                Range range = new Range(
+                    zLabel.pack(Tuple.from(zMin)),
+                    zLabel.pack(Tuple.from(zMax + 1))
+                );
+
+                for (KeyValue kv : tr.getRange(range)) {
+                    Tuple key = zLabel.unpack(kv.getKey());
+                    long z = key.getLong(0);
+                    String label = key.getString(1);
+                    long[] xy = zToXy(z);
+
+                    if (xy[0] >= xMin && xy[0] <= xMax &&
+                        xy[1] >= yMin && xy[1] <= yMax) {
+                        results.add(label);
+                    }
+                }
+                return results;
+            });
+        }
+    }
+    ```
+
+### Extensions
+
+**Geohashing**: For latitude/longitude data, consider geohash encoding which provides similar locality properties with string-based keys.
+
+**Higher Precision**: For floating-point coordinates, multiply by a scale factor and round to integers before encoding.
+
+**Multi-Resolution**: Store data at multiple Z-order resolutions for faster coarse queries.
+
+---
+
+## Indirect Workspaces
+
+Implement atomic blue/green data updates using workspace indirection.
+
+[:material-github: Python Source](https://github.com/apple/foundationdb/blob/main/recipes/python-recipes/micro_indirect.py){ .md-button .md-button--text }
+[:material-github: Java Source](https://github.com/apple/foundationdb/blob/main/recipes/java-recipes/MicroIndirect.java){ .md-button .md-button--text }
+[:material-github: Go Source](https://github.com/apple/foundationdb/blob/main/recipes/go-recipes/indirect.go){ .md-button .md-button--text }
+
+### Challenge
+
+You need to perform large batch updates to a dataset atomically—readers should see either the old complete state or the new complete state, never a partially-updated view.
+
+### Strategy
+
+Use the Directory layer to maintain two workspaces: `current` (serving reads) and `new` (staging writes). Writers populate the new workspace, then atomically swap it to become current. This enables zero-downtime data refreshes.
+
+### Pattern
+
+```
+/working/current/  →  active data (readers use this)
+/working/new/      →  staging area (writers build new version here)
+
+On commit: atomic move  new → current
+```
+
+### Code
+
+=== "Python"
+
+    ```python
+    import fdb
+    fdb.api_version(730)
+
+    class Workspace:
+        """Blue/green workspace for atomic batch updates.
+
+        Usage:
+            workspace = Workspace(working_dir, db)
+
+            # Read current data
+            for k, v in db[workspace.current.range()]:
+                process(k, v)
+
+            # Build new version
+            with workspace as new_space:
+                db[new_space['key1']] = 'value1'
+                db[new_space['key2']] = 'value2'
+            # On exit, new_space atomically becomes current
+        """
+
+        def __init__(self, directory, db):
+            self.dir = directory
+            self.db = db
+
+        @property
+        def current(self):
+            """Get the current (active) workspace."""
+            return self.dir.create_or_open(self.db, ('current',))
+
+        def __enter__(self):
+            """Create a new workspace for staging updates."""
+            return self.dir.create_or_open(self.db, ('new',))
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            """Atomically swap new workspace to current."""
+            if exc_type is None:  # Only swap on success
+                self._swap(self.db)
+
+        @fdb.transactional
+        def _swap(self, tr):
+            """Atomic swap: remove current, rename new to current."""
+            # Remove old current
+            if self.dir.exists(tr, ('current',)):
+                self.dir.remove(tr, ('current',))
+            # Move new to current
+            self.dir.move(tr, ('new',), ('current',))
+
+
+    # Example usage
+    def refresh_catalog(db, new_items):
+        """Replace entire catalog atomically."""
+        working_dir = fdb.directory.create_or_open(db, ('catalog_workspace',))
+        workspace = Workspace(working_dir, db)
+
+        with workspace as staging:
+            # Clear staging area
+            del db[staging.range()]
+
+            # Write all new items
+            for item_id, data in new_items.items():
+                db[staging[item_id]] = fdb.tuple.pack((data,))
+
+        # Swap complete - readers now see new catalog
+    ```
+
+=== "Java"
+
+    ```java
+    import com.apple.foundationdb.*;
+    import com.apple.foundationdb.directory.*;
+    import com.apple.foundationdb.tuple.*;
+    import java.util.Arrays;
+
+    public class Workspace {
+        private final DirectorySubspace workingDir;
+        private final Database db;
+
+        public Workspace(Database db, String name) {
+            this.db = db;
+            this.workingDir = DirectoryLayer.getDefault()
+                .createOrOpen(db, Arrays.asList(name)).join();
+        }
+
+        /** Get the current (active) workspace for reads. */
+        public DirectorySubspace getCurrent() {
+            return DirectoryLayer.getDefault()
+                .createOrOpen(db, Arrays.asList(
+                    workingDir.getPath().get(0), "current")).join();
+        }
+
+        /** Create a new staging workspace. */
+        public DirectorySubspace createStaging() {
+            return DirectoryLayer.getDefault()
+                .createOrOpen(db, Arrays.asList(
+                    workingDir.getPath().get(0), "new")).join();
+        }
+
+        /** Atomically swap staging to current. */
+        public void commit() {
+            db.run(tr -> {
+                DirectoryLayer dl = DirectoryLayer.getDefault();
+                String base = workingDir.getPath().get(0);
+
+                // Remove old current if exists
+                if (dl.exists(tr, Arrays.asList(base, "current")).join()) {
+                    dl.remove(tr, Arrays.asList(base, "current")).join();
+                }
+                // Move new to current
+                dl.move(tr, Arrays.asList(base, "new"),
+                           Arrays.asList(base, "current")).join();
+                return null;
+            });
+        }
+    }
+
+    // Example usage
+    public class CatalogRefresh {
+        public static void refresh(Database db, Map<String, byte[]> items) {
+            Workspace workspace = new Workspace(db, "catalog");
+
+            // Build new version in staging
+            DirectorySubspace staging = workspace.createStaging();
+            db.run(tr -> {
+                // Clear staging
+                tr.clear(staging.range());
+
+                // Write new items
+                for (var entry : items.entrySet()) {
+                    tr.set(staging.pack(Tuple.from(entry.getKey())),
+                           entry.getValue());
+                }
+                return null;
+            });
+
+            // Atomic swap
+            workspace.commit();
+        }
+    }
+    ```
+
+### Usage
+
+```python
+# Initial setup
+db = fdb.open()
+working_dir = fdb.directory.create_or_open(db, ('products',))
+workspace = Workspace(working_dir, db)
+
+# Readers always see consistent current state
+@fdb.transactional
+def get_all_products(tr):
+    return dict(tr[workspace.current.range()])
+
+# Writers build new state without blocking readers
+with workspace as new_version:
+    # Populate new_version with updated data
+    db[new_version['sku-001']] = b'...'
+    db[new_version['sku-002']] = b'...'
+# Atomic swap happens here - instant cutover
+```
+
+### Extensions
+
+**Rollback**: Keep the previous workspace around under a `previous` name for quick rollback if issues are detected.
+
+**Multi-Stage**: Chain multiple workspaces for complex ETL pipelines where each stage validates before promoting.
+
+**Versioned History**: Instead of removing old workspaces, rename them with timestamps to maintain an audit trail.
 
 ---
 
