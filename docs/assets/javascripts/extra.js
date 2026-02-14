@@ -246,8 +246,8 @@ if (typeof document$ !== "undefined") {
     originalWrapper = wrapper;
 
     // Style the mermaid element for fullscreen display
-    mermaidEl.style.maxWidth = '90vw';
-    mermaidEl.style.maxHeight = '80vh';
+    mermaidEl.style.width = '100%';
+    mermaidEl.style.height = '100%';
     mermaidEl.style.transformOrigin = 'center center';
     mermaidEl.style.cursor = 'grab';
     mermaidEl.classList.add('mermaid-in-fullscreen');
@@ -279,8 +279,8 @@ if (typeof document$ !== "undefined") {
 
     // Reset transform styles
     currentMermaidEl.style.transform = '';
-    currentMermaidEl.style.maxWidth = '';
-    currentMermaidEl.style.maxHeight = '';
+    currentMermaidEl.style.width = '';
+    currentMermaidEl.style.height = '';
     currentMermaidEl.style.transformOrigin = '';
     currentMermaidEl.style.cursor = '';
     currentMermaidEl.classList.remove('mermaid-in-fullscreen');
