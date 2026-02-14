@@ -954,3 +954,242 @@ body:has(.hero-parallax) .md-sidebar--primary {
   vertical-align: middle;
   margin-left: 0.5em;
 }
+
+/* ==========================================================================
+   Mermaid Fullscreen Viewer
+   ========================================================================== */
+
+/* Expand button on mermaid diagrams */
+.mermaid-expand-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border: none;
+  border-radius: 4px;
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color--light);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, background 0.2s, transform 0.2s;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid-expand-btn:hover {
+  opacity: 1;
+  background: var(--md-primary-fg-color);
+  color: white;
+  transform: scale(1.05);
+}
+
+.mermaid-expand-btn:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.mermaid-expand-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Dark mode adjustments for expand button */
+[data-md-color-scheme="slate"] .mermaid-expand-btn {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile: slightly smaller button */
+@media screen and (max-width: 599px) {
+  .mermaid-expand-btn {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+    top: 4px;
+    right: 4px;
+  }
+
+  .mermaid-expand-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Fullscreen overlay */
+.mermaid-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.2s, opacity 0.2s;
+}
+
+.mermaid-fullscreen-overlay.active {
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0s, opacity 0.2s;
+}
+
+/* Semi-transparent backdrop */
+.mermaid-fullscreen-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+}
+
+[data-md-color-scheme="slate"] .mermaid-fullscreen-backdrop {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* Content container */
+.mermaid-fullscreen-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 95vw;
+  max-height: 95vh;
+  z-index: 1;
+}
+
+/* Toolbar */
+.mermaid-fullscreen-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+[data-md-color-scheme="slate"] .mermaid-fullscreen-toolbar {
+  background: rgba(40, 44, 52, 0.95);
+}
+
+/* Zoom buttons */
+.mermaid-zoom-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: var(--md-primary-fg-color);
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mermaid-zoom-btn:hover {
+  background: var(--md-primary-fg-color--dark);
+  transform: scale(1.05);
+}
+
+.mermaid-zoom-btn:active {
+  transform: scale(0.95);
+}
+
+.mermaid-zoom-btn:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+/* Zoom indicator */
+.mermaid-zoom-indicator {
+  min-width: 50px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-default-fg-color);
+  padding: 0 8px;
+}
+
+/* Close button */
+.mermaid-close-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: #e53935;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mermaid-close-btn:hover {
+  background: #c62828;
+  transform: scale(1.05);
+}
+
+.mermaid-close-btn:active {
+  transform: scale(0.95);
+}
+
+.mermaid-close-btn:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+/* SVG container */
+.mermaid-fullscreen-svg-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+[data-md-color-scheme="slate"] .mermaid-fullscreen-svg-container {
+  background: #1e222a;
+}
+
+.mermaid-fullscreen-svg-container svg {
+  transition: transform 0.05s ease-out;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Prevent text selection during drag */
+.mermaid-fullscreen-overlay.active {
+  user-select: none;
+}
+
+/* Reduced motion - disable transitions */
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-fullscreen-overlay {
+    transition: none;
+  }
+
+  .mermaid-fullscreen-svg-container svg {
+    transition: none;
+  }
+
+  .mermaid-expand-btn,
+  .mermaid-zoom-btn,
+  .mermaid-close-btn {
+    transition: none;
+  }
+}
