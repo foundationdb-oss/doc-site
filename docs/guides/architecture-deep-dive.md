@@ -119,7 +119,7 @@ Resolvers maintain a sliding window of recent commits to detect conflicts effici
 
 ### Coordinators
 
-Coordinators run a Paxos-based consensus protocol:
+Coordinators run a Paxos-based consensus protocol: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/Coordination.actor.cpp)
 
 - **Cluster file location** - Where to find the cluster
 - **Cluster controller election** - Elect the cluster controller
@@ -132,7 +132,7 @@ my_cluster:xyz123@10.0.0.1:4500,10.0.0.2:4500,10.0.0.3:4500
 
 ### Cluster Controller
 
-The cluster controller (singleton) manages:
+The cluster controller (singleton) manages: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/ClusterController.actor.cpp)
 
 - **Role assignment** - Which processes serve which roles
 - **Failure detection** - Monitor process health
@@ -140,7 +140,7 @@ The cluster controller (singleton) manages:
 
 ### Transaction Logs
 
-Transaction logs provide durability with synchronous replication:
+Transaction logs provide durability with synchronous replication: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/TLogServer.actor.cpp)
 
 ```mermaid
 graph LR
@@ -231,4 +231,15 @@ The data distributor manages shard placement:
 - [:material-file-pdf-box: SIGMOD Paper](https://www.foundationdb.org/files/fdb-paper.pdf) - Complete architecture description
 - [:material-github: Transaction Processing Code](https://github.com/apple/foundationdb/tree/main/fdbserver) - Implementation details
 - [Storage Engines](storage-engines.md) - How data is persisted
+
+## Key Source Files
+
+| Component | Source |
+|-----------|--------|
+| Commit Proxy | [:material-github: CommitProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/CommitProxyServer.actor.cpp) |
+| GRV Proxy | [:material-github: GrvProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/GrvProxyServer.actor.cpp) |
+| Resolver | [:material-github: Resolver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Resolver.actor.cpp) |
+| Data Distributor | [:material-github: DataDistribution.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/DataDistribution.actor.cpp) |
+| Storage Server | [:material-github: storageserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/storageserver.actor.cpp) |
+| Recovery | [:material-github: ClusterRecovery.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/ClusterRecovery.actor.cpp) |
 

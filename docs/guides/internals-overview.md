@@ -52,6 +52,30 @@ Understanding these internals helps you:
 
     [:octicons-arrow-right-24: Storage Engines](storage-engines.md)
 
+-   :material-chart-scatter-plot:{ .lg .middle } **Data Distribution**
+
+    ---
+
+    How FDB partitions keyspace, builds teams, and rebalances data.
+
+    [:octicons-arrow-right-24: Data Distribution](data-distribution.md)
+
+-   :material-transit-connection:{ .lg .middle } **Transaction Pipeline**
+
+    ---
+
+    End-to-end transaction flow from client to durable storage.
+
+    [:octicons-arrow-right-24: Transaction Pipeline](transaction-pipeline.md)
+
+-   :material-restore:{ .lg .middle } **Recovery Internals**
+
+    ---
+
+    Multi-phase cluster recovery and failure handling.
+
+    [:octicons-arrow-right-24: Recovery Internals](recovery-internals.md)
+
 </div>
 
 ## The SIGMOD Paper
@@ -166,4 +190,19 @@ FDB embraces failure as inevitable:
 - [FDB Design Documents](https://github.com/apple/foundationdb/tree/main/design) - Internal design proposals
 - [FDB Source Code](https://github.com/apple/foundationdb) - The definitive reference
 - [Community Forums](https://forums.foundationdb.org) - Ask questions, discuss internals
+
+## Source Code Quick Links
+
+| Component | Source File |
+|-----------|-------------|
+| Cluster Controller | [:material-github: ClusterController.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/ClusterController.actor.cpp) |
+| Commit Proxy | [:material-github: CommitProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/CommitProxyServer.actor.cpp) |
+| GRV Proxy | [:material-github: GrvProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/GrvProxyServer.actor.cpp) |
+| Resolver | [:material-github: Resolver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Resolver.actor.cpp) |
+| Transaction Logs | [:material-github: TLogServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/TLogServer.actor.cpp) |
+| Storage Server | [:material-github: storageserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/storageserver.actor.cpp) |
+| Data Distributor | [:material-github: DataDistribution.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/DataDistribution.actor.cpp) |
+| Ratekeeper | [:material-github: Ratekeeper.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Ratekeeper.actor.cpp) |
+| Coordinators | [:material-github: Coordination.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Coordination.actor.cpp) |
+| Master | [:material-github: masterserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/masterserver.actor.cpp) |
 
