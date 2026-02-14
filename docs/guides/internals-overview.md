@@ -52,6 +52,30 @@ Understanding these internals helps you:
 
     [:octicons-arrow-right-24: Storage Engines](storage-engines.md)
 
+-   :material-chart-scatter-plot:{ .lg .middle } **Data Distribution**
+
+    ---
+
+    How FDB partitions keyspace, builds teams, and rebalances data.
+
+    [:octicons-arrow-right-24: Data Distribution](data-distribution.md)
+
+-   :material-transit-connection:{ .lg .middle } **Transaction Pipeline**
+
+    ---
+
+    End-to-end transaction flow from client to durable storage.
+
+    [:octicons-arrow-right-24: Transaction Pipeline](transaction-pipeline.md)
+
+-   :material-restore:{ .lg .middle } **Recovery Internals**
+
+    ---
+
+    Multi-phase cluster recovery and failure handling.
+
+    [:octicons-arrow-right-24: Recovery Internals](recovery-internals.md)
+
 </div>
 
 ## The SIGMOD Paper
