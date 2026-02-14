@@ -167,3 +167,18 @@ FDB embraces failure as inevitable:
 - [FDB Source Code](https://github.com/apple/foundationdb) - The definitive reference
 - [Community Forums](https://forums.foundationdb.org) - Ask questions, discuss internals
 
+## Source Code Quick Links
+
+| Component | Source File |
+|-----------|-------------|
+| Cluster Controller | [:material-github: ClusterController.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/ClusterController.actor.cpp) |
+| Commit Proxy | [:material-github: CommitProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/CommitProxyServer.actor.cpp) |
+| GRV Proxy | [:material-github: GrvProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/GrvProxyServer.actor.cpp) |
+| Resolver | [:material-github: Resolver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Resolver.actor.cpp) |
+| Transaction Logs | [:material-github: TLogServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/TLogServer.actor.cpp) |
+| Storage Server | [:material-github: storageserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/storageserver.actor.cpp) |
+| Data Distributor | [:material-github: DataDistribution.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/DataDistribution.actor.cpp) |
+| Ratekeeper | [:material-github: Ratekeeper.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Ratekeeper.actor.cpp) |
+| Coordinators | [:material-github: Coordination.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Coordination.actor.cpp) |
+| Master | [:material-github: masterserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/masterserver.actor.cpp) |
+

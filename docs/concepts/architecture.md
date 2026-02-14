@@ -62,7 +62,7 @@ graph TB
 
 ### Coordinators
 
-**Coordinators** form the stable anchor for cluster discovery and leader election. They run the **Paxos consensus algorithm** to maintain a small amount of critical shared state.
+**Coordinators** form the stable anchor for cluster discovery and leader election. They run the **Paxos consensus algorithm** to maintain a small amount of critical shared state. [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/Coordination.actor.cpp)
 
 | Responsibility | Details |
 |----------------|---------|
@@ -75,7 +75,7 @@ graph TB
 
 ### Cluster Controller
 
-The **Cluster Controller** is a singleton process elected by the coordinators. It's the central orchestrator for the cluster:
+The **Cluster Controller** is a singleton process elected by the coordinators. It's the central orchestrator for the cluster: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/ClusterController.actor.cpp)
 
 - Detects process failures
 - Recruits processes into roles
@@ -83,7 +83,7 @@ The **Cluster Controller** is a singleton process elected by the coordinators. I
 
 ### Master
 
-The **Master** coordinates the transaction system's lifecycle:
+The **Master** coordinates the transaction system's lifecycle: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/masterserver.actor.cpp)
 
 - Provides commit versions to proxies
 - Monitors transaction system health
@@ -96,7 +96,7 @@ The master, proxies, resolvers, and transaction logs form a **generation**. If a
 !!! info "Proxy Split (7.0+)"
     In FoundationDB 7.0, the original "Proxy" role was split into **GRV Proxies** and **Commit Proxies**. This separation reduces GRV tail latency by allowing independent scaling of read version requests.
 
-**GRV Proxies** provide read versions to clients:
+**GRV Proxies** provide read versions to clients: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/GrvProxyServer.actor.cpp)
 
 ```mermaid
 sequenceDiagram
@@ -121,7 +121,7 @@ The GRV proxy:
 
 ### Commit Proxies
 
-**Commit Proxies** handle transaction commits:
+**Commit Proxies** handle transaction commits: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/CommitProxyServer.actor.cpp)
 
 1. Get a commit version from the master
 2. Send read/write conflict ranges to resolvers
@@ -132,7 +132,7 @@ Commit proxies also maintain the **key-location cache**—a mapping of key range
 
 ### Resolvers
 
-**Resolvers** determine if transactions conflict:
+**Resolvers** determine if transactions conflict: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/Resolver.actor.cpp)
 
 ```mermaid
 graph LR
@@ -155,7 +155,7 @@ For each incoming transaction, the resolver:
 
 ### Transaction Logs
 
-**Transaction Logs** (TLogs) provide durability:
+**Transaction Logs** (TLogs) provide durability: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/TLogServer.actor.cpp)
 
 - Receive mutations from commit proxies **in version order**
 - Write to append-only log files with `fsync`
@@ -167,7 +167,7 @@ For each incoming transaction, the resolver:
 
 ### Storage Servers
 
-**Storage Servers** are the workhorses of the cluster:
+**Storage Servers** are the workhorses of the cluster: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/storageserver.actor.cpp)
 
 | Responsibility | Details |
 |----------------|---------|
@@ -187,7 +187,7 @@ Storage servers use one of several storage engines:
 
 ### Data Distributor
 
-The **Data Distributor** manages data placement:
+The **Data Distributor** manages data placement: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/DataDistribution.actor.cpp)
 
 - Monitors storage server health and capacity
 - Splits/merges key ranges (shards) as data grows
@@ -196,7 +196,7 @@ The **Data Distributor** manages data placement:
 
 ### Ratekeeper
 
-**Ratekeeper** prevents cluster overload:
+**Ratekeeper** prevents cluster overload: [:material-github: Source](https://github.com/apple/foundationdb/blob/main/fdbserver/Ratekeeper.actor.cpp)
 
 - Monitors storage servers, proxies, and logs
 - Calculates sustainable transaction rate
