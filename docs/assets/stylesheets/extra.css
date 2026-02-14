@@ -957,9 +957,19 @@ body:has(.hero-parallax) .md-sidebar--primary {
 
 /* ==========================================================================
    Mermaid Fullscreen Viewer
+
+   NOTE: Material for MkDocs renders Mermaid SVGs inside CLOSED shadow DOMs.
+   The expand button must be on a wrapper element, not on the .mermaid element.
    ========================================================================== */
 
-/* Expand button on mermaid diagrams */
+/* Wrapper around each mermaid diagram */
+.mermaid-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Expand button on mermaid wrapper (NOT on .mermaid - shadow DOM prevents children) */
 .mermaid-expand-btn {
   position: absolute;
   top: 8px;
@@ -1150,8 +1160,8 @@ body:has(.hero-parallax) .md-sidebar--primary {
   outline-offset: 2px;
 }
 
-/* SVG container */
-.mermaid-fullscreen-svg-container {
+/* Diagram container in fullscreen overlay */
+.mermaid-fullscreen-diagram-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1162,11 +1172,12 @@ body:has(.hero-parallax) .md-sidebar--primary {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-[data-md-color-scheme="slate"] .mermaid-fullscreen-svg-container {
+[data-md-color-scheme="slate"] .mermaid-fullscreen-diagram-container {
   background: #1e222a;
 }
 
-.mermaid-fullscreen-svg-container svg {
+/* Style for mermaid element when in fullscreen mode */
+.mermaid-in-fullscreen {
   transition: transform 0.05s ease-out;
   user-select: none;
   -webkit-user-drag: none;
@@ -1183,7 +1194,7 @@ body:has(.hero-parallax) .md-sidebar--primary {
     transition: none;
   }
 
-  .mermaid-fullscreen-svg-container svg {
+  .mermaid-in-fullscreen {
     transition: none;
   }
 
