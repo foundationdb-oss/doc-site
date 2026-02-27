@@ -156,7 +156,9 @@ tr[counter_key] = str(value + 1).encode()
 
 ### Use Snapshot Reads for Non-Critical Data
 
-When you don't need the read to cause conflicts (e.g., getting an approximate count):
+When you don't need the read to cause conflicts (e.g., getting an approximate count), use `tr.snapshot`. Snapshot reads don't add conflict ranges, which has two benefits: fewer transaction conflicts **and** they don't count toward the [10 MB transaction size limit](../concepts/transactions.md#transaction-limits).
+
+This makes snapshot reads ideal for large scans or analytics within a transaction:
 
 ```python
 @fdb.transactional

@@ -120,14 +120,14 @@ sequenceDiagram
 - **No non-repeatable reads**: If you read a key twice in the same transaction, you get the same value
 - **No phantom reads**: Range queries return consistent results throughout the transaction
 
-### Snapshot Reads
+### Snapshot Isolation (Point-in-Time Reads)
 
 All reads within a transaction see a consistent **snapshot** of the database at the transaction's read version:
 
 ```python
 @fdb.transactional
 def check_total(tr):
-    # These reads are guaranteed to be from the same snapshot
+    # These reads are guaranteed to be from the same point-in-time snapshot
     a = int(tr[b'account/a'])
     b = int(tr[b'account/b'])
     c = int(tr[b'account/c'])
@@ -136,6 +136,11 @@ def check_total(tr):
     # actively modifying these accounts
     return a + b + c
 ```
+
+!!! note "Snapshot Isolation vs Snapshot Reads"
+    **Snapshot isolation** (described here) means all reads in a transaction see a consistent point-in-time view of the database. This is how all FoundationDB transactions work by default.
+
+    This is different from **snapshot reads** (`tr.snapshot`), which are a specific API that reads data without adding conflict ranges. See [Transactions — Conflict Ranges](transactions.md#conflict-ranges) for details on snapshot reads.
 
 ## Durability
 
