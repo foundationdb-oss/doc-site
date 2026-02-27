@@ -207,6 +207,65 @@ def scan_with_conflicts(tr):
 !!! warning "Snapshot reads trade off safety for performance"
     Because snapshot reads don't add conflict ranges, your transaction won't detect if the data you read was concurrently modified. Only use snapshot reads when this trade-off is acceptable—for example, approximate counts, analytics, or read-only reporting.
 
+#### Scan Wide, Lock Narrow
+
+You can **mix** snapshot and regular reads in the same transaction to get the best of both worlds. The pattern: use a snapshot read to scan broadly for candidates, then use a regular read to "lock" just the item you want to act on.
+
+**Example: Task queue with multiple workers**
+
+```python
+@fdb.transactional
+def claim_task(tr):
+    """Claim one pending task from the queue.
+
+    Uses snapshot read to scan without adding conflict ranges,
+    then a regular read to lock only the chosen task.
+    """
+    # Step 1: Snapshot scan — find all pending tasks.
+    # This does NOT add conflict ranges, so multiple workers
+    # can scan the full queue simultaneously without conflicting.
+    pending = []
+    for k, v in tr.snapshot.get_range_startswith(b'tasks/pending/'):
+        pending.append((k, v))
+
+    if not pending:
+        return None  # No tasks available
+
+    # Step 2: Pick one task (e.g., the first available)
+    task_key, task_value = pending[0]
+
+    # Step 3: Regular read to "lock" just this one key.
+    # This DOES add a conflict range — but only on this single key,
+    # not the entire tasks/pending/ range.
+    current = tr[task_key]
+    if current is None:
+        return None  # Another worker already claimed it
+
+    # Step 4: Claim the task
+    del tr[task_key]
+    tr[b'tasks/claimed/' + task_key[len(b'tasks/pending/'):]] = task_value
+    return task_key
+```
+
+**Why this works:** On commit, only the single `task_key` is in the conflict range. Two workers scanning the same queue only conflict if they try to claim the **same** task. All other workers proceed without retries.
+
+**Without this pattern**, using regular reads for the scan causes every worker to conflict with every other worker:
+
+```python
+@fdb.transactional
+def claim_task_bad(tr):
+    """❌ BAD: Regular range scan conflicts with ALL other workers."""
+    # Regular read — adds a conflict range on the ENTIRE prefix.
+    # Any other worker writing to tasks/pending/* causes a conflict,
+    # even if they're claiming a completely different task.
+    for k, v in tr.get_range_startswith(b'tasks/pending/'):
+        del tr[k]
+        tr[b'tasks/claimed/' + k[len(b'tasks/pending/'):]] = v
+        return k
+```
+
+With 10 workers, the regular-read version causes nearly every transaction to conflict and retry. The snapshot-scan version only conflicts when two workers pick the same task—which is rare.
+
 ### Reducing Conflicts
 
 When conflicts are common, use these patterns:
