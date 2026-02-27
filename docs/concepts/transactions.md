@@ -209,8 +209,17 @@ FoundationDB transactions are designed for short, focused operations:
 | Limit | Value | Reason |
 |-------|-------|--------|
 | Duration | 5 seconds | MVCC version history retention |
-| Size | 10 MB | Total reads + writes |
+| Size | 10 MB | Total affected data (see below) |
 | Keys written | ~1000 (soft limit) | Performance optimization |
+
+!!! info "What counts toward the 10 MB transaction size limit?"
+    The 10 MB limit applies to **affected data**, not simply "reads + writes." Specifically:
+
+    - **Included**: Keys and values you **write** (set, clear, atomic operations), plus the **keys and ranges** you read (which create conflict ranges)
+    - **Not included**: The **values** of keys you read — only the keys and range boundaries count
+    - **Conflict ranges**: Ranges added or removed via snapshot reads or transaction options also adjust the scope of affected data
+
+    This means you can **read many megabytes of data** in a single transaction, as long as your writes and conflict range keys stay under 10 MB. For example, scanning a 50 MB range with `get_range()` is fine if you only write a small summary value — the read values don't count, only the range boundaries do.
 
 !!! warning "Long-Running Transactions"
     Transactions lasting more than 5 seconds will fail with `transaction_too_old`. Design your application to use shorter transactions, breaking large operations into batches if needed.

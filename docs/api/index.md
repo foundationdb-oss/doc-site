@@ -300,7 +300,7 @@ Every transaction in FoundationDB provides:
 
 !!! info "Transaction Limits"
     - **5 second** default timeout
-    - **10 MB** transaction size limit
+    - **10 MB** transaction size limit (covers writes and conflict range keys, not read values — see [details](../concepts/transactions.md#transaction-limits))
     - **10 KB** max key size
     - **100 KB** max value size
 
