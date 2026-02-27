@@ -174,6 +174,9 @@ def last_index_snapshot(tr):
     return 0
 ```
 
+!!! tip "Scan wide, lock narrow"
+    You can mix snapshot and regular reads in the same transaction. Use `tr.snapshot` to scan broadly for candidates (no conflict ranges added), then use a regular `tr[key]` read to "lock" just the item you want to act on. This way multiple workers can scan the same range without conflicting—only workers that pick the **same** item conflict. See the [full example in Transactions](../concepts/transactions.md#scan-wide-lock-narrow).
+
 ### Shard Hot Keys
 
 If a single key is updated frequently, split it:
