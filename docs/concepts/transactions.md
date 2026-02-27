@@ -130,14 +130,17 @@ def transfer_with_logging(db, from_acct, to_acct, amount):
 
 ### Read-Only Transactions
 
-For read-only operations, use snapshot reads for better performance:
+For read-only operations where you don't need conflict checking, use **snapshot reads** (`tr.snapshot`) to avoid adding conflict ranges. This improves performance and avoids unnecessary conflicts:
 
 ```python
 @fdb.transactional
 def get_all_balances(tr):
-    """Read all account balances (read-only)."""
-    return {k: int(v) for k, v in tr.get_range_startswith(b'account/')}
+    """Read all account balances (read-only, no conflict ranges added)."""
+    return {k: int(v) for k, v in tr.snapshot.get_range_startswith(b'account/')}
 ```
+
+!!! tip "When to use snapshot reads"
+    Use `tr.snapshot` when you don't need the read to participate in conflict detection—for example, read-only reporting queries, approximate counts, or analytics scans. Regular reads (`tr[key]`) should be used when you need the transaction to conflict if the data changes.
 
 ## Optimistic Concurrency Control
 
@@ -183,6 +186,27 @@ def scan_all_users(tr):
         pass  # Any write to users/* by another transaction causes conflict
 ```
 
+### Snapshot Reads Bypass Conflict Ranges
+
+**Snapshot reads** (`tr.snapshot`) read data without adding conflict ranges. This means they don't participate in conflict detection and don't count toward the 10 MB transaction size limit:
+
+```python
+@fdb.transactional
+def scan_without_conflicts(tr):
+    # Snapshot read: no conflict ranges added, doesn't count toward 10 MB limit
+    for k, v in tr.snapshot.get_range_startswith(b'users/'):
+        pass  # Other transactions can write to users/* without causing conflict
+
+@fdb.transactional
+def scan_with_conflicts(tr):
+    # Regular read: adds conflict ranges, counts toward 10 MB limit
+    for k, v in tr.get_range_startswith(b'users/'):
+        pass  # Any write to users/* by another transaction causes conflict
+```
+
+!!! warning "Snapshot reads trade off safety for performance"
+    Because snapshot reads don't add conflict ranges, your transaction won't detect if the data you read was concurrently modified. Only use snapshot reads when this trade-off is acceptable—for example, approximate counts, analytics, or read-only reporting.
+
 ### Reducing Conflicts
 
 When conflicts are common, use these patterns:
@@ -215,11 +239,13 @@ FoundationDB transactions are designed for short, focused operations:
 !!! info "What counts toward the 10 MB transaction size limit?"
     The 10 MB limit applies to **affected data**, not simply "reads + writes." Specifically:
 
-    - **Included**: Keys and values you **write** (set, clear, atomic operations), plus the **keys and ranges** you read (which create conflict ranges)
+    - **Included**: Keys and values you **write** (set, clear, atomic operations), plus the **keys and ranges** of regular reads (which create conflict ranges)
     - **Not included**: The **values** of keys you read — only the keys and range boundaries count
-    - **Conflict ranges**: Ranges added or removed via snapshot reads or transaction options also adjust the scope of affected data
+    - **Snapshot reads (`tr.snapshot`)**: Do **not** add conflict ranges, so they do **not** count toward the 10 MB limit at all
 
     This means you can **read many megabytes of data** in a single transaction, as long as your writes and conflict range keys stay under 10 MB. For example, scanning a 50 MB range with `get_range()` is fine if you only write a small summary value — the read values don't count, only the range boundaries do.
+
+    **Snapshot reads go even further**: Since `tr.snapshot.get_range(...)` doesn't add conflict ranges, those reads are effectively unlimited by the 10 MB cap. This makes snapshot reads ideal for large analytical scans within a transaction.
 
 !!! warning "Long-Running Transactions"
     Transactions lasting more than 5 seconds will fail with `transaction_too_old`. Design your application to use shorter transactions, breaking large operations into batches if needed.
