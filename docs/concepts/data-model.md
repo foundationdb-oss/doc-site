@@ -248,7 +248,7 @@ Optimal performance requires attention to key and value sizes:
 |--------|----------------|------------|
 | Key size | < 32 bytes ideal, < 1 KB good | 10 KB |
 | Value size | < 10 KB | 100 KB |
-| Transaction size | < 10 MB | 10 MB |
+| Transaction size | < 10 MB | 10 MB (affected data — see [Transaction Limits](transactions.md#transaction-limits)) |
 
 !!! tip "Handling Large Values"
     For values exceeding 10 KB, split across multiple keys or use the [Blob Layer](https://apple.github.io/foundationdb/blob.html).
