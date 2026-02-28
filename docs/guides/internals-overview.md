@@ -108,7 +108,40 @@ Learn from the engineers who built FDB:
 
 ## The Flow Language
 
-FoundationDB is written in **Flow**, a custom language that compiles to C++ and enables deterministic simulation:
+FoundationDB is written in **Flow**, a custom language that extends C++ with actor-based concurrency primitives. Flow is not just a convenience—it is the foundation that makes [deterministic simulation testing](simulation-testing.md) possible.
+
+### Single-Threaded Cooperative Execution
+
+Each `fdbserver` process runs a **single thread** with a cooperative run loop (event loop). Multiple actors run within this single thread—they are *not* OS threads. Actors voluntarily yield control at `wait()` points, returning execution to the run loop. Between `wait()` points, an actor has **exclusive access** to process memory with no preemption.
+
+```mermaid
+sequenceDiagram
+    participant RL as Run Loop
+    participant A as Actor A
+    participant B as Actor B
+    participant C as Actor C
+
+    RL->>A: Resume Actor A
+    Note over A: Runs until wait()
+    A-->>RL: Yield (waiting on Future)
+    RL->>B: Resume Actor B
+    Note over B: Runs until wait()
+    B-->>RL: Yield (waiting on Future)
+    RL->>C: Resume Actor C
+    Note over C: Runs until wait()
+    C-->>RL: Yield (waiting on Future)
+    RL->>A: Future ready → Resume Actor A
+    Note over A: Runs until wait()
+    A-->>RL: Yield
+```
+
+This model is similar to JavaScript's event loop or Python's `asyncio`—concurrency without parallelism within a single process.
+
+### How Flow Code Works
+
+Flow's syntax uses `ACTOR`, `Future<T>`, and `wait()`—it looks like async/concurrent code, but the **Flow compiler** (`actorcompiler`) transpiles `.actor.cpp` files into state-machine-based C++. At runtime within a single process, only one actor is executing at any given moment.
+
+Here is a typical Flow actor:
 
 ```cpp
 // Flow actor - enables deterministic concurrency testing
@@ -128,11 +161,57 @@ ACTOR Future<Void> fetchValue(Database db, Key key) {
 }
 ```
 
-Key Flow concepts:
+Key elements of this code:
 
-- **Actors** - Cooperative tasks with explicit `wait` points
-- **Futures** - Represent asynchronous results
-- **Determinism** - Same inputs produce same outputs, enabling simulation
+- **`ACTOR`** marks a function as a cooperative task managed by the run loop
+- **`Future<T>`** represents an asynchronous result that will be available later
+- **`wait()`** yields control back to the run loop until the `Future` is ready
+- **`state`** variables persist across `wait()` points (since the actor is compiled into a state machine)
+- **`loop` / `try` / `catch`** provide retry logic—idiomatic in FDB's transactional patterns
+
+### Advantages of Single-Threaded Design
+
+The single-threaded cooperative model provides several critical benefits:
+
+| Advantage | Why It Matters |
+|-----------|---------------|
+| **No locks or mutexes** | Data races are impossible within a process by construction |
+| **Simpler correctness reasoning** | No need to reason about thread interleavings |
+| **Deterministic execution** | The run loop processes events in a deterministic order, enabling simulation |
+| **Cache-friendly** | A single thread provides good CPU cache locality |
+
+### How FDB Scales: Processes, Not Threads
+
+FDB does not scale by adding threads to a process. Instead, it scales horizontally by running **many single-threaded processes**—potentially multiple per machine. Each process takes on one or more roles (storage server, TLog, commit proxy, etc.), and the cluster coordinator assigns roles to processes.
+
+```mermaid
+graph TB
+    subgraph "Machine 1"
+        P1["fdbserver<br/>(Storage)"]
+        P2["fdbserver<br/>(TLog)"]
+    end
+    subgraph "Machine 2"
+        P3["fdbserver<br/>(Commit Proxy)"]
+        P4["fdbserver<br/>(Storage)"]
+    end
+    subgraph "Machine 3"
+        P5["fdbserver<br/>(TLog)"]
+        P6["fdbserver<br/>(Resolver)"]
+    end
+
+    P1 <--> P3
+    P2 <--> P3
+    P4 <--> P5
+    P3 <--> P6
+```
+
+This is a **scale-out** model: add more processes or machines to increase capacity, rather than adding threads within a process.
+
+### Connection to Simulation
+
+The single-threaded cooperative model is what makes [deterministic simulation](simulation-testing.md) possible. Because execution is cooperative and single-threaded, the simulator can control the exact interleaving of actor execution. It replaces the real run loop with a deterministic one that uses seeded randomness—the same seed always reproduces the same bug because there is no OS thread scheduling non-determinism to contend with.
+
+For a full treatment of simulation testing, see the [Simulation Testing](simulation-testing.md) guide.
 
 ## Core Design Principles
 
