@@ -18,6 +18,25 @@ Before installing, ensure your system meets these requirements:
 | Disk | SSD recommended for production |
 | Network | Low-latency connectivity for clusters |
 
+!!! info "AVX vs Non-AVX Builds"
+    Since 7.3.24, FoundationDB publishes two builds for each release as consecutive version numbers:
+
+    - **Even versions** (e.g., 7.3.74) — standard build *without* AVX instructions
+    - **Odd versions** (e.g., 7.3.75) — same code compiled *with* AVX enabled for better performance
+
+    **Which should you choose?**
+
+    - Use the **AVX (odd) build** if your CPU supports AVX instructions — most modern x86-64 CPUs do.
+    - Use the **non-AVX (even) build** for older CPUs or virtual machines that don't expose AVX.
+
+    You can check for AVX support on Linux with:
+
+    ```bash
+    grep -o 'avx[^ ]*' /proc/cpuinfo | head -1
+    ```
+
+    The download links on this page use the AVX-enabled (odd) release number.
+
 ## Quick Install
 
 === "Ubuntu/Debian"
@@ -103,6 +122,11 @@ Before installing, ensure your system meets these requirements:
       -v fdb-data:/var/fdb/data \
       {{ docker_image }}
     ```
+{% if fdb_version >= "7.4" %}
+
+    !!! info "ARM (arm64) Support"
+        Starting with FoundationDB 7.4, Docker images are multi-architecture and support both **amd64** and **arm64** (Apple Silicon, AWS Graviton, etc.). Docker will automatically pull the correct image for your platform.
+{% endif %}
 
 === "Kubernetes"
 
