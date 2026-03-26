@@ -360,7 +360,7 @@ watch -n 5 'fdbcli --exec "status minimal"; echo "---"; \
 
 ### Downgrade Within Same Minor Version
 
-Patch version downgrades (e.g., 7.3.71 → 7.3.60) may be possible:
+Patch version downgrades (e.g., 7.3.75 → 7.3.60) may be possible:
 
 ```bash
 # Only if cluster is still functional
@@ -893,7 +893,7 @@ The multi-version client introduces a `cluster_version_changed` error when the c
 | Practice | Rationale |
 |----------|-----------|
 | **Minimize external clients** | Only include libraries you need—extra versions consume memory and CPU |
-| **Avoid duplicate protocol versions** | Patch releases (e.g., 7.3.70, 7.3.71) are protocol-compatible; include only the latest |
+| **Avoid duplicate protocol versions** | Patch releases (e.g., 7.3.70, 7.3.75) are protocol-compatible; include only the latest |
 | **Match library architecture** | Don't mix x86_64 and ARM64 libraries in the same directory |
 | **Check trace logs by version** | Each client generates separate traces; check `ClientStart` events to identify versions |
 | **Test version transitions** | Verify your application handles `cluster_version_changed` gracefully before production |
@@ -1120,7 +1120,7 @@ Use this decision tree to determine when to use multi-version clients:
 | Zero-downtime required | **Yes** | Clients remain connected during upgrade |
 | Clients cannot restart during upgrade | **Yes** | Avoids client-side changes |
 | Major version upgrade (e.g., 7.1 → 7.3) | **Recommended** | Smoother protocol negotiation |
-| Patch upgrade (e.g., 7.3.60 → 7.3.71) | Optional | Direct upgrade usually sufficient |
+| Patch upgrade (e.g., 7.3.60 → 7.3.75) | Optional | Direct upgrade usually sufficient |
 | Short maintenance window planned | Optional | Direct upgrade faster if clients can restart |
 
 **Multi-version client setup:**
@@ -1161,7 +1161,7 @@ fdbcli --exec "status details" | grep -E "^\s+[0-9]+\.[0-9]+\.[0-9]+"
 
 # Example mixed-version status:
 # 10.0.4.1:4500  (7.1.35)  coordinator, log, storage
-# 10.0.4.2:4500  (7.3.71)  coordinator, log, storage  # Upgraded
+# 10.0.4.2:4500  (7.3.75)  coordinator, log, storage  # Upgraded
 # 10.0.4.3:4500  (7.1.35)  coordinator, log, storage
 ```
 

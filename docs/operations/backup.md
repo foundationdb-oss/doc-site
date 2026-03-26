@@ -578,6 +578,50 @@ sys.exit(0)
 3. **Restrict backup access** - Separate credentials for backup vs restore
 4. **Audit backup operations** - Log all backup/restore commands
 
+{% if fdb_version >= "7.3" %}
+### Backup Encryption <span class="pill-new">NEW IN 7.3</span>
+
+Starting in FoundationDB 7.3, backups support **native file-level encryption**. When enabled, backup data is encrypted before being written to the backup destination, providing end-to-end encryption regardless of the storage backend.
+
+#### Enabling Encryption
+
+To enable encryption on an existing backup, use the `fdbbackup modify` command:
+
+```bash
+fdbbackup modify -t default --encryption
+```
+
+New backups can also be started with encryption enabled:
+
+```bash
+fdbbackup start -d "blobstore://s3.amazonaws.com/my-bucket/fdb-backup" --encryption
+```
+
+!!! note
+    Encryption applies to newly written backup files. Existing unencrypted files in the backup are not retroactively encrypted.
+
+#### Checking Encryption Status
+
+**Backup status** — Encryption key information is included in the backup status JSON output:
+
+```bash
+fdbbackup status -t default --json
+```
+
+The JSON output includes encryption key details when encryption is active.
+
+**Backup describe** — The `fdbbackup describe` output includes a `FileLevelEncryption` field indicating whether the backup is encrypted:
+
+```bash
+fdbbackup describe -d "blobstore://s3.amazonaws.com/my-bucket/fdb-backup" --json
+```
+
+Look for the `FileLevelEncryption` field in the JSON response to confirm encryption is enabled.
+
+!!! tip
+    Native backup encryption works with all backup destinations including S3 blob storage and local filesystem targets. It can be combined with S3 server-side encryption for defense in depth.
+{% endif %}
+
 ## Troubleshooting
 
 ### Common Issues

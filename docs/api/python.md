@@ -15,7 +15,7 @@ The Python client provides a Pythonic interface to FoundationDB with decorators,
 
     ```bash
     # Install version matching your FoundationDB server
-    pip install foundationdb==7.3.71  # For FoundationDB 7.3 (stable)
+    pip install foundationdb==7.3.75  # For FoundationDB 7.3 (stable)
     ```
 
 === "conda"

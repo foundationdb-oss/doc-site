@@ -52,6 +52,13 @@ FoundationDB provides official Docker images:
 - `{{ docker_tag }}` — Specific version (recommended)
 - `7.3` — Latest patch version in 7.3.x series
 - `latest` — Latest stable release
+{% if fdb_version >= "7.4" %}
+
+!!! info "ARM (arm64) Architecture Support"
+    Starting with FoundationDB 7.4, Docker images are published as **multi-architecture** images supporting both **amd64** (x86-64) and **arm64** (Apple Silicon, AWS Graviton, Ampere Altra, etc.). Docker will automatically pull the correct image for your platform — no special flags or image variants needed.
+
+    For FoundationDB 7.3 and earlier, Docker images are available for amd64 only.
+{% endif %}
 
 ## Data Persistence
 

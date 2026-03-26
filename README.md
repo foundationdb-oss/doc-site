@@ -209,8 +209,8 @@ The `main_hooks.py` file defines version-specific variables for each FoundationD
 | Variable | 7.1 | 7.3 | 7.4 |
 |----------|-----|-----|-----|
 | `{{ api_version }}` | 710 | 730 | 740 |
-| `{{ fdb_release }}` | 7.1.67 | 7.3.71 | 7.4.6 |
-| `{{ docker_tag }}` | 7.1.67 | 7.3.71 | 7.4.6 |
+| `{{ fdb_release }}` | 7.1.67 | 7.3.75 | 7.4.6 |
+| `{{ docker_tag }}` | 7.1.67 | 7.3.75 | 7.4.6 |
 
 Template variables are rendered based on the `FDB_VERSION` environment variable set during build. For example:
 
