@@ -11,7 +11,7 @@ This page provides a comprehensive overview of FoundationDB versions, their stat
 
 | Version | Status | Docker Tag | Recommended For |
 |---------|--------|------------|-----------------|
-| **7.3** | :material-check-circle:{ .text-green } **Stable** | `foundationdb/foundationdb:7.3.71` | New deployments |
+| **7.3** | :material-check-circle:{ .text-green } **Stable** | `foundationdb/foundationdb:7.3.75` | New deployments |
 | **7.4** | :material-alert:{ .text-orange } Pre-release | `foundationdb/foundationdb:7.4.6` | Testing & evaluation |
 | **7.1** | :material-archive:{ .text-grey } Legacy | `foundationdb/foundationdb:7.1.67` | Existing deployments |
 

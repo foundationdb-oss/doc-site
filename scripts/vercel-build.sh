@@ -40,7 +40,7 @@ echo "Starting versioned documentation build..."
 # The FDB_VERSION environment variable is used by mkdocs-macros-plugin
 # (via main_hooks.py) to inject version-specific variables like:
 #   - api_version (710, 730, 740)
-#   - fdb_release (7.1.67, 7.3.71, 7.4.6)
+#   - fdb_release (7.1.67, 7.3.75, 7.4.6)
 #   - docker_tag, java_version, etc.
 
 # 7.1 - Legacy version
