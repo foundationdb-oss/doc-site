@@ -159,6 +159,7 @@ FoundationDB's layered architecture enables building specialized databases on to
 
 | Tool | Description | Link |
 |------|-------------|------|
+| **Mako** | FDB's built-in benchmark tool, stable within 1% variance across same-commit runs—ideal for regression detection | [:octicons-mark-github-16:](https://github.com/apple/foundationdb/tree/main/bindings/c/test/mako){ target="_blank" } |
 | **go-ycsb** | Database benchmark suite with FDB support | [:octicons-mark-github-16:](https://github.com/pingcap/go-ycsb){ target="_blank" } |
 
 ---
@@ -202,6 +203,8 @@ FoundationDB powers critical infrastructure at:
 | **Tigris Data** | Global metadata storage |
 | **Adobe** | Identity graph database |
 | **Clever Cloud** | FoundationDB operations and monitoring tooling |
+| **OpenAI** | Metadata and infrastructure |
+| **Palantir** | Infrastructure and data platform |
 
 ---
 
