@@ -198,6 +198,24 @@ Every simulation run is reproducible:
 bin/fdbserver -r simulation -s 12345 -f test.toml
 ```
 
+## Running Joshua at Scale
+
+While you can run individual simulation tests locally, meaningful coverage requires running thousands of tests in parallel. **Joshua** is FDB's distributed test orchestrator—it manages test seeds, distributes simulation runs across a cluster of machines, and collects results.
+
+!!! tip "CI alone is not enough"
+    A single CI pipeline can run a handful of simulation seeds per commit. A dedicated Joshua cluster can run thousands of seeds per hour, dramatically increasing the odds of catching rare bugs before they reach production.
+
+If your team runs FoundationDB at scale, setting up a Joshua cluster is strongly recommended for fast test feedback. Apple, OpenAI, and Snowflake all run Joshua clusters to validate FoundationDB changes before deploying them.
+
+Key benefits of a Joshua cluster:
+
+- **Parallel coverage** — Run thousands of simulation seeds concurrently
+- **Fast feedback** — Get results in minutes rather than hours
+- **Regression detection** — Catch rare timing-dependent bugs that single runs miss
+- **Seed management** — Automatically track and replay failing seeds
+
+See the [Joshua source code](https://github.com/apple/foundationdb/tree/main/contrib/Joshua) for setup instructions.
+
 ## Further Reading
 
 - [:material-video: Testing Distributed Systems w/ Deterministic Simulation](https://www.youtube.com/watch?v=4fFDFbi3toc) - Will Wilson's Strange Loop talk
