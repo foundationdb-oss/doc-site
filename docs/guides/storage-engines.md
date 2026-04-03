@@ -154,7 +154,7 @@ fdb> configure storage_engine=memory
 
 ## RocksDB Engine (ssd-rocksdb-v1)
 
-FDB includes a RocksDB-based storage engine. While still labeled "experimental" in FDB's codebase, RocksDB is in **active production use at multiple companies** including Adobe and others running large-scale deployments:
+FDB includes a RocksDB-based storage engine. While still labeled "experimental" in FDB's codebase, RocksDB is in **active production use at Apple** with dozens of clusters and other large-scale deployments:
 
 ```bash
 fdb> configure storage_engine=ssd-rocksdb-v1
