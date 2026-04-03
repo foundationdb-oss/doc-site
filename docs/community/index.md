@@ -114,6 +114,10 @@ FoundationDB powers mission-critical systems at scale:
 | **Adobe** | Identity graph database for customer data platform |
 | **Tigris Data** | Global metadata storage for their cloud platform |
 | **Apache CouchDB** | Optional FDB-backed storage engine |
+| **Wavefront (VMware)** | Cloud monitoring and analytics |
+| **Clever Cloud** | FoundationDB operations and monitoring tooling |
+| **OpenAI** | Metadata and infrastructure |
+| **Palantir** | Infrastructure and data platform |
 
 ---
 
