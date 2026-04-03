@@ -191,23 +191,6 @@ Beyond official Python, Java, Ruby, Go, and C bindings, the community maintains:
 
 ---
 
-## :material-factory: Production Users
-
-FoundationDB powers critical infrastructure at:
-
-| Company | Use Case |
-|---------|----------|
-| **Apple** | iCloud services via CloudKit (hundreds of millions of users) |
-| **Snowflake** | Metadata management for cloud data warehouse |
-| **Wavefront (VMware)** | Cloud monitoring and analytics |
-| **Tigris Data** | Global metadata storage |
-| **Adobe** | Identity graph database |
-| **Clever Cloud** | FoundationDB operations and monitoring tooling |
-| **OpenAI** | Metadata and infrastructure |
-| **Palantir** | Infrastructure and data platform |
-
----
-
 ## :material-book-plus: Additional Resources
 
 - [:material-flask: Internals & Deep Dives](../guides/internals-overview.md) — Architecture, simulation testing, storage engines
