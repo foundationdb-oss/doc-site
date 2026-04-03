@@ -401,6 +401,31 @@ scrape_configs:
 | `fdb_latency_commit_seconds` | Gauge | Commit latency |
 | `fdb_storage_used_bytes` | Gauge | Total storage used |
 
+## Native OpenTelemetry Metrics
+
+!!! info "Status: In Development"
+    Native OpenTelemetry (OTel) metrics support is under active development in the FoundationDB open-source codebase but is not yet complete. The information below describes the current state and recommended workarounds.
+
+### Current State
+
+FoundationDB's codebase contains preliminary support for emitting metrics via the OpenTelemetry protocol, but this functionality is not yet fully implemented or production-ready in the open-source builds. Key gaps include incomplete metric coverage and limited configuration options.
+
+### Recommended Workaround
+
+Most teams currently obtain metrics by scraping FoundationDB's trace events through external exporters — such as the Prometheus exporters listed in the [Prometheus Integration](#prometheus-integration) section above. These exporters parse the JSON status output or trace files and expose the data in a format compatible with standard monitoring stacks.
+
+This approach is well-proven in production and remains the recommended path for teams that need metrics today.
+
+### Future Benefits
+
+Once native OTel metrics support is complete, FoundationDB will provide out-of-the-box metrics emission without requiring external tooling. This will be particularly valuable for:
+
+- **New FDB users** who want monitoring with minimal setup
+- **Teams standardizing on OpenTelemetry** across their infrastructure
+- **Environments where running sidecar exporters** adds unwanted operational complexity
+
+Native OTel support will enable direct integration with any OTel-compatible backend (such as Grafana, Datadog, or Jaeger) using FoundationDB's built-in instrumentation.
+
 ## Grafana Dashboards
 
 ### Recommended Dashboard Panels
