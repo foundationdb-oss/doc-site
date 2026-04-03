@@ -600,6 +600,34 @@ my_cluster:abc12345@10.0.4.1:4500:tls,10.0.4.2:4500:tls
 | Linux | `/etc/foundationdb/cert.pem` | `/etc/foundationdb/key.pem` |
 | macOS | `/usr/local/etc/foundationdb/cert.pem` | `/usr/local/etc/foundationdb/key.pem` |
 
+## Performance Knobs
+
+FoundationDB exposes several knobs that can be tuned to optimize performance for specific workloads.
+
+### causal_read_risky
+
+| Property | Value |
+|----------|-------|
+| **Default** | Disabled |
+| **Scope** | Database option (client-side) |
+| **Effect** | Allows GRV requests to be served from the GRV proxies' cached read version instead of always consulting the master |
+
+Despite the name, the actual risk is low: enabling `causal_read_risky` means a read may occasionally see a slightly stale read version (typically within milliseconds). Transactions still go through full conflict checking at commit time, so **no committed writes are ever lost or silently ignored**.
+
+**When to use it:**
+
+- Read-heavy workloads where the GRV path is a bottleneck
+- Applications that can tolerate reads being a few milliseconds behind the latest committed state
+- Clusters under high GRV proxy load
+
+```python
+# Python client example
+db.options.set_transaction_causal_read_risky()
+```
+
+!!! tip "Recommendation"
+    For most production workloads, enabling `causal_read_risky` provides meaningful throughput improvement on the GRV path with negligible practical impact on read freshness. Test with your workload to confirm.
+
 ## Quick Reference
 
 ### Common fdbcli Configuration Commands
