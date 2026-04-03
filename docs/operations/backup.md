@@ -41,6 +41,16 @@ FoundationDB's backup system offers:
     The backup system streams mutations from transaction logs to your backup destination with minimal overhead.
 {% endif %}
 
+!!! note "Backup V3 (In Development)"
+    Apple is actively developing **Backup V3**, which introduces parallel log upload and download to significantly improve restore performance. Backup V3 is not yet available in any released version.
+
+    **What's changing:**
+
+    - **Parallel log upload/download** — dramatically reduces restore times for large datasets
+    - **Improved restore performance** — the primary focus of V3 development
+
+    Note: An earlier "parallel restore" feature was a prior attempt at solving restore performance but was unsuccessful and has been removed from the codebase. Backup V3 is a ground-up redesign of the approach.
+
 ## Backup Architecture
 
 Backup agents run as separate processes that read mutation logs from the database and write them to a backup destination. Multiple agents can run for redundancy and performance.
@@ -94,6 +104,12 @@ Requirements:
 - Ensure sufficient disk space for backup history
 
 ### Blob Store Backup
+
+!!! warning "Multi-Cloud Backup Status"
+    The blob store backup URL scheme (`blobstore://`) is primarily tested with **AWS S3**. Be aware of the following:
+
+    - **Azure Blob Storage** — Support exists in the codebase but is believed to be broken in current versions. Use with caution and test thoroughly.
+    - **Google Cloud Storage (GCS)** — Community support is being contributed by Palantir. Check the latest release notes for availability.
 
 ```bash
 fdbbackup start -d "blobstore://s3.amazonaws.com:443/my-bucket/fdb-backup?bucket=my-bucket&region=us-east-1"
