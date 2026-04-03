@@ -110,13 +110,16 @@ Page Layout:
 
 ## SSD Engine (ssd-2)
 
-The legacy SSD engine, based on SQLite, is still supported but Redwood is preferred.
+The legacy SSD engine, based on SQLite, is still supported but Redwood is preferred for all workloads.
+
+!!! warning "Migration Recommended"
+    SQLite-based storage (ssd-2) has significant performance limitations that are widely recognized by production operators. Write amplification, lack of compression, and limited read concurrency make it substantially slower than Redwood under production workloads. **Most companies running FoundationDB at scale are actively migrating from ssd-2 to Redwood or RocksDB.** New deployments should always use Redwood, and existing ssd-2 deployments should plan migration.
 
 ### When to Use
 
-- Upgrading from older FDB versions
-- Specific compatibility requirements
-- Known-good baseline for comparison
+- Temporarily, while planning migration to Redwood
+- Specific legacy compatibility requirements
+- Known-good baseline for comparison during migration testing
 
 ### Differences from Redwood
 
@@ -149,9 +152,9 @@ fdb> configure storage_engine=memory
 - Performance testing (remove disk bottleneck)
 - Small datasets on spinning disks
 
-## RocksDB Engine (Experimental)
+## RocksDB Engine (ssd-rocksdb-v1)
 
-FDB includes an experimental RocksDB-based engine:
+FDB includes a RocksDB-based storage engine. While still labeled "experimental" in FDB's codebase, RocksDB is in **active production use at multiple companies** including Adobe and others running large-scale deployments:
 
 ```bash
 fdb> configure storage_engine=ssd-rocksdb-v1
@@ -196,9 +199,9 @@ flowchart TD
 ### Recommendations
 
 1. **New deployments**: Use `ssd-redwood-1` (default)
-2. **Upgrading**: Test with current engine, migrate to Redwood
+2. **Existing ssd-2 deployments**: Migrate from SQLite (ssd-2) to Redwood for better performance. Plan a maintenance window for data migration and test thoroughly in a staging environment first.
 3. **Testing**: Use `memory` for fast iteration
-4. **Experimentation**: Try `ssd-rocksdb-v1` for specific needs
+4. **RocksDB**: Consider `ssd-rocksdb-v1` if your workload benefits from RocksDB's LSM-tree characteristics. Note that multiple companies are running it in production despite the "experimental" label in FDB's source.
 
 ## Further Reading
 
