@@ -123,7 +123,7 @@ Write applications with confidence using ACID transactions at any scale—simula
 
     ---
 
-    Multi-key, multi-range transactions with serializable isolation—the strongest guarantee possible. No eventual consistency surprises.
+    Multi-key, multi-range transactions with strict serializable isolation—the strongest guarantee possible. No eventual consistency surprises.
 
     [:octicons-arrow-right-24: Learn about transactions](concepts/transactions.md)
 
