@@ -87,16 +87,17 @@ def transfer(tr, from_account, to_account, amount):
 
 **Transactions behave as if they executed one at a time.**
 
-FoundationDB provides **serializable isolation**—the strongest isolation level. Each transaction sees a consistent snapshot of the database, unaffected by concurrent transactions.
+FoundationDB provides **strict serializable isolation**—the strongest isolation level in the [Jepsen consistency hierarchy](https://jepsen.io/consistency). Strict serializability combines serializability (transactions appear to execute in some serial order) with linearizability (that order respects real-time ordering). Each transaction sees a consistent snapshot of the database, unaffected by concurrent transactions.
 
 ### Isolation Levels Compared
 
-| Level | Dirty Reads | Non-Repeatable Reads | Phantom Reads | FoundationDB |
-|-------|-------------|----------------------|---------------|--------------|
-| Read Uncommitted | Possible | Possible | Possible | — |
-| Read Committed | Prevented | Possible | Possible | — |
-| Repeatable Read | Prevented | Prevented | Possible | — |
-| **Serializable** | Prevented | Prevented | Prevented | **✅ Always** |
+| Level | Dirty Reads | Non-Repeatable Reads | Phantom Reads | Real-Time Ordering | FoundationDB |
+|-------|-------------|----------------------|---------------|-------------------|--------------|
+| Read Uncommitted | Possible | Possible | Possible | No | — |
+| Read Committed | Prevented | Possible | Possible | No | — |
+| Repeatable Read | Prevented | Prevented | Possible | No | — |
+| Serializable | Prevented | Prevented | Prevented | No | — |
+| **Strict Serializable** | Prevented | Prevented | Prevented | **Yes** | **✅ Always** |
 
 ### What Isolation Prevents
 
@@ -114,7 +115,7 @@ sequenceDiagram
     T1->>DB: Commit ✓
 ```
 
-**Serializable isolation means:**
+**Strict serializable isolation means:**
 
 - **No dirty reads**: You never see uncommitted changes from other transactions
 - **No non-repeatable reads**: If you read a key twice in the same transaction, you get the same value
@@ -235,7 +236,7 @@ graph TB
 
 | Feature | FoundationDB | Many NoSQL DBs | Traditional RDBMS |
 |---------|--------------|----------------|-------------------|
-| Isolation level | Serializable | Eventual/Weak | Configurable |
+| Isolation level | Strict Serializable | Eventual/Weak | Configurable |
 | Distributed ACID | ✅ Yes | ❌ No | ❌ Single node |
 | Horizontal scale | ✅ Yes | ✅ Yes | ❌ Limited |
 | Strong consistency | ✅ Always | ❌ Optional | ✅ Yes |
@@ -272,4 +273,5 @@ ACID guarantees are critical for:
 - **[Architecture](architecture.md)**: How ACID is achieved at scale
 - **[CAP Theorem](https://apple.github.io/foundationdb/cap-theorem.html)**: Detailed analysis
 - **[FoundationDB SIGMOD Paper](https://www.foundationdb.org/files/fdb-paper.pdf)**: Academic deep dive
+- **[Jepsen Consistency Models](https://jepsen.io/consistency)**: Comprehensive map of consistency models and their relationships
 
