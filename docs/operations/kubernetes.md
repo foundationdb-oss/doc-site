@@ -7,6 +7,9 @@ description: Deploy FoundationDB on Kubernetes using the fdb-kubernetes-operator
 
 This guide covers deploying and managing FoundationDB clusters on Kubernetes using the official [fdb-kubernetes-operator](https://github.com/FoundationDB/fdb-kubernetes-operator).
 
+!!! tip "Recommended Approach"
+    The **fdb-kubernetes-operator** is the recommended and easiest way to deploy and manage FoundationDB clusters on Kubernetes. It is open-source and actively maintained by the FoundationDB community. Several companies have also built alternative control plane solutions for managing FoundationDB on Kubernetes — but for most users, the official operator is the best starting point.
+
 !!! warning "Production Considerations"
     Running FoundationDB on Kubernetes requires careful planning. The operator handles much of the complexity, but you should understand [Configuration](configuration.md) and [Monitoring](monitoring.md) before deploying to production.
 
