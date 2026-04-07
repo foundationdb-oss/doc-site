@@ -470,6 +470,8 @@ Most teams currently obtain metrics by scraping FoundationDB's trace events thro
 
 This approach is well-proven in production and remains the recommended path for teams that need metrics today.
 
+For teams looking to export FoundationDB metrics via OpenTelemetry specifically, the community [fdb-otel-exporter](https://github.com/tclinken/fdb-otel-exporter) project provides a useful starting point. It tails FoundationDB trace logs and exports them as OTel metrics, making it a helpful reference for which metrics to track and how to structure OTel-based monitoring for FoundationDB clusters.
+
 ### Future Benefits
 
 Once native OTel metrics support is complete, FoundationDB will provide out-of-the-box metrics emission without requiring external tooling. This will be particularly valuable for:
