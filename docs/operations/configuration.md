@@ -628,6 +628,28 @@ db.options.set_transaction_causal_read_risky()
 !!! tip "Recommendation"
     For most production workloads, enabling `causal_read_risky` provides meaningful throughput improvement on the GRV path with negligible practical impact on read freshness. Test with your workload to confirm.
 
+### Tracing Interval Knobs
+
+FoundationDB's built-in tracing system periodically logs latency histograms and I/O metrics to the trace log files. The default intervals are conservative; reducing them gives more granular performance visibility with minimal overhead.
+
+| Knob | Default | Recommended | Description |
+|------|---------|-------------|-------------|
+| `knob_latency_metrics_logging_interval` | 300.0 s | **60.0 s** | How often latency distribution summaries are written to trace logs |
+| `knob_histogram_report_interval` | 300.0 s | **60.0 s** | How often histogram bucket data (queue depths, operation counts) is flushed |
+| `knob_kaio_latency_logging_interval` | 300.0 s | **60.0 s** | How often kernel AIO (async I/O) latency statistics are recorded |
+
+Set these in the `[fdbserver]` section of `foundationdb.conf`:
+
+```ini
+[fdbserver]
+knob_latency_metrics_logging_interval = 60.0
+knob_histogram_report_interval = 60.0
+knob_kaio_latency_logging_interval = 60.0
+```
+
+!!! tip "Recommendation"
+    Lowering these intervals to 60 seconds (from the default 300 seconds) makes it much easier to correlate trace-log metrics with application-level latency spikes during incident investigations. The additional trace-log volume is negligible because these events are small and already part of the structured logging pipeline.
+
 ## Quick Reference
 
 ### Common fdbcli Configuration Commands
