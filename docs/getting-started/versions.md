@@ -185,6 +185,21 @@ Always match your client library version to your cluster version:
 
     This change was made to properly release native resources and prevent memory leaks in long-running applications.
 
+## Deprecated Features
+
+The following features have been deprecated and removed from FoundationDB. Users should not build new functionality on any of these features.
+
+!!! warning "Do Not Use Deprecated Features"
+    These features are no longer supported and have been removed from the codebase. Any existing usage should be migrated to the recommended alternatives where available.
+
+| Feature | Status | Details |
+|---------|--------|---------|
+| **Dynamic Knobs** | Removed | Dynamic knobs have been removed. Use static knobs for all configuration. |
+| **Encryption at Rest** | Deprecated and removed | The encryption at rest feature has been deprecated and removed from FoundationDB. |
+| **Metacluster** | Deprecated and removed | The metacluster feature has been deprecated and removed from FoundationDB. |
+| **Blob Granules** | Deprecated and removed | The blob granules feature has been deprecated and removed from FoundationDB. |
+| **Parallel Restore** | Removed | Parallel restore has been removed and replaced by the Backup V3 approach. |
+
 ## Next Steps
 
 - [Installation Guide](installation.md) - Install your chosen version
