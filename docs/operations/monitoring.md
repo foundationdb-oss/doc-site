@@ -350,6 +350,60 @@ print("OK: Cluster healthy")
 sys.exit(0)
 ```
 
+## Stable Cluster Health Metric
+
+!!! info "Status: Upcoming Feature"
+    The Stable Cluster Health Metric is under active development with an open pull request. It is expected to land in a near-future release. The details below reflect the current design.
+
+### Overview
+
+FoundationDB will provide a single scalar **cluster health score** ranging from **0 to 100** that summarizes overall cluster state. This metric is designed to make fleet-wide monitoring straightforward—operators can alert on a single value instead of encoding complex FoundationDB-specific logic in PromQL or custom scripts.
+
+### Health Score Scale
+
+| Value | Level | Description |
+|-------|-------|-------------|
+| **100** | `HEALTHY` | Cluster is fully operational with no issues |
+| **75** | `SELF_HEALING` | Cluster has detected an issue and is automatically recovering |
+| **50** | `INTERVENTION_REQUIRED` | Operator action is needed to restore full health |
+| **25** | `CRITICAL_INTERVENTION_REQUIRED` | Urgent operator action is needed; risk of data loss or extended outage |
+| **0** | `OUTAGE` | Cluster is unavailable |
+
+### Contributing Factors
+
+The health score is derived from multiple signals:
+
+- **Sev40 events** — Severity 40 trace events indicate critical internal errors
+- **Recovery state** — Whether the cluster is in or has recently completed recovery
+- **Data Distributor replication** — Whether data is fully replicated to the desired redundancy level
+- **Disk space** — Available storage across cluster processes
+- **Ratekeeper throttling** — Whether the cluster is actively throttling transactions due to load
+- **Coordinator availability** — Reachability of coordination servers
+
+The score reflects the *worst* contributing factor, so a single critical issue will drive the overall value down even if all other signals are healthy.
+
+### Accessing the Health Score
+
+The cluster health metric will be available through two interfaces:
+
+- **Status JSON** — Accessible via `\xFF\xFF/status/json` in the client API or `status json` in `fdbcli`, under a new field in the cluster status object
+- **Trace events** — Emitted periodically in server trace files, allowing integration with log-based monitoring pipelines
+
+### Why This Matters
+
+Today, determining cluster health requires combining multiple status fields and encoding FoundationDB-specific knowledge into monitoring queries. The health score eliminates this complexity:
+
+```promql
+# Before: complex multi-signal alerting
+fdb_cluster_available == 0 or fdb_data_state_healthy == 0
+  or fdb_fault_tolerance_zones == 0 or ...
+
+# After: single metric
+fdb_cluster_health_score < 50
+```
+
+This is especially valuable for teams managing many FoundationDB clusters, where a single dashboard can show the health of every cluster at a glance.
+
 ## Prometheus Integration
 
 ### Available Exporters
@@ -415,6 +469,8 @@ FoundationDB's codebase contains preliminary support for emitting metrics via th
 Most teams currently obtain metrics by scraping FoundationDB's trace events through external exporters — such as the Prometheus exporters listed in the [Prometheus Integration](#prometheus-integration) section above. These exporters parse the JSON status output or trace files and expose the data in a format compatible with standard monitoring stacks.
 
 This approach is well-proven in production and remains the recommended path for teams that need metrics today.
+
+For teams looking to export FoundationDB metrics via OpenTelemetry specifically, the community [fdb-otel-exporter](https://github.com/tclinken/fdb-otel-exporter) project provides a useful starting point. It tails FoundationDB trace logs and exports them as OTel metrics, making it a helpful reference for which metrics to track and how to structure OTel-based monitoring for FoundationDB clusters.
 
 ### Future Benefits
 
