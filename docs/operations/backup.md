@@ -449,16 +449,33 @@ After switchover:
 
 ### DR Failover
 
-For unplanned failover when primary is unavailable:
+For **unplanned failover** when the primary cluster is unavailable and `fdbdr switch` cannot be used (since it requires both clusters):
 
-```bash
-# On DR cluster
-fdbcli> writemode on
-fdbcli> clearrange "" "\xff"  # Only if needed to break replication
-```
+1. **Abort the DR job** to unlock the destination cluster and stop replication:
+   ```bash
+   fdbdr abort -s /path/to/primary.cluster -d /path/to/dr.cluster
+   ```
+   After abort, the DR cluster retains a consistent snapshot of the source database from some point in the past. The cluster is unlocked and becomes writable.
 
-!!! warning
-    Unplanned failover may result in data loss for transactions not yet replicated.
+2. **Redirect applications** to the DR cluster by updating their cluster files to point to the DR cluster.
+
+3. **(Optional) Set up reverse DR** once the original primary is recovered, to replicate back from the now-active DR cluster:
+   ```bash
+   fdbdr start -s /path/to/dr.cluster -d /path/to/primary.cluster
+   dr_agent -s /path/to/dr.cluster -d /path/to/primary.cluster
+   ```
+
+!!! warning "Potential Data Loss"
+    Unplanned failover will lose any transactions that were committed on the primary but not yet replicated to the DR cluster. When DR is operating normally, this window is typically only a few seconds of commits.
+
+!!! note "If `fdbdr abort` Fails"
+    If the DR agents and metadata are in a broken state and `fdbdr abort` does not work, you can force-unlock the DR cluster using `fdbcli`:
+    ```bash
+    # Connect to the DR cluster
+    fdbcli -C /path/to/dr.cluster
+    fdbcli> unlock <UID>
+    ```
+    Use `fdbcli> lock` to find the current lock UID. This unlocks the database without clearing any data.
 
 ## fdbdr Command Reference
 
