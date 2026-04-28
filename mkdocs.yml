@@ -151,9 +151,11 @@ extra:
 
 extra_css:
   - assets/stylesheets/extra.css
+  - assets/stylesheets/topology-estimator.css
 
 extra_javascript:
   - assets/javascripts/extra.js
+  - assets/javascripts/topology-estimator.js
 
 # Navigation Structure
 nav:
@@ -191,6 +193,7 @@ nav:
   - Operations:
       - operations/index.md
       - Configuration: operations/configuration.md
+      - Topology Estimator: operations/topology-estimator.md
       - Monitoring: operations/monitoring.md
       - Backup & Recovery: operations/backup.md
       - Upgrading: operations/upgrading.md
