@@ -61,16 +61,62 @@ Interactive sizing calculator for FoundationDB clusters. Enter your workload and
       <input id="te-logsRatio" name="logsRatio" type="number" min="1" max="32" step="1" value="12">
       <span class="te-help">8 (OpenAI) – 12 (default) – 16-20 (Apple).</span>
     </div>
-    <div class="te-field">
-      <label>Workload hint</label>
-      <div class="te-radio-row">
-        <label><input type="radio" name="workloadHint" value="read-heavy"> Read-heavy</label>
-        <label><input type="radio" name="workloadHint" value="mixed" checked> Mixed</label>
-        <label><input type="radio" name="workloadHint" value="write-heavy"> Write-heavy</label>
-      </div>
-      <span class="te-help">Bumps GRV-proxy floor for read-heavy workloads.</span>
-    </div>
   </div>
+
+  <div class="te-note">
+    <strong>Calibrate to your hardware.</strong> The defaults below come from Apple's published per-process benchmarks (16-byte keys, ≤100-byte values, SATA SSD). Real numbers vary 2–10× with disk class, fsync behaviour, key/value size, and CPU. Before trusting these for capacity planning, <strong>run a saturating single-process benchmark on your target hardware</strong> (one <code>fdbserver</code> process, one core, one disk) and replace the defaults with what you measure.
+  </div>
+
+  <details class="te-advanced">
+    <summary>Advanced: calibration constants</summary>
+    <div class="te-grid te-grid--advanced">
+      <div class="te-field">
+        <label for="te-perProcReadsSsd">Reads/s per SSD/Redwood storage process</label>
+        <input id="te-perProcReadsSsd" name="perProcReadsSsd" type="number" min="1" step="1000" value="55000">
+      </div>
+      <div class="te-field">
+        <label for="te-perProcWritesSsd">Writes/s per SSD/Redwood storage process</label>
+        <input id="te-perProcWritesSsd" name="perProcWritesSsd" type="number" min="1" step="1000" value="20000">
+      </div>
+      <div class="te-field">
+        <label for="te-perProcReadsMem">Reads/s per memory-engine storage process</label>
+        <input id="te-perProcReadsMem" name="perProcReadsMem" type="number" min="1" step="1000" value="90000">
+      </div>
+      <div class="te-field">
+        <label for="te-perProcWritesMem">Writes/s per memory-engine storage process</label>
+        <input id="te-perProcWritesMem" name="perProcWritesMem" type="number" min="1" step="1000" value="35000">
+      </div>
+      <div class="te-field">
+        <label for="te-headroom">Throughput headroom multiplier</label>
+        <input id="te-headroom" name="headroom" type="number" min="0.1" step="0.1" value="1.5">
+      </div>
+      <div class="te-field">
+        <label for="te-maxDataPerSsGB">Soft cap on data per storage process (GB)</label>
+        <input id="te-maxDataPerSsGB" name="maxDataPerSsGB" type="number" min="1" step="10" value="500">
+      </div>
+      <div class="te-field">
+        <label for="te-cpPerWriteQps">Writes/s per commit proxy before adding more</label>
+        <input id="te-cpPerWriteQps" name="cpPerWriteQps" type="number" min="1" step="1000" value="50000">
+      </div>
+      <div class="te-field">
+        <label for="te-grvPerReadQps">Reads/s per GRV proxy</label>
+        <input id="te-grvPerReadQps" name="grvPerReadQps" type="number" min="1" step="1000" value="200000">
+      </div>
+      <div class="te-field">
+        <label for="te-resolverPerWriteQps">Writes/s per resolver</label>
+        <input id="te-resolverPerWriteQps" name="resolverPerWriteQps" type="number" min="1" step="1000" value="80000">
+      </div>
+      <div class="te-field">
+        <label for="te-coresPerMachineStorage">fdbserver processes per storage host</label>
+        <input id="te-coresPerMachineStorage" name="coresPerMachineStorage" type="number" min="1" step="1" value="8">
+      </div>
+      <div class="te-field">
+        <label for="te-ramPerProcessGB">RAM per fdbserver process (GB)</label>
+        <input id="te-ramPerProcessGB" name="ramPerProcessGB" type="number" min="1" step="1" value="4">
+      </div>
+    </div>
+    <button type="button" id="te-reset-defaults" class="te-reset-btn">Reset to defaults</button>
+  </details>
 </form>
 
 <div class="te-card">
@@ -101,7 +147,6 @@ The calculator above is driven by a small set of per-role rules. Each section be
 | Redundancy mode | Replication factor, coordinator count, RAM × replicas |
 | Storage engine | Per-process throughput baselines (SSD vs memory) |
 | SS : T-log ratio | T-log process count |
-| Workload hint | GRV-proxy floor (read-heavy ⇒ ≥ 3) |
 
 
 
@@ -177,11 +222,10 @@ commit_proxies = max(3, ceil(write_qps / 50000))
 
 ### GRV proxies { #sizing-grv-proxies }
 
-**Rule of thumb.** Default **1** proxy; **3** for read-heavy workloads. Cluster-wide GRV throughput saturates around **400K/s**, so adding more than ~3–4 GRV proxies rarely helps.
+**Rule of thumb.** Default **1** proxy. Cluster-wide GRV throughput saturates around **400K/s**, so adding more than ~3–4 GRV proxies rarely helps.
 
 ```text
 grv_proxies = max(1, ceil(read_qps / 200000))
-# read-heavy hint bumps the floor to 3
 ```
 
 **What limits it.** Single-master `getReadVersion` serialization. Adding GRV proxies parallelises the GRV path but the underlying master still has to mint version numbers serially.
