@@ -9,12 +9,8 @@
   var DEFAULTS = {
     perProcReadsSsd: 55000,
     perProcWritesSsd: 20000,
-    perProcMixedSsd: 35000,
-    perProcReadsMem: 90000,
-    perProcWritesMem: 35000,
     headroom: 1.5,
     maxDataPerSsGB: 500,
-    logsRatioDefault: 12,
     logsMin: 3,
     logsSoftCap: 15,
     cpPerWriteQps: 50000,
@@ -23,9 +19,10 @@
     grvMin: 1,
     resolverPerWriteQps: 80000,
     resolverMin: 1,
-    coresPerMachineStorage: 8,
     ramPerProcessGB: 4,
-    ramHeadroom: 0.25
+    ramHeadroom: 0.25,
+    failureDomains: 3,
+    statelessPerMachine: 8
   };
 
   var REPLICATION = {
@@ -36,94 +33,98 @@
     three_datacenter: { factor: 6, coords: 9, label: 'three_datacenter' }
   };
 
+  // Workload-shape slider positions. Drives the SS:T-log default and the
+  // read/write split of the sustainable-workload estimate.
+  var SHAPE_PRESETS = [
+    { id: 'max-read-throughput', label: 'max-read-throughput', logsRatio: 20, readCredit: 1.0, writeCredit: 0.1 },
+    { id: 'balanced',            label: 'balanced 90/10',      logsRatio: 12, readCredit: 0.9, writeCredit: 0.5 },
+    { id: 'max-write-throughput',label: 'max-write-throughput',logsRatio: 8,  readCredit: 0.5, writeCredit: 1.0 }
+  ];
+
   function clamp(v, min) {
     var n = parseFloat(v);
     if (!isFinite(n) || n < 0) return min;
     return Math.max(min, n);
   }
 
-  function ceil(n) { return Math.ceil(n); }
+  function clampInt(v, min) {
+    var n = parseInt(v, 10);
+    if (!isFinite(n) || n < min) return min;
+    return n;
+  }
 
-  function engineThroughput(inp) {
-    if (inp.engine === 'memory') {
-      return { r: inp.perProcReadsMem, w: inp.perProcWritesMem, label: 'memory' };
-    }
-    return { r: inp.perProcReadsSsd, w: inp.perProcWritesSsd, label: 'ssd/redwood' };
+  function ceil(n) { return Math.ceil(n); }
+  function floor(n) { return Math.floor(n); }
+
+  function shapeFor(inp) {
+    var idx = clampInt(inp.shape, 0);
+    if (idx > SHAPE_PRESETS.length - 1) idx = SHAPE_PRESETS.length - 1;
+    return SHAPE_PRESETS[idx];
   }
 
   function compute(inp) {
     var K = {
       perProcReadsSsd: inp.perProcReadsSsd,
       perProcWritesSsd: inp.perProcWritesSsd,
-      perProcReadsMem: inp.perProcReadsMem,
-      perProcWritesMem: inp.perProcWritesMem,
       headroom: inp.headroom,
       maxDataPerSsGB: inp.maxDataPerSsGB,
       cpPerWriteQps: inp.cpPerWriteQps,
       grvPerReadQps: inp.grvPerReadQps,
       resolverPerWriteQps: inp.resolverPerWriteQps,
-      coresPerMachineStorage: inp.coresPerMachineStorage,
-      ramPerProcessGB: inp.ramPerProcessGB
+      ramPerProcessGB: inp.ramPerProcessGB,
+      ramHeadroom: DEFAULTS.ramHeadroom,
+      failureDomains: inp.failureDomains
     };
 
     var rep = REPLICATION[inp.redundancy] || REPLICATION.triple;
     var rf = rep.factor;
-    var tput = engineThroughput(inp);
+    var shape = shapeFor(inp);
+    var machines = Math.max(1, clampInt(inp.machines, 1));
+    var coresPerMachine = Math.max(1, clampInt(inp.coresPerMachine, 1));
     var dataGB = inp.dataTB * 1024;
 
-    var readRatio = inp.readQps / tput.r;
-    var writeRatio = inp.writeQps / tput.w;
-    var dominant = Math.max(readRatio, writeRatio);
-    var ssThroughputUnits = Math.max(1, ceil(dominant * K.headroom));
-    var ssThroughput = Math.max(rf * 2, ssThroughputUnits * rf);
-    var ssData = ceil(dataGB * rf / K.maxDataPerSsGB);
-    var ssFloor = rf * 2;
-    var ss = Math.max(ssThroughput, ssData, ssFloor);
-
-    var ssBottleneck;
-    if (ssData >= ssThroughput && ssData > ssFloor) {
-      ssBottleneck = 'data capacity (' + K.maxDataPerSsGB + ' GB/SS soft target)';
-    } else if (ssThroughput > ssFloor) {
-      ssBottleneck = (writeRatio >= readRatio ? 'write throughput' : 'read throughput');
-    } else {
-      ssBottleneck = 'replication floor (RF × 2)';
-    }
+    var ss = machines * coresPerMachine;
+    var ssCapacityGB = ss * K.maxDataPerSsGB / rf;
+    var ssCapacityWarn = (dataGB * rf) > (ss * K.maxDataPerSsGB);
+    var dataPerSsGB = ss > 0 ? (dataGB * rf / ss) : 0;
+    var dataPerSsWarn = dataPerSsGB > K.maxDataPerSsGB;
 
     var logsRatio = clamp(inp.logsRatio, 1);
     var logs = Math.max(DEFAULTS.logsMin, ceil(ss / logsRatio));
     var logsWarn = logs > DEFAULTS.logsSoftCap;
 
-    var cp = Math.max(DEFAULTS.cpMin, ceil(inp.writeQps / K.cpPerWriteQps));
-    var grv = Math.max(DEFAULTS.grvMin, ceil(inp.readQps / K.grvPerReadQps));
-    var res = Math.max(DEFAULTS.resolverMin, ceil(inp.writeQps / K.resolverPerWriteQps));
+    var sustainableReads  = floor(ss * K.perProcReadsSsd  * shape.readCredit  / K.headroom);
+    var sustainableWrites = floor(ss * K.perProcWritesSsd * shape.writeCredit / rf / K.headroom);
 
-    var transactionMachines = logs;
-    var storageMachines = Math.max(1, ceil(ss / K.coresPerMachineStorage));
+    var cp  = Math.max(DEFAULTS.cpMin,       ceil(sustainableWrites / K.cpPerWriteQps));
+    var grv = Math.max(DEFAULTS.grvMin,      ceil(sustainableReads  / K.grvPerReadQps));
+    var res = Math.max(DEFAULTS.resolverMin, ceil(sustainableWrites / K.resolverPerWriteQps));
+
+    var coords = rep.coords;
+    var failureDomainsWarn = (inp.redundancy === 'three_data_hall' || inp.redundancy === 'three_datacenter')
+      && (K.failureDomains < coords);
+
     var stateless = cp + grv + res + 4;
-    var statelessMachines = Math.max(1, ceil(stateless / K.coresPerMachineStorage));
-    var machines = transactionMachines + storageMachines + statelessMachines;
+    var transactionMachines = logs;
+    var statelessMachines = Math.max(1, ceil(stateless / DEFAULTS.statelessPerMachine));
+    var totalMachines = machines + transactionMachines + statelessMachines;
 
-    var procsPerStorageMachine = Math.min(K.coresPerMachineStorage, ceil(ss / storageMachines));
-    var ramStorageGB = ceil(procsPerStorageMachine * K.ramPerProcessGB * (1 + DEFAULTS.ramHeadroom));
-    var ramTransactionGB = ceil(K.ramPerProcessGB * (1 + DEFAULTS.ramHeadroom));
-
-    var dataPerSsGB = ss > 0 ? (dataGB * rf / ss) : 0;
-    var dataPerSsWarn = dataPerSsGB > K.maxDataPerSsGB;
+    var ramGB = (ss + logs + cp + grv + res + 4) * K.ramPerProcessGB * (1 + K.ramHeadroom);
+    var ramTransactionGB = ceil(K.ramPerProcessGB * (1 + K.ramHeadroom));
+    var ramStorageGB = ceil(coresPerMachine * K.ramPerProcessGB * (1 + K.ramHeadroom));
 
     return {
-      inp: inp, K: K, rf: rf, rep: rep, tput: tput, dataGB: dataGB,
-      ss: ss, ssThroughput: ssThroughput, ssData: ssData, ssFloor: ssFloor,
-      ssThroughputUnits: ssThroughputUnits, ssBottleneck: ssBottleneck,
-      readRatio: readRatio, writeRatio: writeRatio,
+      inp: inp, K: K, rf: rf, rep: rep, shape: shape, dataGB: dataGB,
+      machines: machines, coresPerMachine: coresPerMachine,
+      ss: ss, ssCapacityGB: ssCapacityGB, ssCapacityWarn: ssCapacityWarn,
+      dataPerSsGB: dataPerSsGB, dataPerSsWarn: dataPerSsWarn,
       logs: logs, logsRatio: logsRatio, logsWarn: logsWarn,
-      cp: cp, grv: grv, res: res, coords: rep.coords,
-      transactionMachines: transactionMachines,
-      storageMachines: storageMachines,
-      statelessMachines: statelessMachines,
-      machines: machines, stateless: stateless,
-      procsPerStorageMachine: procsPerStorageMachine,
-      ramStorageGB: ramStorageGB, ramTransactionGB: ramTransactionGB,
-      dataPerSsGB: dataPerSsGB, dataPerSsWarn: dataPerSsWarn
+      sustainableReads: sustainableReads, sustainableWrites: sustainableWrites,
+      cp: cp, grv: grv, res: res,
+      coords: coords, failureDomainsWarn: failureDomainsWarn,
+      stateless: stateless, transactionMachines: transactionMachines,
+      statelessMachines: statelessMachines, totalMachines: totalMachines,
+      ramGB: ramGB, ramTransactionGB: ramTransactionGB, ramStorageGB: ramStorageGB
     };
   }
 
@@ -139,25 +140,23 @@
   var ADVANCED_KEYS = {
     perProcReadsSsd: 1,
     perProcWritesSsd: 1,
-    perProcReadsMem: 1,
-    perProcWritesMem: 1,
     headroom: 0.1,
     maxDataPerSsGB: 1,
     cpPerWriteQps: 1,
     grvPerReadQps: 1,
     resolverPerWriteQps: 1,
-    coresPerMachineStorage: 1,
-    ramPerProcessGB: 1
+    ramPerProcessGB: 1,
+    failureDomains: 1
   };
 
   function readInputs(form) {
     var inp = {
-      readQps: clamp(form.elements['readQps'].value, 0),
-      writeQps: clamp(form.elements['writeQps'].value, 0),
+      machines: clampInt(form.elements['machines'].value, 1),
+      coresPerMachine: clampInt(form.elements['coresPerMachine'].value, 1),
       dataTB: clamp(form.elements['dataTB'].value, 0),
       redundancy: form.elements['redundancy'].value,
-      engine: form.elements['engine'].value,
-      logsRatio: clamp(form.elements['logsRatio'].value, 1)
+      logsRatio: clamp(form.elements['logsRatio'].value, 1),
+      shape: clampInt(form.elements['shape'].value, 0)
     };
     Object.keys(ADVANCED_KEYS).forEach(function (k) {
       var el = form.elements[k];
@@ -173,6 +172,7 @@
   window.fdbTopologyEstimator.compute = compute;
   window.fdbTopologyEstimator.DEFAULTS = DEFAULTS;
   window.fdbTopologyEstimator.REPLICATION = REPLICATION;
+  window.fdbTopologyEstimator.SHAPE_PRESETS = SHAPE_PRESETS;
   window.fdbTopologyEstimator.ADVANCED_KEYS = ADVANCED_KEYS;
 
 
@@ -199,9 +199,48 @@
     ].join('');
   }
 
+  function fmtBigInt(n) {
+    if (!isFinite(n)) return '0';
+    return Math.round(n).toLocaleString('en-US');
+  }
+
+  function sustainableCard(r) {
+    var inp = r.inp;
+    var formula = [
+      'shape = ' + r.shape.label + '  →  read_credit = ' + r.shape.readCredit + ', write_credit = ' + r.shape.writeCredit,
+      'storage_processes = machines × cores = ' + r.machines + ' × ' + r.coresPerMachine + ' = ' + r.ss,
+      '',
+      'sustainable_reads  = floor(SS × per_proc_reads  × read_credit  / headroom)',
+      '                   = floor(' + r.ss + ' × ' + r.K.perProcReadsSsd + ' × ' + r.shape.readCredit + ' / ' + r.K.headroom + ')',
+      '                   = ' + fmtBigInt(r.sustainableReads) + ' reads/s',
+      '',
+      'sustainable_writes = floor(SS × per_proc_writes × write_credit / RF / headroom)',
+      '                   = floor(' + r.ss + ' × ' + r.K.perProcWritesSsd + ' × ' + r.shape.writeCredit + ' / ' + r.rf + ' / ' + r.K.headroom + ')',
+      '                   = ' + fmtBigInt(r.sustainableWrites) + ' writes/s'
+    ];
+    var formulaHtml = formula.map(escapeText).join('\n');
+    return [
+      '<div class="te-result te-result--sustainable" data-output="sustainable">',
+      '  <div class="te-result__label">Sustainable workload (estimate)</div>',
+      '  <div class="te-result__sustainable">',
+      '    <div><span class="te-sus-num">' + fmtBigInt(r.sustainableReads) + '</span><span class="te-sus-unit">reads / s</span></div>',
+      '    <div><span class="te-sus-num">' + fmtBigInt(r.sustainableWrites) + '</span><span class="te-sus-unit">writes / s</span></div>',
+      '  </div>',
+      '  <div class="te-result__bottleneck">Estimated ceiling at this layout and slider position. Real numbers depend on KV size, disk class, and contention — calibrate the per-process baselines in Advanced.</div>',
+      '  <details>',
+      '    <summary>Show calculation</summary>',
+      '    <pre>' + formulaHtml + '</pre>',
+      '    <a href="#sizing-sustainable">Reference: sustainable workload →</a>',
+      '  </details>',
+      '</div>'
+    ].join('');
+  }
+
   function buildOutputs(r) {
     var inp = r.inp;
     var blocks = [];
+
+    blocks.push(sustainableCard(r));
 
     blocks.push(output(
       'replication',
@@ -217,25 +256,31 @@
       null
     ));
 
+    var ssWarnings = [];
+    if (r.ssCapacityWarn) {
+      ssWarnings.push('Not enough storage processes for this dataset at this replication factor — add machines or cores. Capacity at this layout: '
+        + fmtN(r.ssCapacityGB) + ' GB; required: ' + fmtN(r.dataGB * r.rf) + ' GB (replicated).');
+    }
+    if (r.dataPerSsWarn) {
+      ssWarnings.push('Data per SS is ' + fmtN(r.dataPerSsGB) + ' GB (> ' + r.K.maxDataPerSsGB + ' GB target). Recovery and data distribution slow down past this.');
+    }
+
     blocks.push(output(
       'storage',
       'Storage processes',
       String(r.ss),
       'sizing-storage',
-      r.ssBottleneck,
+      'machines × cores = ' + r.machines + ' × ' + r.coresPerMachine,
       [
-        'engine = ' + r.tput.label + '  →  per_proc_reads = ' + r.tput.r + ', per_proc_writes = ' + r.tput.w,
-        'read_ratio  = read_qps  / per_proc_reads  = ' + inp.readQps  + ' / ' + r.tput.r + ' = ' + fmtN(r.readRatio),
-        'write_ratio = write_qps / per_proc_writes = ' + inp.writeQps + ' / ' + r.tput.w + ' = ' + fmtN(r.writeRatio),
-        'ss_throughput = ceil(max(read_ratio, write_ratio) × ' + r.K.headroom + ') × RF',
-        '              = ' + r.ssThroughputUnits + ' × ' + r.rf + ' = ' + r.ssThroughput,
-        'ss_data       = ceil(data_GB × RF / ' + r.K.maxDataPerSsGB + ')',
-        '              = ceil(' + fmtN(r.dataGB) + ' × ' + r.rf + ' / ' + r.K.maxDataPerSsGB + ') = ' + r.ssData,
-        'storage_processes = max(ss_throughput, ss_data, RF × 2)',
-        '                  = max(' + r.ssThroughput + ', ' + r.ssData + ', ' + r.ssFloor + ') = ' + r.ss,
-        'data_per_SS ≈ ' + fmtN(r.dataPerSsGB) + ' GB'
+        'storage_processes = machines × cores_per_machine',
+        '                  = ' + r.machines + ' × ' + r.coresPerMachine + ' = ' + r.ss,
+        '',
+        'cluster_capacity  = SS × max_data_per_SS / RF',
+        '                  = ' + r.ss + ' × ' + r.K.maxDataPerSsGB + ' / ' + r.rf + ' = ' + fmtN(r.ssCapacityGB) + ' GB (logical)',
+        'data_per_SS       = data_GB × RF / SS',
+        '                  = ' + fmtN(r.dataGB) + ' × ' + r.rf + ' / ' + r.ss + ' = ' + fmtN(r.dataPerSsGB) + ' GB'
       ],
-      r.dataPerSsWarn ? ('Data per SS is ' + fmtN(r.dataPerSsGB) + ' GB (> ' + r.K.maxDataPerSsGB + ' GB target). Recovery and data distribution slow down past this.') : null
+      ssWarnings.length ? ssWarnings.join(' \u2014 ') : null
     ));
 
     blocks.push(output(
@@ -243,7 +288,7 @@
       'T-log processes',
       String(r.logs),
       'sizing-tlogs',
-      'SS:T-log ratio = ' + r.logsRatio + ':1',
+      'SS:T-log ratio = ' + r.logsRatio + ':1  (slider default: ' + r.shape.logsRatio + ')',
       [
         'logs = max(' + DEFAULTS.logsMin + ', ceil(storage_processes / ratio))',
         '     = max(' + DEFAULTS.logsMin + ', ceil(' + r.ss + ' / ' + r.logsRatio + ')) = ' + r.logs
@@ -256,10 +301,10 @@
       'Commit proxies',
       String(r.cp),
       'sizing-commit-proxies',
-      'write throughput',
+      'sustainable writes',
       [
-        'commit_proxies = max(' + DEFAULTS.cpMin + ', ceil(write_qps / ' + r.K.cpPerWriteQps + '))',
-        '               = max(' + DEFAULTS.cpMin + ', ceil(' + inp.writeQps + ' / ' + r.K.cpPerWriteQps + ')) = ' + r.cp
+        'commit_proxies = max(' + DEFAULTS.cpMin + ', ceil(sustainable_writes / ' + r.K.cpPerWriteQps + '))',
+        '               = max(' + DEFAULTS.cpMin + ', ceil(' + r.sustainableWrites + ' / ' + r.K.cpPerWriteQps + ')) = ' + r.cp
       ],
       null
     ));
@@ -269,10 +314,10 @@
       'GRV proxies',
       String(r.grv),
       'sizing-grv-proxies',
-      'read throughput',
+      'sustainable reads',
       [
-        'grv_proxies = max(' + DEFAULTS.grvMin + ', ceil(read_qps / ' + r.K.grvPerReadQps + '))',
-        '            = max(' + DEFAULTS.grvMin + ', ceil(' + inp.readQps + ' / ' + r.K.grvPerReadQps + ')) = ' + r.grv
+        'grv_proxies = max(' + DEFAULTS.grvMin + ', ceil(sustainable_reads / ' + r.K.grvPerReadQps + '))',
+        '            = max(' + DEFAULTS.grvMin + ', ceil(' + r.sustainableReads + ' / ' + r.K.grvPerReadQps + ')) = ' + r.grv
       ],
       null
     ));
@@ -282,10 +327,10 @@
       'Resolvers',
       String(r.res),
       'sizing-resolvers',
-      'write throughput',
+      'sustainable writes',
       [
-        'resolvers = max(' + DEFAULTS.resolverMin + ', ceil(write_qps / ' + r.K.resolverPerWriteQps + '))',
-        '          = max(' + DEFAULTS.resolverMin + ', ceil(' + inp.writeQps + ' / ' + r.K.resolverPerWriteQps + ')) = ' + r.res,
+        'resolvers = max(' + DEFAULTS.resolverMin + ', ceil(sustainable_writes / ' + r.K.resolverPerWriteQps + '))',
+        '          = max(' + DEFAULTS.resolverMin + ', ceil(' + r.sustainableWrites + ' / ' + r.K.resolverPerWriteQps + ')) = ' + r.res,
         'note: more resolvers can increase false conflicts; rarely > 4'
       ],
       r.res > 4 ? 'More than 4 resolvers is rarely necessary. Profile commit_latency before adding more.' : null
@@ -296,27 +341,31 @@
       'Coordinators',
       String(r.coords),
       'sizing-coordinators',
-      'redundancy = ' + inp.redundancy,
+      'redundancy = ' + inp.redundancy + ', failure_domains = ' + r.K.failureDomains,
       [
-        'coordinators[' + inp.redundancy + '] = ' + r.coords + ' (odd, distinct failure domains)'
+        'coordinators[' + inp.redundancy + '] = ' + r.coords + ' (odd, distinct failure domains)',
+        'failure_domains = ' + r.K.failureDomains
       ],
-      null
+      r.failureDomainsWarn ? ('Only ' + r.K.failureDomains + ' failure domain(s) configured for ' + inp.redundancy + ', but ' + r.coords + ' coordinators are recommended in distinct failure domains. Add more racks/AZs/data halls or coordinators will share a domain.') : null
     ));
 
     blocks.push(output(
       'machines',
       'Machines (estimate)',
-      String(r.machines),
+      String(r.totalMachines),
       'sizing-machines',
-      'transaction-class + storage-class + stateless-class',
+      'storage + transaction + stateless',
       [
-        'transaction_machines = logs                       = ' + r.transactionMachines,
-        'storage_machines     = ceil(storage / ' + r.K.coresPerMachineStorage + ')             = ' + r.storageMachines,
-        'stateless_machines   = ceil((cp+grv+res+4) / ' + r.K.coresPerMachineStorage + ')      = ' + r.statelessMachines,
-        'machines = ' + r.transactionMachines + ' + ' + r.storageMachines + ' + ' + r.statelessMachines + ' = ' + r.machines,
+        'storage_machines     = ' + r.machines + ' (input)',
+        'transaction_machines = logs                              = ' + r.transactionMachines,
+        'stateless_machines   = ceil((cp+grv+res+4) / ' + DEFAULTS.statelessPerMachine + ')           = ' + r.statelessMachines,
+        'total_machines = ' + r.machines + ' + ' + r.transactionMachines + ' + ' + r.statelessMachines + ' = ' + r.totalMachines,
         '',
-        'RAM/transaction machine ≈ ' + r.ramTransactionGB + ' GB  (' + r.K.ramPerProcessGB + ' GB × 1 proc × ' + (1 + DEFAULTS.ramHeadroom) + ')',
-        'RAM/storage machine     ≈ ' + r.ramStorageGB + ' GB  (' + r.K.ramPerProcessGB + ' GB × ' + r.procsPerStorageMachine + ' procs × ' + (1 + DEFAULTS.ramHeadroom) + ')'
+        'cluster_RAM ≈ (SS + logs + cp + grv + res + 4) × ' + r.K.ramPerProcessGB + ' GB × ' + (1 + r.K.ramHeadroom),
+        '            ≈ (' + r.ss + ' + ' + r.logs + ' + ' + r.cp + ' + ' + r.grv + ' + ' + r.res + ' + 4) × ' + r.K.ramPerProcessGB + ' × ' + (1 + r.K.ramHeadroom) + ' = ' + fmtN(r.ramGB) + ' GB',
+        '',
+        'RAM/storage machine     ≈ ' + r.ramStorageGB + ' GB  (' + r.K.ramPerProcessGB + ' GB × ' + r.coresPerMachine + ' procs × ' + (1 + r.K.ramHeadroom) + ')',
+        'RAM/transaction machine ≈ ' + r.ramTransactionGB + ' GB  (' + r.K.ramPerProcessGB + ' GB × 1 proc × ' + (1 + r.K.ramHeadroom) + ')'
       ],
       null
     ));
@@ -326,24 +375,25 @@
 
   function buildFdbcliSnippet(r) {
     var inp = r.inp;
-    var engine = inp.engine;
     var lines = [
       '# Apply this configuration via fdbcli (review before running on a live cluster).',
-      'fdbcli> configure new ' + inp.redundancy + ' ' + engine,
+      '# ssd-redwood-v1 is the modern default storage backend; swap if your build requires it.',
+      'fdbcli> configure new ' + inp.redundancy + ' ssd-redwood-v1',
       'fdbcli> configure commit_proxies=' + r.cp + ' grv_proxies=' + r.grv + ' resolvers=' + r.res + ' logs=' + r.logs,
       '',
       '# Process classes (per fdbserver process / foundationdb.conf):',
       '#   ' + r.logs + ' × class=transaction          (one per host on dedicated nodes)',
-      '#   ' + r.ss  + ' × class=storage               (co-locate up to ' + r.K.coresPerMachineStorage + ' per host)',
+      '#   ' + r.ss  + ' × class=storage               (' + r.machines + ' hosts × ' + r.coresPerMachine + ' processes)',
       '#   ' + r.stateless + ' × class=stateless             (commit/grv/resolver + cluster controller + master)',
       '#   ' + r.coords + ' × coordinators              (odd, spread across failure domains)'
     ];
     return lines.join('\n');
   }
 
-  function update(form, results, cliCode) {
+  function update(form, results, cliCode, shapeLabelEl) {
     var inp = readInputs(form);
     var r = compute(inp);
+    if (shapeLabelEl) shapeLabelEl.textContent = r.shape.label;
     results.innerHTML = buildOutputs(r);
     cliCode.textContent = buildFdbcliSnippet(r);
   }
@@ -358,9 +408,24 @@
     if (form.dataset.teInit === '1') return;
     form.dataset.teInit = '1';
 
-    function trigger() { update(form, results, cliCode); }
+    var shapeEl = form.elements['shape'];
+    var logsRatioEl = form.elements['logsRatio'];
+    var shapeLabelEl = root.querySelector('#te-shape-label');
+
+    function trigger() { update(form, results, cliCode, shapeLabelEl); }
     form.addEventListener('input', trigger);
     form.addEventListener('change', trigger);
+
+    // Slider position drives the SS:T-log ratio default. Moving the slider
+    // overwrites whatever the user typed, by design — explained in the
+    // ratio input's tooltip.
+    if (shapeEl && logsRatioEl) {
+      shapeEl.addEventListener('input', function () {
+        var idx = clampInt(shapeEl.value, 0);
+        if (idx > SHAPE_PRESETS.length - 1) idx = SHAPE_PRESETS.length - 1;
+        logsRatioEl.value = SHAPE_PRESETS[idx].logsRatio;
+      });
+    }
 
     var resetBtn = root.querySelector('#te-reset-defaults');
     if (resetBtn) {
