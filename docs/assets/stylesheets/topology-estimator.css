@@ -143,16 +143,21 @@
   grid-column: span 2;
 }
 
+/* Reset the native control so track + thumb metrics are predictable across
+   WebKit and Firefox. The input itself reserves vertical room equal to the
+   thumb height; the visible track is drawn on the platform-specific track
+   pseudo-elements, and the WebKit thumb's margin-top centres it on the
+   track baseline (Firefox auto-centres its thumb). */
 .te-slider {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 0.4rem;
-  border-radius: 0.2rem;
-  background-color: var(--md-default-fg-color--lighter);
+  height: 1.25rem;
+  background: transparent;
   outline: none;
   margin: 0.4rem 0 0.25rem;
   padding: 0;
+  vertical-align: middle;
 }
 
 .te-slider:focus {
@@ -160,30 +165,42 @@
   outline-offset: 2px;
 }
 
-.te-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 50%;
-  background-color: var(--md-primary-fg-color);
-  border: 2px solid var(--md-default-bg-color);
-  cursor: pointer;
-}
-
-.te-slider::-moz-range-thumb {
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 50%;
-  background-color: var(--md-primary-fg-color);
-  border: 2px solid var(--md-default-bg-color);
-  cursor: pointer;
+.te-slider::-webkit-slider-runnable-track {
+  height: 0.4rem;
+  border-radius: 0.2rem;
+  background-color: var(--md-default-fg-color--lightest);
+  border: none;
 }
 
 .te-slider::-moz-range-track {
   height: 0.4rem;
   border-radius: 0.2rem;
-  background-color: var(--md-default-fg-color--lighter);
+  background-color: var(--md-default-fg-color--lightest);
+  border: none;
+}
+
+.te-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background-color: var(--md-primary-fg-color);
+  border: 2px solid var(--md-default-bg-color);
+  cursor: pointer;
+  /* Centre the thumb on the 0.4rem track: (0.4rem - 1.1rem) / 2 = -0.35rem */
+  margin-top: -0.35rem;
+}
+
+.te-slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background-color: var(--md-primary-fg-color);
+  border: 2px solid var(--md-default-bg-color);
+  cursor: pointer;
 }
 
 .te-slider-labels {
@@ -253,12 +270,59 @@
   background-color: var(--md-code-bg-color);
 }
 
-.te-advanced > summary {
+/* Override Material's heavy <summary> defaults (admonition tint background,
+   negative margins, 2rem left padding for a note-style icon, absolutely
+   positioned ::before pencil icon and ::after chevron) so the summary fits
+   cleanly in the .te-advanced container and its disclosure icon stays
+   vertically centred with the label text. */
+.md-typeset .te-advanced > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  list-style: none;
+  background-color: transparent;
+  margin: 0;
+  padding: 0.15rem 0;
+  border: none;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.85rem;
   color: var(--md-default-fg-color);
-  padding: 0.15rem 0;
+}
+
+.te-advanced > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Suppress Material's note/pencil ::before icon — not meaningful here. */
+.md-typeset .te-advanced > summary::before {
+  display: none !important;
+}
+
+/* Replace Material's absolutely-positioned chevron with a flex-aligned one
+   that stays centred with the summary text. Reuses Material's own
+   --md-details-icon mask so light/dark themes track automatically. */
+.md-typeset .te-advanced > summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  position: static;
+  background-color: var(--md-default-fg-color--light);
+  -webkit-mask-image: var(--md-details-icon);
+  mask-image: var(--md-details-icon);
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transform: rotate(0deg);
+  transition: transform 0.25s;
+}
+
+.md-typeset .te-advanced[open] > summary::after {
+  transform: rotate(90deg);
 }
 
 .te-advanced[open] > summary {
