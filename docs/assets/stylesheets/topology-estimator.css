@@ -138,6 +138,61 @@
   color: var(--md-default-fg-color);
 }
 
+.te-note {
+  margin: 0.75rem 0 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--md-default-fg-color--lighter);
+  background-color: var(--md-code-bg-color);
+  font-size: 0.78rem;
+  color: var(--md-default-fg-color);
+  line-height: 1.45;
+}
+
+.te-note strong {
+  color: var(--md-default-fg-color);
+}
+
+.te-advanced {
+  margin-top: 0.5rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--md-code-bg-color);
+}
+
+.te-advanced > summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--md-default-fg-color);
+  padding: 0.15rem 0;
+}
+
+.te-advanced[open] > summary {
+  margin-bottom: 0.5rem;
+}
+
+.te-grid--advanced {
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.te-reset-btn {
+  margin-top: 0.75rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.2rem;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background-color: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  cursor: pointer;
+}
+
+.te-reset-btn:hover {
+  border-color: var(--md-accent-fg-color);
+  color: var(--md-accent-fg-color);
+}
+
 .te-cli {
   margin-top: 0.5rem;
 }
