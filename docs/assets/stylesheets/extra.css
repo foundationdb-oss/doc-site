@@ -913,6 +913,23 @@ body:has(.hero-parallax) .md-sidebar--primary {
   z-index: 50;
 }
 
+/* Below the tabs breakpoint, .md-tabs is hidden so the area between the fixed
+   header and the hero shows the default page background. Paint the landing
+   page container indigo to match the header and avoid a white strip. */
+@media screen and (max-width: 76.1875em) {
+  body:has(.hero-parallax) .md-container,
+  body:has(.hero-parallax) .md-main {
+    background: var(--md-primary-fg-color);
+  }
+
+  [data-md-color-scheme="slate"] body:has(.hero-parallax) .md-container,
+  [data-md-color-scheme="slate"] body:has(.hero-parallax) .md-main,
+  body:has(.hero-parallax)[data-md-color-scheme="slate"] .md-container,
+  body:has(.hero-parallax)[data-md-color-scheme="slate"] .md-main {
+    background: var(--md-primary-fg-color);
+  }
+}
+
 /* ==========================================================================
    Version Pills - Highlight version-specific features
    ========================================================================== */
