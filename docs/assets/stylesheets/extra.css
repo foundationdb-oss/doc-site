@@ -940,6 +940,13 @@ body:has(.hero-parallax) .md-sidebar--primary {
   body:has(.hero-parallax) .hero-parallax {
     margin-top: 0;
   }
+
+  /* Hide the edit / view-source action icons on the landing page; they are
+     absolutely positioned and would otherwise poke into the area above
+     the hero on tablet/phone. */
+  body:has(.hero-parallax) .md-content__button {
+    display: none !important;
+  }
 }
 
 /* ==========================================================================
