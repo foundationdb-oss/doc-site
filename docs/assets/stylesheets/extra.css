@@ -928,6 +928,18 @@ body:has(.hero-parallax) .md-sidebar--primary {
   body:has(.hero-parallax)[data-md-color-scheme="slate"] .md-main {
     background: var(--md-primary-fg-color);
   }
+
+  /* Collapse the theme-default spacing that sits above the hero so the
+     gradient sits flush against the fixed header on tablet/phone. */
+  body:has(.hero-parallax) .md-main__inner {
+    margin-top: 0;
+  }
+  body:has(.hero-parallax) .md-content__inner {
+    padding-top: 0;
+  }
+  body:has(.hero-parallax) .hero-parallax {
+    margin-top: 0;
+  }
 }
 
 /* ==========================================================================
