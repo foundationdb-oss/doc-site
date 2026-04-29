@@ -225,6 +225,8 @@ You'll see a warning if `data_GB × RF > SS × max_data_per_SS` (not enough stor
 
 **Rule of thumb.** **One T-log per host** on dedicated `class=transaction` nodes. The workload-shape slider sets the SS : T-log ratio default — **20** for `max-read-throughput`, **12** for `balanced 90/10`, **8** for `max-write-throughput`. Override the ratio input afterwards if your write profile sits between two presets.
 
+Community-reported ratios cluster around **8:1 to 10:1** storage-to-T-log ([semisol](https://semisol.dev/blog/fdb-tuning)) for general workloads, with read-heavy deployments going as wide as **20:1** to free more cores for storage. The slider picks within that range based on your workload shape.
+
 ```text
 logs = max(3, ceil(storage_processes / SS_to_TLog_ratio))
 ```
