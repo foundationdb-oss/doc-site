@@ -154,7 +154,7 @@ The slider has three positions. Each one sets a default SS : T-log ratio and a p
 |---|---|---|---|---|
 | `max-read-throughput` | 20 | 1.0 | 0.1 | Read-heavy serving, analytics, mostly point lookups; T-logs are barely used |
 | `balanced 90/10` (default) | 12 | 0.9 | 0.5 | OLTP-style mix dominated by reads with a steady write tail |
-| `max-write-throughput` | 8 | 0.5 | 1.0 | Ingest, mutation-heavy pipelines (OpenAI-style); CP / T-logs need more headroom |
+| `max-write-throughput` | 8 | 0.5 | 1.0 | Ingest, mutation-heavy pipelines; CP / T-logs need more headroom |
 
 Moving the slider rewrites the SS : T-log ratio input with the preset's default. Type a new value into the ratio input afterwards if you want to override it.
 
@@ -223,7 +223,7 @@ You'll see a warning if `data_GB × RF > SS × max_data_per_SS` (not enough stor
 
 ### Transaction logs { #sizing-tlogs }
 
-**Rule of thumb.** **One T-log per host** on dedicated `class=transaction` nodes. The workload-shape slider sets the SS : T-log ratio default — **20** for `max-read-throughput`, **12** for `balanced 90/10`, **8** for `max-write-throughput` (OpenAI-style). Override the ratio input afterwards if your write profile sits between two presets.
+**Rule of thumb.** **One T-log per host** on dedicated `class=transaction` nodes. The workload-shape slider sets the SS : T-log ratio default — **20** for `max-read-throughput`, **12** for `balanced 90/10`, **8** for `max-write-throughput`. Override the ratio input afterwards if your write profile sits between two presets.
 
 ```text
 logs = max(3, ceil(storage_processes / SS_to_TLog_ratio))
@@ -234,11 +234,11 @@ logs = max(3, ceil(storage_processes / SS_to_TLog_ratio))
 **When to add more.** `commit_latency` rises and `tlog_queue_size` climbs while disk fsync latency is healthy → fan-in is the bottleneck. Move the slider toward `max-write-throughput` (or lower the ratio manually) to widen the T-log tier.
 
 !!! warning "Diminishing returns past 15 T-logs"
-    Snowflake's operators report negligible throughput gains beyond ~15 T-logs in a single log set. Past that point, evaluate sharding the workload across multiple clusters before adding more T-logs.
+    Operators report negligible throughput gains beyond ~15 T-logs in a single log set. Past that point, evaluate sharding the workload across multiple clusters before adding more T-logs.
 
 ### Commit proxies { #sizing-commit-proxies }
 
-**Rule of thumb.** Default to **3** commit proxies (Apple's baseline). The calculator scales by the **sustainable write rate** the storage tier supports — not by a user-supplied write QPS:
+**Rule of thumb.** Default to **3** commit proxies (FDB's default). The calculator scales by the **sustainable write rate** the storage tier supports — not by a user-supplied write QPS:
 
 ```text
 commit_proxies = max(3, ceil(sustainable_writes / 50000))
@@ -352,23 +352,15 @@ Layouts borrowed from operator playbooks (see [semisol's blog](https://semisol.d
 
     Triple or three_data_hall. Add transaction-class hosts before commit proxies — most "throughput is too low" issues are T-log fan-in, not proxy count.
 
-## Real-world data points
-
-| Operator | Approx workload | Storage | T-logs | Commit proxies | GRV proxies | Notes |
-|----------|-----------------|---------|--------|----------------|-------------|-------|
-| **OpenAI** | ~60K mixed QPS, 100 TB, triple | ~400 SS | ~49 | ~49 | — | Aggressive 1:8 SS:T-log ratio; high CP count to keep commit latency low. |
-| **Apple** | Production clusters, triple | varies | 1:16–1:20 of SS count | 3 | 3 | Relaxed log:SS ratio; conservative proxy counts. |
-| **Snowflake** | High-throughput | varies | capped at ~15 | varies | varies | Reports diminishing T-log returns past 15 in a single log set. |
-
 !!! note "Calculator vs reality"
-    The calculator's defaults sit between Apple's relaxed ratios and OpenAI's aggressive ones. For the OpenAI-shape sanity case (50 hosts × 8 cores = 400 SSes, 100 TB, triple, `max-write-throughput` slider) the model lands close to OpenAI's reported ~400 SSes and ~49 T-logs, but recommends fewer commit proxies than OpenAI runs in production — real-world commit-proxy scaling is bound by per-CP commit-batch CPU well below the 50K writes/CP heuristic. Treat the model as a floor; profile the cluster and raise `commit_proxies` as `commit_latency` warrants. Likewise the **sustainable workload** numbers are a ceiling at the listed per-process baselines and slider position; calibrate `perProcReadsSsd` / `perProcWritesSsd` in Advanced to match a saturating single-process benchmark on your hardware before treating them as authoritative.
+    The calculator scales role counts off a few simple per-process throughput heuristics. Real-world commit-proxy scaling is bound by per-CP commit-batch CPU well below the 50K writes/CP rule of thumb, so treat the recommended commit-proxy count as a floor: profile the cluster and raise `commit_proxies` as `commit_latency` warrants. Likewise the **sustainable workload** numbers are a ceiling at the listed per-process baselines and slider position; calibrate `perProcReadsSsd` / `perProcWritesSsd` in Advanced to match a saturating single-process benchmark on your hardware before treating them as authoritative.
 
 ## Sources
 
 - [FoundationDB Configuration](https://apple.github.io/foundationdb/configuration.html) — Apple's official configuration guide (redundancy modes, storage backends, process classes).
 - [FoundationDB Architecture](https://apple.github.io/foundationdb/architecture.html) — role breakdown for proxies, resolvers, T-logs, storage servers.
 - [FoundationDB Performance](https://apple.github.io/foundationdb/performance.html) — published per-process throughput numbers.
-- [Forum: Scaling log server and log to storage ratio](https://forums.foundationdb.org/t/scaling-log-server-and-log-to-storage-ratio/4890) — Apple, OpenAI, and Snowflake operators discuss SS:T-log ratios.
+- [Forum: Scaling log server and log to storage ratio](https://forums.foundationdb.org/t/scaling-log-server-and-log-to-storage-ratio/4890) — community discussion of T-log scaling and CPU saturation.
 - [Forum: How to troubleshoot throughput / performance degrade](https://forums.foundationdb.org/t/how-to-troubleshoot-throughput-performance-degrade/1436) — diagnosing CP / T-log / SS bottlenecks in practice.
 - [fdb-kubernetes-operator scaling guide](https://github.com/FoundationDB/fdb-kubernetes-operator/blob/main/docs/manual/scaling.md) — process-class slot accounting and stateless minimum.
 - [semisol — FoundationDB tuning](https://semisol.dev/blog/fdb-tuning) — practical layout patterns and proxy/resolver tuning notes.
