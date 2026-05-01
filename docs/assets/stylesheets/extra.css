@@ -16,6 +16,11 @@
   --md-primary-fg-color: #2c3e7f;
   --md-primary-fg-color--light: #3d5a9e;
   --md-primary-fg-color--dark: #1a237e;
+
+  /* Brighten accent + link colors for dark-mode contrast */
+  --md-accent-fg-color: #b39ddb;
+  --md-accent-fg-color--transparent: rgba(179, 157, 219, 0.1);
+  --md-typeset-a-color: #b39ddb;
 }
 
 /* ==========================================================================
