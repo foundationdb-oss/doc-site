@@ -5,7 +5,7 @@ description: Understanding FoundationDB's ACID transaction model and optimistic 
 
 # Transactions
 
-FoundationDB provides **full ACID transactions** across the entire database—not just within a single document or partition. This is fundamental to how FoundationDB works: every read and write happens within a transaction, giving you the strongest possible consistency guarantees at any scale.
+FoundationDB provides **full ACID transactions** with **strict serializable** isolation across the entire database—not just within a single document or partition. This is fundamental to how FoundationDB works: every read and write happens within a transaction, giving you the strongest possible consistency guarantees at any scale.
 
 ## Why Transactions Matter
 
@@ -332,16 +332,17 @@ def delete_all_users(db):
 
 ## Isolation Levels
 
-FoundationDB provides **serializable isolation**—the strongest isolation level:
+FoundationDB provides **strict serializable isolation**—the strongest isolation level in the [Jepsen consistency hierarchy](https://jepsen.io/consistency). This combines serializability with real-time ordering (linearizability):
 
-| Isolation Level | Dirty Reads | Non-Repeatable Reads | Phantom Reads | FoundationDB |
-|-----------------|-------------|----------------------|---------------|--------------|
-| Read Uncommitted | ✗ | ✗ | ✗ | — |
-| Read Committed | ✓ | ✗ | ✗ | — |
-| Repeatable Read | ✓ | ✓ | ✗ | — |
-| Serializable | ✓ | ✓ | ✓ | **✓ Always** |
+| Isolation Level | Dirty Reads | Non-Repeatable Reads | Phantom Reads | Real-Time Ordering | FoundationDB |
+|-----------------|-------------|----------------------|---------------|-------------------|--------------|
+| Read Uncommitted | ✗ | ✗ | ✗ | No | — |
+| Read Committed | ✓ | ✗ | ✗ | No | — |
+| Repeatable Read | ✓ | ✓ | ✗ | No | — |
+| Serializable | ✓ | ✓ | ✓ | No | — |
+| **Strict Serializable** | ✓ | ✓ | ✓ | **Yes** | **✓ Always** |
 
-**Serializable** means transactions behave as if they executed one at a time, in some order. You never need to worry about concurrent transactions seeing inconsistent data.
+**Strict serializable** means transactions behave as if they executed one at a time, in an order consistent with real time. If transaction A completes before transaction B starts, B is guaranteed to see A's effects. You never need to worry about concurrent transactions seeing inconsistent data.
 
 ## Error Handling
 
