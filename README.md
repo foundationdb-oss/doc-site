@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://doc-site-foundationdb-oss.vercel.app/">Live Site</a> •
+  <a href="https://foundationdb.vercel.app">Live Site</a> •
   <a href="https://www.foundationdb.org/">Website</a> •
   <a href="https://github.com/apple/foundationdb">GitHub</a> •
   <a href="https://forums.foundationdb.org/">Forums</a>
