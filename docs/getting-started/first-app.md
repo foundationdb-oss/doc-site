@@ -431,7 +431,7 @@ if __name__ == "__main__":
 {% elif fdb_version == "7.3" %}
 !!! info "{{ fdb_version }} Recommendations"
     - Use the **Redwood storage engine** (`{{ redwood_engine }}`) for best performance
-    - **Gray failure detection** helps ensure your application remains responsive even with degraded nodes
+    - **[Gray failure detection](../operations/gray-failure-detection.md)** helps ensure your application remains responsive even with degraded nodes
 
 {% elif fdb_version == "7.1" %}
 !!! note "{{ fdb_version }} Performance Tips"
