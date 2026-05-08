@@ -47,7 +47,12 @@ knob_cc_enable_worker_health_monitor = true
 | `CC_ENABLE_WORKER_HEALTH_MONITOR` | `false` | Master switch on the cluster controller (aggregates complaints). |
 | `CC_HEALTH_TRIGGER_RECOVERY` | `false` | If true, exclude degraded servers via a recovery. If false, only log warnings — recommended for initial enablement. |
 | `CC_HEALTH_TRIGGER_FAILOVER` | `false` | If true, allow region failover when degradation is widespread (`CC_FAILOVER_DUE_TO_HEALTH_MIN_DEGRADATION` … `CC_FAILOVER_DUE_TO_HEALTH_MAX_DEGRADATION`). |
+{% if fdb_version == "7.3" %}
 | `CC_ENABLE_REMOTE_LOG_ROUTER_MONITORING` | `true` | Detect degraded log-router connectivity (already on by default once the master switches are on). |
+{% else %}
+| `CC_ENABLE_REMOTE_LOG_ROUTER_DEGRADATION_MONITORING` | `false` | Detect degraded (slow) remote log-router links. Split out from the 7.3 combined knob. |
+| `CC_ENABLE_REMOTE_LOG_ROUTER_DISCONNECT_MONITORING` | `true` | Detect disconnected remote log-router links. Split out from the 7.3 combined knob. |
+{% endif %}
 | `CC_ENABLE_ENTIRE_SATELLITE_MONITORING` | `false` | Try to detect a fully degraded satellite DC. |
 | `CC_INVALIDATE_EXCLUDED_PROCESSES` | `false` | Drop complaints from processes already excluded by a gray-failure-triggered recovery. |
 | `GRAY_FAILURE_ENABLE_TLOG_RECOVERY_MONITORING` | `true` | Run the health monitor during TLog recovery as well. |
@@ -74,9 +79,9 @@ The detector emits trace events you can grep for in process logs:
 | `ClusterControllerUpdateWorkerHealth` | cluster controller | A complaint arrived from a worker. Detail fields: `WorkerAddress`, `DegradedPeers`, `DisconnectedPeers`, `RecoveredPeers`. |
 | `ClusterControllerHealthMonitor` | cluster controller | Per-cycle summary of currently degraded servers. Detail fields: `DegradedServers`, `DisconnectedServers`, `DegradedSatellite`. |
 | `WorkerPeerHealthRecovered`, `WorkerAllPeerHealthRecovered` | cluster controller | A peer / worker fell out of the degraded set. |
-| `DegradedServerDetectedAndSuggestRecovery` | cluster controller | The controller would have triggered recovery if `CC_HEALTH_TRIGGER_RECOVERY` were on (`SevWarnAlways`). |
+| `DegradedServerDetectedAndSuggestRecovery` | cluster controller | The controller would have triggered recovery if `CC_HEALTH_TRIGGER_RECOVERY` were on ({% if fdb_version == "7.3" %}`SevWarnAlways`{% else %}`SevWarn`{% endif %}). |
 | `DegradedServerDetectedAndTriggerRecovery` | cluster controller | The controller is forcing a master failure to exclude a degraded server (`SevWarnAlways`). |
-| `DegradedServerDetectedAndSuggestFailover` / `DegradedServerDetectedAndTriggerFailover` | cluster controller | Equivalent pair for region failover. |
+| `DegradedServerDetectedAndSuggestFailover` / `DegradedServerDetectedAndTriggerFailover` | cluster controller | Equivalent pair for region failover. The `Trigger*` event is `SevWarnAlways`; the `Suggest*` event is {% if fdb_version == "7.3" %}`SevWarnAlways`{% else %}`SevWarn`{% endif %}. |
 
 {% if fdb_version >= "7.4" %}
 On {{ fdb_version }} you can also enable `CC_GRAY_FAILURE_STATUS_JSON` and read the `gray_failure` object inside `status json` for a snapshot of currently degraded servers without tailing trace logs.
