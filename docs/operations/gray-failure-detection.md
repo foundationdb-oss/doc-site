@@ -7,9 +7,7 @@ description: Detect and react to degraded-but-not-dead processes in a Foundation
 
 A *gray failure* is a process or network link that is still alive — it answers pings, opens connections, and reports up — but is responding slowly enough or dropping enough traffic that it drags down the rest of the cluster. Simple liveness checks miss this case: the process passes them, so the cluster keeps routing work through it.
 
-FoundationDB ships an in-cluster gray failure detector that has each worker measure its peers and report degraded or disconnected links to the cluster controller, which can then exclude the offending process or trigger a recovery / region failover.
-
-The detector is **off by default in 7.3 and 7.4**. Operators must opt in with knobs.
+FoundationDB ships an in-cluster gray failure detector that has each worker measure its peers and report degraded or disconnected links to the cluster controller, which can then exclude the offending process or trigger a recovery / region failover. The detector is **off by default in 7.3 and 7.4**, but **enabling it in suggest-only mode is recommended for production clusters** — see the recommendation block below.
 
 ## Status in {{ fdb_version }}
 
@@ -20,8 +18,18 @@ The detector is **off by default in 7.3 and 7.4**. Operators must opt in with kn
 - The `gray_failure` status-JSON section and SS-complaint knobs are **not** in 7.3 — they ship in 7.4.
 {% endif %}
 
-!!! note "Production state"
-    As of the May 2026 FoundationDB working group, at least one operator has run the detector enabled in production for roughly one week with no observed stability impact and no actual gray-failure catches. Enable in pre-prod first and watch for false positives before turning it on cluster-wide.
+!!! tip "Recommendation"
+    For most production clusters, enable the detector in **suggest-only mode** as a baseline configuration: turn the monitors on so the cluster publishes degradation signal in trace logs, but leave the action triggers off so it can't kill the master or flip regions until you trust the signal.
+
+    ```ini
+    [fdbserver]
+    knob_enable_worker_health_monitor    = true
+    knob_cc_enable_worker_health_monitor = true
+    knob_cc_health_trigger_recovery      = false
+    knob_cc_health_trigger_failover      = false
+    ```
+
+    Supporting evidence: as of the May 2026 FoundationDB working group, at least one operator has run the detector in production for roughly one week with no observed stability impact and no false-positive recoveries. Once the suggest-only signal is clean, follow the [Recommended rollout](#recommended-rollout) ramp to promote `CC_HEALTH_TRIGGER_RECOVERY` and (later) `CC_HEALTH_TRIGGER_FAILOVER`.
 
 ## How it works
 
