@@ -17,6 +17,7 @@ FoundationDB's backup system offers:
 | **Point-in-Time Recovery** | Restore to any version within the backup window |
 | **Disaster Recovery** | Real-time replication to a standby cluster |
 | **Backup Tags** | Run multiple independent backups simultaneously |
+| **Disk Snapshot Backup** | Block-level point-in-time backup using filesystem/EBS snapshots; high-throughput restore, no continuous backup |
 
 !!! info "Components"
     - `fdbbackup` - CLI for managing backups
@@ -24,6 +25,7 @@ FoundationDB's backup system offers:
     - `backup_agent` - Background process that performs backup operations
     - `fdbdr` - CLI for disaster recovery management
     - `dr_agent` - Background process for DR replication
+    - `fdbcli snapshot` - Block-level disk snapshot backup orchestrator (covered below)
 
 {% if fdb_version >= "7.4" %}
 !!! tip "Backup V2 <span class="pill-improved">IMPROVED IN 7.4</span>"
@@ -50,6 +52,8 @@ FoundationDB's backup system offers:
     - **Improved restore performance** — the primary focus of V3 development
 
     Note: An earlier "parallel restore" feature was a prior attempt at solving restore performance but was unsuccessful and has been removed from the codebase. Backup V3 is a ground-up redesign of the approach.
+
+    If you need fast restore today and can tolerate non-continuous backup, see [Disk Snapshot Backup](#disk-snapshot-backup) below — it is used in production by some large operators.
 
 ## Backup Architecture
 
@@ -526,6 +530,214 @@ fdbbackup expire -d file:///backup/fdb --restorable-after-version 12000000
 ```bash
 fdbbackup delete -d file:///backup/fdb
 ```
+
+## Disk Snapshot Backup
+
+Disk snapshot backup is an alternative backup mechanism that captures a point-in-time, block-level image of every FoundationDB process's data directory by triggering filesystem or block-device snapshots (EBS, ZFS, LVM, btrfs, CSI volume snapshots, etc.) coordinated across the cluster. Unlike `fdbbackup`, it does not stream a continuous mutation log to external storage — instead, it produces a single consistent disk image per role at a single FDB version. Operators choose this approach when restore throughput from `fdbbackup` is the bottleneck (a snapshot restore is bounded by the speed at which volumes can be attached or copied, not by log replay), and when continuous point-in-time recovery is not required. The mechanism has been part of FoundationDB since the 6.x line and is used in production by some large operators.
+
+### When to Use
+
+| Aspect | `fdbbackup` | Disk Snapshot Backup |
+|--------|-------------|----------------------|
+| Granularity | Logical key-value mutations | Block-level disk image per process |
+| Point-in-time recovery | Any version within the backup window | Only the FDB version captured at snapshot time |
+| Continuous backup | Yes | No |
+| Restore speed | Bounded by data size + log replay throughput | Bounded by volume attach / copy speed |
+| External dependencies | Blob store or filesystem destination | Filesystem or block device with snapshot support |
+| Storage engine support | Any storage engine | Redwood (`ssd-redwood-1`) and SQLite (`ssd-2`) only |
+| Operator tooling required | Low — ships with FDB | High — operator must build, deploy, and manage a `snap_create` binary |
+
+### How It Works
+
+When `fdbcli> snapshot <binary> [args...]` is invoked, the cluster controller orchestrates a synchronized snapshot across all stateful processes. Each `fdbserver` process then forks the operator-supplied `snap_create` binary, which is responsible for invoking the underlying volume-snapshot mechanism on that host's data directory.
+
+```mermaid
+graph TD
+    Op[Operator]
+    CLI["fdbcli&gt; snapshot /bin/snap_create.sh"]
+    CC[Cluster Controller<br/>Snapshot Orchestrator]
+
+    subgraph "Storage Process"
+        SS[fdbserver<br/>storage role]
+        SS_Snap[snap_create<br/>--role=storage]
+        SS_Disk[(Storage data dir)]
+    end
+
+    subgraph "TLog Process"
+        TL[fdbserver<br/>tlog role]
+        TL_Snap[snap_create<br/>--role=tlog]
+        TL_Disk[(TLog data dir)]
+    end
+
+    subgraph "Coordinator Process"
+        CO[fdbserver<br/>coordinator]
+        CO_Snap[snap_create<br/>--role=coord]
+        CO_Disk[(Coordinator data dir)]
+    end
+
+    Op --> CLI
+    CLI --> CC
+    CC --> SS
+    CC --> TL
+    CC --> CO
+    SS --> SS_Snap --> SS_Disk
+    TL --> TL_Snap --> TL_Disk
+    CO --> CO_Snap --> CO_Disk
+
+    style CC fill:#ff9800,color:#000
+    style SS_Disk fill:#4caf50,color:#fff
+    style TL_Disk fill:#4caf50,color:#fff
+    style CO_Disk fill:#4caf50,color:#fff
+```
+
+The orchestrator quiesces the relevant subsystems and ensures that all per-role snapshots taken across the cluster reflect the same FDB version. The result is a set of disk images — one per role, per process — that together form a consistent backup of the cluster.
+
+!!! note "Prerequisites"
+    - **Snapshot-capable storage** — a filesystem or block device that supports point-in-time snapshots: AWS EBS, ZFS, LVM, btrfs, CSI volume snapshots on Kubernetes, etc.
+    - **Linux only** — disk snapshot backup is not supported on Windows.
+    - **Storage engine restriction** — supported only with the Redwood (`ssd-redwood-1`) and SQLite (`ssd-2`) storage engines. **Not supported with the RocksDB storage engine** ([apple/foundationdb#5155](https://github.com/apple/foundationdb/issues/5155)).
+    - **Operator-supplied binary** — the operator must build, deploy, and maintain a `snap_create` executable (see below). FoundationDB does not ship one.
+
+### Setting Up the `snap_create` Binary
+
+`snap_create` is an operator-supplied executable invoked by `fdbserver` once per role on each host when a snapshot is requested. It is responsible for actually triggering the underlying volume-snapshot operation (for example, an `aws ec2 create-snapshot` call, an `lvcreate --snapshot`, a `zfs snapshot`, or a CSI `VolumeSnapshot`).
+
+The simplest illustrative implementation copies the data directory to a separate location, similar to the upstream example:
+
+```bash
+#!/bin/bash
+# /bin/snap_create.sh — illustrative example only.
+# Real deployments should call EBS / LVM / ZFS / CSI snapshot APIs.
+set -euo pipefail
+
+UID=""
+VERSION=""
+PATH_ARG=""
+ROLE=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --uid)     UID="$2";      shift 2 ;;
+    --version) VERSION="$2";  shift 2 ;;
+    --path)    PATH_ARG="$2"; shift 2 ;;
+    --role)    ROLE="$2";     shift 2 ;;
+    *)         shift ;;  # ignore extra operator-supplied args
+  esac
+done
+
+DEST="/var/snapshots/${UID}/${ROLE}-${VERSION}"
+mkdir -p "$DEST"
+cp -a "$PATH_ARG"/. "$DEST"/
+```
+
+`fdbserver` injects four named arguments when invoking the binary, followed by any extra arguments the operator passed to `fdbcli> snapshot`:
+
+| Argument | Description |
+|----------|-------------|
+| `--uid <UID>` | Snapshot UID generated by the cluster controller; identical across all roles in a single snapshot. |
+| `--version <FDB version>` | The FDB cluster version captured by this snapshot. |
+| `--path <data dir>` | Absolute path to the data directory that must be snapshotted. |
+| `--role <role>` | Role of the process: `storage`, `tlog`, `coord`, etc. |
+| _user-supplied args_ | Any additional arguments after the binary path in `fdbcli> snapshot`. |
+
+### Configuring the Cluster
+
+To allow `fdbserver` to fork the snapshot binary, set `whitelist_binpath` in the `[fdbserver]` section of `foundationdb.conf` on every host:
+
+```ini
+[fdbserver]
+command = /usr/sbin/fdbserver
+whitelist_binpath = /bin/snap_create.sh
+```
+
+The path may be a colon-separated list if multiple binaries are permitted. Restart `fdbserver` (or trigger a rolling restart) for the change to take effect.
+
+The `SNAP_CREATE_MAX_TIMEOUT` knob (default 5 minutes) bounds how long the orchestrator will wait for `snap_create` to complete on each process. Tune it via `--knob-snap-create-max-timeout=<seconds>` if your underlying snapshot mechanism is slow.
+
+### Recommended Metadata to Capture
+
+Disk snapshot images by themselves are not sufficient to reconstitute a cluster — the operator must also record enough metadata to map images back to roles, processes, and FDB versions at restore time. Capture at least the following per snapshot:
+
+| Field | Description |
+|-------|-------------|
+| **UID** | The snapshot UID returned by `fdbcli> snapshot`. Identical across all roles in a single snapshot. |
+| **fdbserver version** | Exact FDB binary version that produced the snapshot. Required when restoring (the new cluster must run the same major version). |
+| **Creation time** | Wall-clock time the snapshot was taken. Useful for retention policy. |
+| **Cluster file** | Contents of `fdb.cluster` at the time of snapshot, so coordinator addresses can be re-derived. |
+| **Configuration / knobs** | `foundationdb.conf` and any non-default knobs in effect on each process. |
+| **Process IP and port** | Address each role was listening on at snapshot time. |
+| **Locality** | `--locality_*` settings (zoneid, dcid, machineid) for each process. |
+| **File naming** | Recommended naming convention: `<cluster-name>:<ip>:<port>:<UID>` so images can be grouped and matched at restore time. |
+
+!!! tip
+    Store this metadata alongside the snapshot images themselves (e.g., as object tags on EBS snapshots or as a sidecar JSON file) so it cannot be lost independently of the data.
+
+### Taking a Backup
+
+From an `fdbcli` session attached to the cluster:
+
+```text
+fdbcli> snapshot /bin/snap_create.sh --extra-arg value
+Snapshot command succeeded with UID a1b2c3d4e5f60718293a4b5c6d7e8f90
+```
+
+Pass the absolute path to your `snap_create` binary (which must match `whitelist_binpath`) followed by any extra arguments your binary accepts. The UID printed in the response is the same UID injected as `--uid` to every invocation of `snap_create` across the cluster.
+
+!!! warning "`snapshot` is a hidden `fdbcli` command"
+    In both `release-7.3` and `release-7.4` of `apple/foundationdb`, `snapshot` is registered as a **hidden** command (`CommandFactory snapshotFactory("snapshot")` in `fdbcli/SnapshotCommand.actor.cpp`, marked `// hidden commands, no help text for now`). It is fully functional, but it does **not** appear in `fdbcli> help` output. Invoke it directly by name.
+
+### Restore Steps
+
+A disk-snapshot restore reconstitutes a new FDB cluster from a previously captured set of per-role snapshot images. Roughly:
+
+1. **Locate snapshot images by UID.** Identify all images that share the same snapshot UID — one per role per process across the original cluster.
+2. **Group by old IP / locality.** Use the captured metadata to group images by the original process's IP, port, and locality. Each group corresponds to one process worth of state.
+3. **Provision new cluster nodes.** Decide on the IP layout for the new cluster, build a mapping from old IP → new IP, and attach (or copy) each image to the corresponding new host into the same data directory layout per role.
+4. **Recompute `fdb.cluster`.** Rewrite the cluster file with the new coordinator IPs (taken from the IP mapping). Distribute the new cluster file to every node.
+5. **Start `fdbserver` on the new nodes.** With the data directories in place and the new cluster file pointing at the new coordinators, the cluster will recover automatically to the snapshot's FDB version.
+
+!!! warning "Multi-role processes share a data directory"
+    If a single `fdbserver` on the original cluster ran multiple roles out of one data directory (for example, a combined storage + tlog), the disk image will contain files for all of those roles. When restoring such an image into a node that should serve only one of those roles, the operator must delete the on-disk files belonging to the other roles before starting `fdbserver`, or the process will refuse to start. Plan the role-to-node mapping carefully when designing the restore.
+
+### Error Codes
+
+`snap_create` failures and orchestration errors surface through standard FoundationDB error codes. The most relevant are:
+
+| Code | Name | Description | Suggested action |
+|------|------|-------------|------------------|
+| 2500 | `snap_disable_tlog_pop_failed` | Failed to disable tlog popping during snapshot. | Retry; check tlog process health. |
+| 2501 | `snap_storage_failed` | `snap_create` invocation on a storage process failed. | Check `snap_create` logs on the affected storage host. |
+| 2502 | `snap_tlog_failed` | `snap_create` invocation on a tlog process failed. | Check `snap_create` logs on the affected tlog host. |
+| 2503 | `snap_coord_failed` | `snap_create` invocation on a coordinator failed. | Check `snap_create` logs on the affected coordinator. |
+| 2504 | `snap_enable_tlog_pop_failed` | Failed to re-enable tlog popping after snapshot. | Investigate tlog state; popping may need to be re-enabled manually. |
+| 2505 | `snap_path_not_whitelisted` | The supplied binary is not present in `whitelist_binpath`. | Add the binary path to `whitelist_binpath` in `foundationdb.conf` and restart. |
+| 2506 | `snap_not_fully_recovered_unsupported` | Cluster has not fully recovered; snapshot is not allowed. | Wait for cluster recovery to complete, then retry. |
+| 2507 | `snap_log_anti_quorum_unsupported` | Snapshot is not supported with log anti-quorum configured. | Reconfigure the cluster without log anti-quorum to use disk snapshots. |
+| 2508 | `snap_with_recovery_unsupported` | Snapshot was attempted concurrently with recovery. | Retry once recovery completes. |
+| 4000 | `snap_invalid_uid_string` | The supplied UID string is malformed. | Use a valid UID (the API generates one for you when called from `fdbcli`). |
+
+!!! warning "Limitations"
+    - **No continuous / point-in-time recovery.** Each snapshot captures one FDB version; you cannot replay forward to an arbitrary later version.
+    - **Linux only.** Windows is not supported.
+    - **Encryption depends on the storage layer.** FoundationDB does not encrypt the snapshot images itself — encryption-at-rest is whatever your filesystem, EBS volume, or storage backend provides.
+    - **Operator-built tooling.** The `snap_create` binary, snapshot transport, and restore orchestration are entirely the operator's responsibility.
+    - **Restore version is fixed.** A restore brings the cluster up at exactly the version captured by the snapshot; you cannot choose a different version at restore time.
+
+### Programmatic API
+
+Disk snapshot backup can also be triggered from application code via the C API ([apple/foundationdb#4241](https://github.com/apple/foundationdb/pull/4241)):
+
+```c
+const char *uid = "a1b2c3d4e5f60718293a4b5c6d7e8f90";
+FDBFuture *f = fdb_database_create_snapshot(db, uid, strlen(uid));
+```
+
+The caller supplies the UID (typically a freshly generated 32-character hex string), and `fdbserver` invokes the configured `snap_create` binary on each role exactly as it would for `fdbcli> snapshot`. The future resolves once the cluster-wide snapshot has either succeeded or failed.
+
+### Cleanup
+
+FoundationDB does **not** garbage-collect old or failed disk-snapshot images. If a snapshot operation fails partway through, or if a successful snapshot ages out of the operator's retention policy, the on-disk (or on-EBS, or on-S3) artifacts must be expired by external tooling — for example, a cron job that lists snapshots older than _N_ days and deletes them, or lifecycle policies on the underlying storage. Plan a cleanup strategy before enabling disk snapshot backup in production.
+
 
 ## Monitoring Backups
 
