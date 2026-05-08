@@ -400,7 +400,7 @@ FoundationDB stores keys in sorted order, making range queries efficient:
 {% elif fdb_version == "7.3" %}
 !!! tip "Recommended Settings for {{ fdb_version }}"
     - Use `{{ redwood_engine }}` storage engine for best performance (now production-ready)
-    - Take advantage of improved **gray failure detection** for better cluster reliability
+    - Take advantage of improved **[gray failure detection](../operations/gray-failure-detection.md)** for better cluster reliability
 
 {% elif fdb_version == "7.1" %}
 !!! tip "Performance Options in {{ fdb_version }}"

@@ -206,6 +206,7 @@ nav:
       - Consistency Scan: operations/consistency-scan.md
       - Consistency Check Urgent: operations/consistency-check.md
       - Restore Validation: operations/restore-validation.md
+      - Gray Failure Detection: operations/gray-failure-detection.md
       - Troubleshooting: operations/troubleshooting.md
   - Community:
       - community/index.md
