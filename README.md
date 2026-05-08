@@ -116,6 +116,8 @@ mkdocs build
 
 We use [mike](https://github.com/jimporter/mike) for multi-version documentation. This allows users to switch between different FoundationDB releases.
 
+> **Maintainers:** When bumping a 7.3.x / 7.4.x patch, adding a feature that hasn't shipped yet, or wiring up an 8.0 release, follow the playbook in [`AGENTS.md`](AGENTS.md). It enumerates exactly which files to touch for each trigger.
+
 > **Note:** We use `--alias-type=redirect` for all mike deploy commands to ensure compatibility with Vercel. Mike's default symlink-based aliases don't work on Vercel's static hosting.
 
 ### Current Versions
@@ -209,8 +211,8 @@ The `main_hooks.py` file defines version-specific variables for each FoundationD
 | Variable | 7.1 | 7.3 | 7.4 |
 |----------|-----|-----|-----|
 | `{{ api_version }}` | 710 | 730 | 740 |
-| `{{ fdb_release }}` | 7.1.67 | 7.3.75 | 7.4.6 |
-| `{{ docker_tag }}` | 7.1.67 | 7.3.75 | 7.4.6 |
+| `{{ fdb_release }}` | 7.1.67 | 7.3.77 | 7.4.6 |
+| `{{ docker_tag }}` | 7.1.67 | 7.3.77 | 7.4.6 |
 
 Template variables are rendered based on the `FDB_VERSION` environment variable set during build. For example:
 
