@@ -15,7 +15,7 @@ The Python client provides a Pythonic interface to FoundationDB with decorators,
 
     ```bash
     # Install version matching your FoundationDB server
-    pip install foundationdb==7.3.75  # For FoundationDB 7.3 (stable)
+    pip install foundationdb==7.3.77  # For FoundationDB 7.3 (stable)
     ```
 
 === "conda"
@@ -180,17 +180,32 @@ def get_with_options(tr):
 
 ### GetMappedRange (7.1+)
 
-!!! info "Added in FoundationDB 7.1"
-    GetMappedRange is available in FoundationDB 7.1 and later versions.
+!!! warning "Experimental"
+    GetMappedRange is available in FoundationDB 7.1 and later, but it remains
+    **experimental** in all current releases (7.1, 7.3, and 7.4). It is only
+    allowed when the read uses **snapshot isolation** *and* the
+    `READ_YOUR_WRITES_DISABLE` transaction option is set; calling it in any
+    other configuration raises an error. The on-the-wire format and mapper
+    syntax may still change in future releases.
 
-GetMappedRange allows efficient secondary index lookups by fetching related data in a single operation:
+    See the upstream
+    [Everything about GetMappedRange](https://github.com/apple/foundationdb/wiki/Everything-about-GetMappedRange)
+    wiki for details.
+
+GetMappedRange allows efficient secondary index lookups by fetching related
+data in a single operation. Because of the requirements above, the read must
+go through `tr.snapshot` and the transaction must disable read-your-writes:
 
 ```python
 @fdb.transactional
 def get_users_by_city(tr, city):
-    """Fetch users using a city index with GetMappedRange."""
+    """Fetch users using a city index with GetMappedRange (experimental)."""
     # Index: ('city_index', city, user_id) -> b''
     # Data:  ('users', user_id) -> user_data
+
+    # Required: GetMappedRange only works with snapshot reads and
+    # READ_YOUR_WRITES_DISABLE.
+    tr.options.set_read_your_writes_disable()
 
     index_start = fdb.tuple.pack(('city_index', city))
     index_end = fdb.tuple.pack(('city_index', city, None))
@@ -198,7 +213,7 @@ def get_users_by_city(tr, city):
     # Define mapper to fetch user data for each index entry
     mapper = fdb.tuple.pack(('users',)) + b'{K[2]}'
 
-    results = tr.get_mapped_range(
+    results = tr.snapshot.get_mapped_range(
         index_start, index_end,
         mapper=mapper
     )

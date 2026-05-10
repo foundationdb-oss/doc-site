@@ -21,8 +21,8 @@ Before installing, ensure your system meets these requirements:
 !!! info "AVX vs Non-AVX Builds"
     Since 7.3.24, FoundationDB publishes two builds for each release as consecutive version numbers:
 
-    - **Even versions** (e.g., 7.3.74) — standard build *without* AVX instructions
-    - **Odd versions** (e.g., 7.3.75) — same code compiled *with* AVX enabled for better performance
+    - **Even versions** (e.g., 7.3.76) — standard build *without* AVX instructions
+    - **Odd versions** (e.g., 7.3.77) — same code compiled *with* AVX enabled for better performance
 
     **Which should you choose?**
 

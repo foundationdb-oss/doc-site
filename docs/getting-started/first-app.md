@@ -431,12 +431,12 @@ if __name__ == "__main__":
 {% elif fdb_version == "7.3" %}
 !!! info "{{ fdb_version }} Recommendations"
     - Use the **Redwood storage engine** (`{{ redwood_engine }}`) for best performance
-    - **Gray failure detection** helps ensure your application remains responsive even with degraded nodes
+    - **[Gray failure detection](../operations/gray-failure-detection.md)** helps ensure your application remains responsive even with degraded nodes
 
 {% elif fdb_version == "7.1" %}
 !!! note "{{ fdb_version }} Performance Tips"
     - Enable **USE_GRV_CACHE** on read-heavy transactions for reduced latency
-    - **GetMappedRange** can optimize secondary index lookups in your application
+    - **GetMappedRange** {{ version_pill("7.1", "experimental") }} can optimize secondary index lookups in your application — only usable with snapshot reads and the `READ_YOUR_WRITES_DISABLE` transaction option
     - Use `{{ redwood_engine }}` for Redwood storage (despite the `-experimental` suffix, it's production-ready)
 
 {% endif %}

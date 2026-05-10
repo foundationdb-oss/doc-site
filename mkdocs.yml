@@ -166,6 +166,7 @@ nav:
       - Quick Start: getting-started/quickstart.md
       - First Application: getting-started/first-app.md
       - Version Overview: getting-started/versions.md
+      - What's Next / 8.0 Preview: getting-started/roadmap.md
   - Core Concepts:
       - concepts/index.md
       - Data Model: concepts/data-model.md
@@ -205,6 +206,7 @@ nav:
       - Consistency Scan: operations/consistency-scan.md
       - Consistency Check Urgent: operations/consistency-check.md
       - Restore Validation: operations/restore-validation.md
+      - Gray Failure Detection: operations/gray-failure-detection.md
       - Troubleshooting: operations/troubleshooting.md
   - Community:
       - community/index.md

@@ -7,11 +7,14 @@ description: Comparison of FoundationDB versions 7.1, 7.3, and 7.4 with status, 
 
 This page provides a comprehensive overview of FoundationDB versions, their status, and guidance for choosing the right version for your deployment.
 
+!!! tip "Looking ahead?"
+    For features merged upstream that are **not yet** in a released 7.3.x / 7.4.x build (and work targeting an eventual 8.0), see [What's Next / 8.0 Preview](roadmap.md).
+
 ## Supported Versions
 
 | Version | Status | Docker Tag | Recommended For |
 |---------|--------|------------|-----------------|
-| **7.3** | :material-check-circle:{ .text-green } **Stable** | `foundationdb/foundationdb:7.3.75` | New deployments |
+| **7.3** | :material-check-circle:{ .text-green } **Stable** | `foundationdb/foundationdb:7.3.77` | New deployments |
 | **7.4** | :material-alert:{ .text-orange } Pre-release | `foundationdb/foundationdb:7.4.6` | Testing & evaluation |
 | **7.1** | :material-archive:{ .text-grey } Legacy | `foundationdb/foundationdb:7.1.67` | Existing deployments |
 
@@ -87,7 +90,7 @@ The Redwood storage engine was renamed between versions:
 
 === "7.1 (Legacy)"
 
-    - **GetMappedRange**: Advanced range query capabilities for secondary indexes
+    - **GetMappedRange** *(experimental)*: Advanced range query capabilities for secondary indexes
     - **Version Vector**: Enhanced conflict detection for improved transaction throughput
     - **RocksDB**: Experimental storage engine support
 
@@ -97,7 +100,7 @@ The Redwood storage engine was renamed between versions:
 |---------|:---:|:---:|:---:|
 | Redwood Storage Engine | ✅ (experimental) | ✅ (production) | ✅ (production) |
 | RocksDB Storage Engine | ✅ (experimental) | ✅ (experimental) | ✅ (experimental) |
-| GetMappedRange | ✅ | ✅ | ✅ |
+| GetMappedRange | ✅ (experimental) | ✅ (experimental) | ✅ (experimental) |
 | Version Vectors | ✅ | ✅ | ✅ |
 | Backup V2 | ❌ | ❌ | ✅ |
 | Bulk Loading | ❌ | ❌ | ✅ (experimental) |
@@ -205,4 +208,5 @@ The following features have been deprecated and removed from FoundationDB. Users
 - [Installation Guide](installation.md) - Install your chosen version
 - [Quick Start](quickstart.md) - Connect and run your first transaction
 - [Storage Engines](../guides/storage-engines.md) - Learn about storage engine options
+- [What's Next / 8.0 Preview](roadmap.md) - Features merged upstream and targeted for upcoming releases
 

@@ -400,12 +400,12 @@ FoundationDB stores keys in sorted order, making range queries efficient:
 {% elif fdb_version == "7.3" %}
 !!! tip "Recommended Settings for {{ fdb_version }}"
     - Use `{{ redwood_engine }}` storage engine for best performance (now production-ready)
-    - Take advantage of improved **gray failure detection** for better cluster reliability
+    - Take advantage of improved **[gray failure detection](../operations/gray-failure-detection.md)** for better cluster reliability
 
 {% elif fdb_version == "7.1" %}
 !!! tip "Performance Options in {{ fdb_version }}"
     - Enable **USE_GRV_CACHE** transaction option for read-heavy workloads
-    - Try **GetMappedRange** for efficient secondary index lookups
+    - Try **GetMappedRange** {{ version_pill("7.1", "experimental") }} for efficient secondary index lookups — requires snapshot isolation and the `READ_YOUR_WRITES_DISABLE` transaction option
     - Use `{{ redwood_engine }}` for the Redwood storage engine
 
 {% endif %}

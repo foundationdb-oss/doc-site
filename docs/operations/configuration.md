@@ -628,6 +628,35 @@ db.options.set_transaction_causal_read_risky()
 !!! tip "Recommendation"
     For most production workloads, enabling `causal_read_risky` provides meaningful throughput improvement on the GRV path with negligible practical impact on read freshness. Test with your workload to confirm.
 
+{% if fdb_version >= "7.3" %}
+### Gray Failure Detection
+
+| Property | Value |
+|----------|-------|
+| **Default** | Disabled |
+| **Scope** | Cluster knobs (`[fdbserver]`) |
+| **Effect** | Each worker measures its peers' ping latency and connection failures and reports degraded or disconnected links to the cluster controller, which can log warnings or (optionally) trigger a recovery / region failover to exclude the offending process |
+
+The detector spots *gray failures* — processes or links that are still alive (they answer pings and accept connections) but slow enough or lossy enough to drag down the rest of the cluster. Simple liveness checks miss this case; the gray failure monitor closes the gap.
+
+**When to use it:**
+
+- Any production cluster where you tail trace logs or surface them to alerting
+- Multi-DC deployments, where slow inter-DC links are easy to miss
+- Clusters that have ever had a slow-NIC or slow-disk incident no one caught quickly
+
+```ini
+[fdbserver]
+knob_enable_worker_health_monitor    = true
+knob_cc_enable_worker_health_monitor = true
+knob_cc_health_trigger_recovery      = false
+knob_cc_health_trigger_failover      = false
+```
+
+!!! tip "Recommendation"
+    Enabling the detector in **suggest-only mode** (the snippet above — monitors on, action triggers off) is recommended for most production clusters. It costs almost nothing, surfaces degradation in trace logs, and lets you build confidence in the signal before granting it the ability to kill the master or fail over a region. See [Gray Failure Detection](gray-failure-detection.md) for the full rollout playbook, the trace events to watch, and the tuning knobs.
+{% endif %}
+
 ### Tracing Interval Knobs
 
 FoundationDB's built-in tracing system periodically logs latency histograms and I/O metrics to the trace log files. The default intervals are conservative; reducing them gives more granular performance visibility with minimal overhead.

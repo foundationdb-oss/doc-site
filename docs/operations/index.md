@@ -73,6 +73,14 @@ Guides for operating FoundationDB in production environments.
     Validate data consistency across storage server replicas.
 
     [:octicons-arrow-right-24: Consistency Check Urgent](consistency-check.md)
+
+-   :material-heart-pulse:{ .lg .middle } **Gray Failure Detection**
+
+    ---
+
+    Detect degraded-but-not-dead processes via the worker health monitor.
+
+    [:octicons-arrow-right-24: Gray Failure Detection](gray-failure-detection.md)
 {% endif %}
 
 {% if fdb_version >= "7.4" %}
