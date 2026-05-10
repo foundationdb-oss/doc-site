@@ -90,7 +90,7 @@ The Redwood storage engine was renamed between versions:
 
 === "7.1 (Legacy)"
 
-    - **GetMappedRange**: Advanced range query capabilities for secondary indexes
+    - **GetMappedRange** *(experimental)*: Advanced range query capabilities for secondary indexes
     - **Version Vector**: Enhanced conflict detection for improved transaction throughput
     - **RocksDB**: Experimental storage engine support
 
@@ -100,7 +100,7 @@ The Redwood storage engine was renamed between versions:
 |---------|:---:|:---:|:---:|
 | Redwood Storage Engine | ✅ (experimental) | ✅ (production) | ✅ (production) |
 | RocksDB Storage Engine | ✅ (experimental) | ✅ (experimental) | ✅ (experimental) |
-| GetMappedRange | ✅ | ✅ | ✅ |
+| GetMappedRange | ✅ (experimental) | ✅ (experimental) | ✅ (experimental) |
 | Version Vectors | ✅ | ✅ | ✅ |
 | Backup V2 | ❌ | ❌ | ✅ |
 | Bulk Loading | ❌ | ❌ | ✅ (experimental) |
