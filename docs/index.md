@@ -309,7 +309,7 @@ Learn how FoundationDB is pioneering the use of Swift as a systems programming l
 
     Chat with the community in real-time.
 
-    [:octicons-arrow-right-24: Join Discord](https://discord.gg/foundationdb)
+    [:octicons-arrow-right-24: Join Discord]({{ discord_invite }})
 
 -   :material-forum:{ .lg .middle } **Forums**
 

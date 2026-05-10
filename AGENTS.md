@@ -29,6 +29,7 @@ in [`main_hooks.py`](main_hooks.py).
 - [Verification cheat sheet](#verification-cheat-sheet)
 - [Cross-version content patterns](#cross-version-content-patterns)
 - [Verifying knob / option / trace-event names against upstream](#verifying-knob--option--trace-event-names-against-upstream)
+- [Rotating the Discord invite](#rotating-the-discord-invite)
 
 ---
 
@@ -189,4 +190,26 @@ When confirming a name exists in a specific FoundationDB release:
   ```
 
   e.g. `https://raw.githubusercontent.com/apple/foundationdb/release-7.4/fdbclient/ServerKnobs.cpp`.
+
+---
+
+## Rotating the Discord invite
+
+The Discord invite URL is referenced from two places and **both must be
+updated together** when the invite is rotated:
+
+1. **`main_hooks.py`** — update the `DISCORD_INVITE` module-level constant.
+   Documentation pages reference it via the `{{ discord_invite }}` Jinja
+   variable, so all markdown content picks up the new value automatically.
+2. **`mkdocs.yml`** — update the `social` Discord `link:` literal. `mkdocs.yml`
+   is parsed before the macros plugin runs, so the Jinja variable cannot be
+   used here; the URL must be hard-coded.
+
+After rotating, verify no stale references remain anywhere in the repo:
+
+```bash
+grep -rn "discord.gg/" docs/ main_hooks.py mkdocs.yml README.md AGENTS.md
+```
+
+Every match should be the current invite URL.
 

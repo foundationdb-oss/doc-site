@@ -206,7 +206,7 @@ We're committed to providing a welcoming and inclusive environment. Please read 
 | Channel | Purpose |
 |---------|---------|
 | [:material-forum: Community Forums](https://forums.foundationdb.org){ target="_blank" } | Questions, discussions, announcements |
-| [:fontawesome-brands-discord: Discord](https://discord.gg/foundationdb){ target="_blank" } | Real-time chat with the community |
+| [:fontawesome-brands-discord: Discord]({{ discord_invite }}){ target="_blank" } | Real-time chat with the community |
 | [:octicons-mark-github-16: GitHub Issues](https://github.com/apple/foundationdb/issues){ target="_blank" } | Bug reports and feature requests |
 | [:material-stack-overflow: Stack Overflow](https://stackoverflow.com/questions/tagged/foundationdb){ target="_blank" } | Technical Q&A |
 

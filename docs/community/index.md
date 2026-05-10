@@ -23,7 +23,7 @@ Whether you're just getting started or you're a seasoned contributor, there's a 
 
     Chat with the community in real-time. Get help, share ideas, and connect with other users.
 
-    [:octicons-arrow-right-24: Join Discord](https://discord.gg/foundationdb){ .md-button target="_blank" }
+    [:octicons-arrow-right-24: Join Discord]({{ discord_invite }}){ .md-button target="_blank" }
 
 -   :material-forum:{ .lg .middle } **Forums**
 
@@ -172,7 +172,7 @@ Build specialized databases on FoundationDB's transactional core:
 
 The FoundationDB community thrives because of contributors like you. Here's how to get started:
 
-1. **Say hello** — Introduce yourself in [Discord](https://discord.gg/foundationdb){ target="_blank" } or the [forums](https://forums.foundationdb.org){ target="_blank" }
+1. **Say hello** — Introduce yourself in [Discord]({{ discord_invite }}){ target="_blank" } or the [forums](https://forums.foundationdb.org){ target="_blank" }
 2. **Learn** — Watch [conference talks](resources.md#conference-talks) and read the [SIGMOD paper](https://www.foundationdb.org/files/fdb-paper.pdf){ target="_blank" }
 3. **Contribute** — Check out our [contribution guide](contributing.md) and find [good first issues](https://github.com/apple/foundationdb/labels/good%20first%20issue){ target="_blank" }
 4. **Share** — Blog about your experience, present at meetups, or help answer questions
