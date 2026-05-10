@@ -53,6 +53,12 @@ VERSION_CONFIG = {
 # Default to 7.3 (stable)
 DEFAULT_VERSION = "7.3"
 
+# Discord invite URL — single source of truth for documentation links.
+# This is global (not version-specific). When rotating the invite, update this
+# value AND the social link in mkdocs.yml (which cannot use Jinja variables
+# because it is parsed before the macros plugin runs).
+DISCORD_INVITE = "https://discord.gg/n5eW5cwPBc"
+
 
 def define_env(env):
     """
@@ -87,6 +93,9 @@ def define_env(env):
 
     # Download URL for package downloads (used in upgrade documentation)
     env.variables["download_url"] = "https://github.com/apple/foundationdb/releases/download"
+
+    # Discord invite URL (global, not version-specific)
+    env.variables["discord_invite"] = DISCORD_INVITE
 
     # Next minor version for pip version constraints (e.g., 7.3 -> 7.4)
     major, minor = config['fdb_version'].split('.')

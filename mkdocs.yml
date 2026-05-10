@@ -129,7 +129,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/apple/foundationdb
     - icon: fontawesome/brands/discord
-      link: https://discord.gg/foundationdb
+      link: https://discord.gg/n5eW5cwPBc
   analytics:
     provider: google
     property: G-094G5SE58J
