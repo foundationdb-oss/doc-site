@@ -64,7 +64,7 @@ FoundationDB is a distributed database designed to handle large volumes of struc
 
 {% elif fdb_version == "7.1" %}
 !!! note "Key Features in {{ fdb_version }}"
-    - **GetMappedRange** — Index prefetch for efficient secondary index lookups
+    - **GetMappedRange** {{ version_pill("7.1", "experimental") }} — Index prefetch for efficient secondary index lookups
     - **Version Vector** {{ version_pill("7.1", "experimental") }} — Enhanced conflict detection for better concurrency
     - **RocksDB Storage Engine** {{ version_pill("7.1", "experimental") }} — Alternative storage backend
     - **USE_GRV_CACHE** — Transaction option for reduced latency on read-heavy workloads

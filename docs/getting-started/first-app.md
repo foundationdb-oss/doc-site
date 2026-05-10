@@ -436,7 +436,7 @@ if __name__ == "__main__":
 {% elif fdb_version == "7.1" %}
 !!! note "{{ fdb_version }} Performance Tips"
     - Enable **USE_GRV_CACHE** on read-heavy transactions for reduced latency
-    - **GetMappedRange** can optimize secondary index lookups in your application
+    - **GetMappedRange** {{ version_pill("7.1", "experimental") }} can optimize secondary index lookups in your application — only usable with snapshot reads and the `READ_YOUR_WRITES_DISABLE` transaction option
     - Use `{{ redwood_engine }}` for Redwood storage (despite the `-experimental` suffix, it's production-ready)
 
 {% endif %}
