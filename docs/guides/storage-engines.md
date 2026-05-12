@@ -205,7 +205,7 @@ flowchart TD
 
 ## Further Reading
 
-- [:material-github: Redwood Source Code](https://github.com/apple/foundationdb/tree/main/fdbserver/Redwood.actor.cpp)
-- [:material-github: Storage Server Implementation](https://github.com/apple/foundationdb/tree/main/fdbserver/storageserver.actor.cpp)
+- [:material-github: Redwood (VersionedBTree) Source Code](https://github.com/apple/foundationdb/tree/main/fdbserver/kvstore/VersionedBTree.actor.cpp)
+- [:material-github: Storage Server Implementation](https://github.com/apple/foundationdb/tree/main/fdbserver/storageserver/storageserver.actor.cpp)
 - [Architecture Deep Dive](architecture-deep-dive.md) - How storage fits in the system
 
