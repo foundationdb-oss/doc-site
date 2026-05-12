@@ -274,14 +274,14 @@ FDB embraces failure as inevitable:
 
 | Component | Source File |
 |-----------|-------------|
-| Cluster Controller | [:material-github: ClusterController.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/ClusterController.actor.cpp) |
-| Commit Proxy | [:material-github: CommitProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/CommitProxyServer.actor.cpp) |
-| GRV Proxy | [:material-github: GrvProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/GrvProxyServer.actor.cpp) |
-| Resolver | [:material-github: Resolver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Resolver.actor.cpp) |
-| Transaction Logs | [:material-github: TLogServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/TLogServer.actor.cpp) |
-| Storage Server | [:material-github: storageserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/storageserver.actor.cpp) |
-| Data Distributor | [:material-github: DataDistribution.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/DataDistribution.actor.cpp) |
-| Ratekeeper | [:material-github: Ratekeeper.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Ratekeeper.actor.cpp) |
-| Coordinators | [:material-github: Coordination.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Coordination.actor.cpp) |
-| Master | [:material-github: masterserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/masterserver.actor.cpp) |
+| Cluster Controller | [:material-github: ClusterController.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/clustercontroller/ClusterController.actor.cpp) |
+| Commit Proxy | [:material-github: CommitProxyServer.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/commitproxy/CommitProxyServer.cpp) |
+| GRV Proxy | [:material-github: GrvProxyServer.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/grvproxy/GrvProxyServer.cpp) |
+| Resolver | [:material-github: Resolver.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/resolver/Resolver.cpp) |
+| Transaction Logs | [:material-github: TLogServer.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/tlog/TLogServer.cpp) |
+| Storage Server | [:material-github: storageserver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/storageserver/storageserver.actor.cpp) |
+| Data Distributor | [:material-github: DataDistribution.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/datadistributor/DataDistribution.cpp) |
+| Ratekeeper | [:material-github: Ratekeeper.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/ratekeeper/Ratekeeper.cpp) |
+| Coordinators | [:material-github: Coordination.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/coordinator/Coordination.cpp) |
+| Master | [:material-github: masterserver.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/sequencer/masterserver.cpp) |
 

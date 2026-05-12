@@ -236,13 +236,13 @@ fdb> getrangekeys \\x00 \\xff 100
 
 Key implementation files:
 
-[:material-github: DataDistribution.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/DataDistribution.actor.cpp)
+[:material-github: DataDistribution.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/datadistributor/DataDistribution.cpp)
 : Main data distribution logic
 
-[:material-github: DDTeamCollection.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/DDTeamCollection.actor.cpp)
+[:material-github: DDTeamCollection.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/datadistributor/DDTeamCollection.actor.cpp)
 : Team building and management
 
-[:material-github: DataDistributorInterface.h](https://github.com/apple/foundationdb/blob/main/fdbserver/include/fdbserver/DataDistributorInterface.h)
+[:material-github: DataDistributorInterface.h](https://github.com/apple/foundationdb/blob/main/fdbserver/core/include/fdbserver/core/DataDistributorInterface.h)
 : Interface definitions
 
 ## Further Reading
