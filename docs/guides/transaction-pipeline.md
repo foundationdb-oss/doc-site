@@ -302,16 +302,16 @@ The client binding handles this automatically with exponential backoff.
 
 ## Source Code References
 
-[:material-github: CommitProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/CommitProxyServer.actor.cpp)
+[:material-github: CommitProxyServer.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/commitproxy/CommitProxyServer.cpp)
 : Commit proxy implementation
 
-[:material-github: Resolver.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/Resolver.actor.cpp)
+[:material-github: Resolver.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/resolver/Resolver.cpp)
 : Conflict resolution logic
 
-[:material-github: TLogServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/TLogServer.actor.cpp)
+[:material-github: TLogServer.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/tlog/TLogServer.cpp)
 : Transaction log implementation
 
-[:material-github: GrvProxyServer.actor.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/GrvProxyServer.actor.cpp)
+[:material-github: GrvProxyServer.cpp](https://github.com/apple/foundationdb/blob/main/fdbserver/grvproxy/GrvProxyServer.cpp)
 : GRV proxy implementation
 
 ## Further Reading
