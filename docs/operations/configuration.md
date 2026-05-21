@@ -21,6 +21,14 @@ Before deploying FoundationDB, ensure your systems meet these requirements:
 !!! warning "Production Recommendation"
     The macOS version is intended for single-machine development only. Use Linux for production multi-machine clusters.
 
+## Filesystem
+
+Upstream recommends running the FoundationDB data directory on **ext4** with mount options `defaults,noatime,discard`. `noatime` avoids issuing a write on every read to update file access timestamps, and `discard` enables TRIM so the SSD can reclaim freed blocks. See the [upstream configuration guide](https://apple.github.io/foundationdb/configuration.html#filesystem) for the canonical source.
+
+Copy-on-write filesystems (ZFS, btrfs) are explicitly **discouraged** upstream for the data directory because the SQLite (`ssd-2`) storage engine performs many small in-place updates that fight CoW page rewriting and fragmentation. The newer Redwood (`ssd-redwood-1`) engine writes B+tree pages in a more append-friendly pattern and is in principle more CoW-friendly, but Apple has not published an updated recommendation, so ext4 remains the safe default.
+
+If you specifically need filesystem-level snapshots — for example to use [Disk Snapshot Backup](backup.md#disk-snapshot-backup) — and have benchmarked the performance cost on your workload as acceptable, ZFS or btrfs *can* be used. Otherwise prefer block-level snapshot mechanisms (AWS EBS, LVM, CSI VolumeSnapshot) layered underneath ext4, which give you the snapshot capability without changing the filesystem under FoundationDB.
+
 ## Cluster File
 
 The cluster file (`fdb.cluster`) defines how clients and servers connect to the cluster.
