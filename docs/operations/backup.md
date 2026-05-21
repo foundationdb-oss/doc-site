@@ -43,15 +43,15 @@ FoundationDB's backup system offers:
     The backup system streams mutations from transaction logs to your backup destination with minimal overhead.
 {% endif %}
 
+<a id="backup-v3"></a>
 !!! note "Backup V3 (In Development)"
-    Apple is actively developing **Backup V3**, which introduces parallel log upload and download to significantly improve restore performance. Backup V3 is not yet available in any released version.
+    **Backup V3** extends Backup V2 by partitioning the mutation log along **two dimensions** instead of one: by **log-router tag** (already in V2) **and** additionally by **user key range** (new in V3). At restore time this lets the restore job process distinct key ranges in parallel, dramatically reducing restore time for large datasets.
 
-    **What's changing:**
+    A new CLI option, `--mutation-log-type` (with values `DEFAULT` and `PARTITIONED_LOG`), selects the log format when starting a backup ([PR #13127](https://github.com/apple/foundationdb/pull/13127)).
 
-    - **Parallel log upload/download** — dramatically reduces restore times for large datasets
-    - **Improved restore performance** — the primary focus of V3 development
+    Backup V3 is **gated under the 8.0 protocol version** and is **not available in 7.3 or 7.4** ([PR #13225](https://github.com/apple/foundationdb/pull/13225)). It will only ship once a `release-8.0` branch is cut and tagged.
 
-    Note: An earlier "parallel restore" feature was a prior attempt at solving restore performance but was unsuccessful and has been removed from the codebase. Backup V3 is a ground-up redesign of the approach.
+    Note: An earlier "parallel restore" feature was a separate, prior attempt at fast restore that was removed from the codebase in [PR #12903](https://github.com/apple/foundationdb/pull/12903). Backup V3 is a ground-up replacement, not a continuation of that work.
 
     If you need fast restore today and can tolerate non-continuous backup, see [Disk Snapshot Backup](#disk-snapshot-backup) below — it is used in production by some large operators.
 
@@ -533,7 +533,7 @@ fdbbackup delete -d file:///backup/fdb
 
 ## Disk Snapshot Backup
 
-Disk snapshot backup is an alternative backup mechanism that captures a point-in-time, block-level image of every FoundationDB process's data directory by triggering filesystem or block-device snapshots (EBS, ZFS, LVM, btrfs, CSI volume snapshots, etc.) coordinated across the cluster. Unlike `fdbbackup`, it does not stream a continuous mutation log to external storage — instead, it produces a single consistent disk image per role at a single FDB version. Operators choose this approach when restore throughput from `fdbbackup` is the bottleneck (a snapshot restore is bounded by the speed at which volumes can be attached or copied, not by log replay), and when continuous point-in-time recovery is not required. The mechanism has been part of FoundationDB since the 6.x line and is used in production by some large operators.
+Disk snapshot backup is an alternative backup mechanism that captures a point-in-time, block-level image of every FoundationDB process's data directory by triggering filesystem or block-device snapshots (EBS, ZFS, LVM, btrfs, CSI volume snapshots, etc.) coordinated across the cluster. Unlike `fdbbackup`, it does not stream a continuous mutation log to external storage — instead, it produces a single consistent disk image per role at a single FDB version. Operators choose this approach when restore throughput from `fdbbackup` is the bottleneck (a snapshot restore is bounded by the speed at which volumes can be attached or copied, not by log replay), and when continuous point-in-time recovery is not required. The mechanism has been part of FoundationDB since the 6.x line and is used in production by some large operators. The **snapshot mechanism** can come from the filesystem (ZFS, btrfs) or from the block layer underneath the filesystem (EBS, LVM, CSI VolumeSnapshot); see Prerequisites below for the implications of each choice.
 
 ### When to Use
 
@@ -593,7 +593,8 @@ graph TD
 The orchestrator quiesces the relevant subsystems and ensures that all per-role snapshots taken across the cluster reflect the same FDB version. The result is a set of disk images — one per role, per process — that together form a consistent backup of the cluster.
 
 !!! note "Prerequisites"
-    - **Snapshot-capable storage** — a filesystem or block device that supports point-in-time snapshots: AWS EBS, ZFS, LVM, btrfs, CSI volume snapshots on Kubernetes, etc.
+    - **Block-level snapshots** (recommended) — AWS EBS, LVM, CSI VolumeSnapshot on Kubernetes. These work under any filesystem, including the upstream-recommended **ext4 with `defaults,noatime,discard`**. This is the most common production choice.
+    - **Filesystem-level snapshots** — ZFS, btrfs. These require the FoundationDB data directory to live on a copy-on-write filesystem, which has [historically been discouraged for performance reasons](https://apple.github.io/foundationdb/configuration.html#filesystem). Operators choosing this path should benchmark against ext4 first and prefer Redwood (`ssd-redwood-1`) over SQLite (`ssd-2`); Apple has not published an updated formal recommendation. See [Filesystem](configuration.md#filesystem) for more.
     - **Linux only** — disk snapshot backup is not supported on Windows.
     - **Storage engine restriction** — supported only with the Redwood (`ssd-redwood-1`) and SQLite (`ssd-2`) storage engines. **Not supported with the RocksDB storage engine** ([apple/foundationdb#5155](https://github.com/apple/foundationdb/issues/5155)).
     - **Operator-supplied binary** — the operator must build, deploy, and maintain a `snap_create` executable (see below). FoundationDB does not ship one.

@@ -75,6 +75,20 @@ The features below are merged to `main` only. They will not ship in any 7.3.x or
 
     [:octicons-arrow-right-24: Upstream PR #13028](https://github.com/apple/foundationdb/pull/13028)
 
+-   :material-backup-restore:{ .lg .middle } **Backup V3 (range-partitioned restore)**
+
+    ---
+
+    Backup V3 additionally partitions the mutation log by **user key range** (on top of the log-router tag partitioning that V2 already does), so restore can process distinct ranges in parallel and finish much faster on large datasets.
+
+    V3 is **protocol-gated under 8.0** ([PR #13225](https://github.com/apple/foundationdb/pull/13225)) and exposes a new CLI option `--mutation-log-type` (`DEFAULT`, `PARTITIONED_LOG`) for selecting the log format ([PR #13127](https://github.com/apple/foundationdb/pull/13127)).
+
+    The earlier "parallel restore" feature was a separate effort that was removed in [PR #12903](https://github.com/apple/foundationdb/pull/12903); V3 is a ground-up replacement, not a continuation.
+
+    Tracking PRs on `main`: backup-worker recruitment and range-tag plumbing ([#12663](https://github.com/apple/foundationdb/pull/12663), [#12671](https://github.com/apple/foundationdb/pull/12671), [#12718](https://github.com/apple/foundationdb/pull/12718), [#12752](https://github.com/apple/foundationdb/pull/12752), [#12811](https://github.com/apple/foundationdb/pull/12811)); CLI and log-format wiring ([#13127](https://github.com/apple/foundationdb/pull/13127), [#13223](https://github.com/apple/foundationdb/pull/13223)); 8.0 protocol gate ([#13225](https://github.com/apple/foundationdb/pull/13225)).
+
+    [:octicons-arrow-right-24: Upstream PR #13225](https://github.com/apple/foundationdb/pull/13225)
+
 </div>
 
 ## Note on 8.0
