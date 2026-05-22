@@ -47,7 +47,7 @@ Each version has dedicated documentation reflecting its specific features and co
 
     ---
 
-    Pre-release with Backup V2 and bulk loading features.
+    Pre-release with experimental Backup V2 and Bulk Loading features.
 
 -   :material-history:{ .lg .middle } **[7.1 Documentation](/7.1/)**
 
@@ -76,7 +76,7 @@ The Redwood storage engine was renamed between versions:
 
 === "7.4 (Pre-release)"
 
-    - **Backup V2**: backup workers write mutation logs to blob storage directly from the cluster, cutting log-system writes by ~50%. See the [Backup V2 section in Backup & Recovery](../operations/backup.md#overview).
+    - **Backup V2** *(experimental)*: backup workers write mutation logs to blob storage directly from the cluster, cutting log-system writes by ~50%. See the [Backup V2 section in Backup & Recovery](../operations/backup.md#overview).
     - **Bulk Loading**: Experimental support for efficient data loading
     - **Go Binding Change**: `Close()` now required on Database objects
     - All 7.3 features
@@ -102,11 +102,11 @@ The Redwood storage engine was renamed between versions:
 | RocksDB Storage Engine | ✅ (experimental) | ✅ (experimental) | ✅ (experimental) |
 | GetMappedRange | ✅ (experimental) | ✅ (experimental) | ✅ (experimental) |
 | Version Vectors | ✅ | ✅ | ✅ |
-| Backup V2 (partitioned-log writes) | ❌ | ❌ | ✅ |
+| Backup V2 (partitioned-log writes) | ❌ | ❌ | ✅ (experimental) |
 | Bulk Loading | ❌ | ❌ | ✅ (experimental) |
 
 !!! info "Backup V2, Backup V3, and Parallel Restore are three different things"
-    - **Backup V2** — write-side improvement shipping in 7.4. See the [Backup V2 section in Backup & Recovery](../operations/backup.md#overview).
+    - **Backup V2** — write-side improvement shipping in 7.4 **as experimental** (pre-release; format not yet frozen, see [Backup & Recovery](../operations/backup.md#overview)).
     - **Backup V3** — *separate*, in-development project focused on **restore** performance via parallel log upload/download. Not in any released version. See the [Backup V3 note in Backup & Recovery](../operations/backup.md#backup-v3).
     - **Parallel Restore** — *earlier, unrelated* attempt at faster restore that was removed from the codebase. Listed below under [Deprecated Features](#deprecated-features).
 
@@ -206,7 +206,7 @@ The following features have been deprecated and removed from FoundationDB. Users
 | **Encryption at Rest** | Deprecated and removed | The encryption at rest feature has been deprecated and removed from FoundationDB. |
 | **Metacluster** | Deprecated and removed | The metacluster feature has been deprecated and removed from FoundationDB. |
 | **Blob Granules** | Deprecated and removed | The blob granules feature has been deprecated and removed from FoundationDB. |
-| **Parallel Restore** | Removed | Earlier experimental feature that was never fully released. **Distinct from Backup V2 (a 7.4 write-side feature) and Backup V3 (an in-development restore-side rework).** Removed from the codebase; see the [Backup V3 note](../operations/backup.md#backup-v3) for the planned replacement. |
+| **Parallel Restore** | Removed | Earlier experimental feature that was never fully released. **Distinct from Backup V2 (a 7.4 write-side feature) and Backup V3 (an in-development, independent restore-side rework — not a successor to Parallel Restore).** Removed from the codebase; see the [Backup V3 note](../operations/backup.md#backup-v3) for the separate, in-progress effort. |
 
 ## Next Steps
 
