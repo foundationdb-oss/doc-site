@@ -28,15 +28,15 @@ FoundationDB's backup system offers:
     - `fdbcli snapshot` - Block-level disk snapshot backup orchestrator (covered below)
 
 {% if fdb_version >= "7.4" %}
-!!! tip "Backup V2 <span class="pill-improved">IMPROVED IN 7.4</span>"
-    FoundationDB 7.4 introduces **Backup V2**, which reduces writes to the log system by approximately 50%. This improves commit latency and reduces the number of transaction logs required. Backup V2 is enabled automatically in 7.4 clusters.
+!!! tip "Backup V2 <span class="pill-new">NEW IN 7.4</span> <span class="pill-experimental">EXPERIMENTAL</span>"
+    FoundationDB 7.4 introduces **Backup V2**, in which backup workers write partitioned mutation logs directly to the backup destination instead of going through the log system. This reduces backup-related writes to transaction logs by approximately 50%, lowers commit latency on write-heavy workloads, and reduces the number of TLogs required for backup operations. Backup V2 is enabled automatically in 7.4 clusters — no configuration is needed.
 
-    **Key improvements:**
+    **Backup V2 is experimental in 7.4**, and 7.4 itself is a pre-release version. Validate it against your workload before relying on it in production.
 
-    - **50% reduction** in backup-related writes to transaction logs
-    - **Lower commit latency** for write-heavy workloads
-    - **Fewer TLogs required** for backup operations
-    - Automatic enablement - no configuration needed
+!!! warning "Pre-release backup compatibility"
+    Because 7.4 is a pre-release version, the Backup V2 wire and on-disk format is **not yet frozen**. Backups taken with one 7.4 pre-release patch (for example, an early build) **may not be restorable** by a later 7.4 pre-release patch.
+
+    This restriction will be lifted only once 7.4 is marked production-ready / stable. Operators who need a backup format with cross-patch restorability guarantees should continue to use **7.3 with the V1 backup system**.
 {% endif %}
 {% if fdb_version < "7.4" %}
 !!! info "Backup System"
@@ -533,7 +533,7 @@ fdbbackup delete -d file:///backup/fdb
 
 ## Disk Snapshot Backup
 
-Disk snapshot backup is an alternative backup mechanism that captures a point-in-time, block-level image of every FoundationDB process's data directory by triggering filesystem or block-device snapshots (EBS, ZFS, LVM, btrfs, CSI volume snapshots, etc.) coordinated across the cluster. Unlike `fdbbackup`, it does not stream a continuous mutation log to external storage — instead, it produces a single consistent disk image per role at a single FDB version. Operators choose this approach when restore throughput from `fdbbackup` is the bottleneck (a snapshot restore is bounded by the speed at which volumes can be attached or copied, not by log replay), and when continuous point-in-time recovery is not required. The mechanism has been part of FoundationDB since the 6.x line and is used in production by some large operators. The **snapshot mechanism** can come from the filesystem (ZFS, btrfs) or from the block layer underneath the filesystem (EBS, LVM, CSI VolumeSnapshot); see Prerequisites below for the implications of each choice.
+Disk snapshot backup is an alternative backup mechanism that captures a point-in-time, block-level image of every FoundationDB process's data directory by triggering block-level volume snapshots (AWS EBS, LVM, CSI VolumeSnapshot, etc.) coordinated across the cluster. Unlike `fdbbackup`, it does not stream a continuous mutation log to external storage — instead, it produces a single consistent disk image per role at a single FDB version. Operators choose this approach when restore throughput from `fdbbackup` is the bottleneck (a snapshot restore is bounded by the speed at which volumes can be attached or copied, not by log replay), and when continuous point-in-time recovery is not required. The mechanism has been part of FoundationDB since the 6.x line and is used in production by some large operators. The snapshot mechanism must come from the block layer underneath the filesystem (EBS, LVM, CSI VolumeSnapshot); see Prerequisites below.
 
 ### When to Use
 
@@ -543,7 +543,7 @@ Disk snapshot backup is an alternative backup mechanism that captures a point-in
 | Point-in-time recovery | Any version within the backup window | Only the FDB version captured at snapshot time |
 | Continuous backup | Yes | No |
 | Restore speed | Bounded by data size + log replay throughput | Bounded by volume attach / copy speed |
-| External dependencies | Blob store or filesystem destination | Filesystem or block device with snapshot support |
+| External dependencies | Blob store or filesystem destination | Block device or volume-snapshot mechanism (EBS / LVM / CSI VolumeSnapshot) |
 | Storage engine support | Any storage engine | Redwood (`ssd-redwood-1`) and SQLite (`ssd-2`) only |
 | Operator tooling required | Low — ships with FDB | High — operator must build, deploy, and manage a `snap_create` binary |
 
@@ -593,22 +593,21 @@ graph TD
 The orchestrator quiesces the relevant subsystems and ensures that all per-role snapshots taken across the cluster reflect the same FDB version. The result is a set of disk images — one per role, per process — that together form a consistent backup of the cluster.
 
 !!! note "Prerequisites"
-    - **Block-level snapshots** (recommended) — AWS EBS, LVM, CSI VolumeSnapshot on Kubernetes. These work under any filesystem, including the upstream-recommended **ext4 with `defaults,noatime,discard`**. This is the most common production choice.
-    - **Filesystem-level snapshots** — ZFS, btrfs. These require the FoundationDB data directory to live on a copy-on-write filesystem, which has [historically been discouraged for performance reasons](https://apple.github.io/foundationdb/configuration.html#filesystem). Operators choosing this path should benchmark against ext4 first and prefer Redwood (`ssd-redwood-1`) over SQLite (`ssd-2`); Apple has not published an updated formal recommendation. See [Filesystem](configuration.md#filesystem) for more.
+    - **Block-level snapshots** (required) — AWS EBS, LVM, CSI VolumeSnapshot on Kubernetes. These work under the upstream-recommended **ext4 with `defaults,noatime,discard`** filesystem, which is the only supported configuration for the FoundationDB data directory; see [Filesystem](configuration.md#filesystem) for the rationale.
     - **Linux only** — disk snapshot backup is not supported on Windows.
     - **Storage engine restriction** — supported only with the Redwood (`ssd-redwood-1`) and SQLite (`ssd-2`) storage engines. **Not supported with the RocksDB storage engine** ([apple/foundationdb#5155](https://github.com/apple/foundationdb/issues/5155)).
     - **Operator-supplied binary** — the operator must build, deploy, and maintain a `snap_create` executable (see below). FoundationDB does not ship one.
 
 ### Setting Up the `snap_create` Binary
 
-`snap_create` is an operator-supplied executable invoked by `fdbserver` once per role on each host when a snapshot is requested. It is responsible for actually triggering the underlying volume-snapshot operation (for example, an `aws ec2 create-snapshot` call, an `lvcreate --snapshot`, a `zfs snapshot`, or a CSI `VolumeSnapshot`).
+`snap_create` is an operator-supplied executable invoked by `fdbserver` once per role on each host when a snapshot is requested. It is responsible for actually triggering the underlying volume-snapshot operation (for example, an `aws ec2 create-snapshot` call, an `lvcreate --snapshot`, or a CSI `VolumeSnapshot`).
 
 The simplest illustrative implementation copies the data directory to a separate location, similar to the upstream example:
 
 ```bash
 #!/bin/bash
 # /bin/snap_create.sh — illustrative example only.
-# Real deployments should call EBS / LVM / ZFS / CSI snapshot APIs.
+# Real deployments should call EBS / LVM / CSI VolumeSnapshot APIs.
 set -euo pipefail
 
 UID=""
