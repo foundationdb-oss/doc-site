@@ -5,7 +5,7 @@ description: FoundationDB Python client library reference
 
 # Python API
 
-The Python client provides a Pythonic interface to FoundationDB with decorators, context managers, and async support.
+The Python client provides a Pythonic interface to FoundationDB with decorators, explicit transactions, and async support.
 
 [:octicons-book-24: Official API Docs](https://apple.github.io/foundationdb/api-python.html){ .md-button }
 
@@ -107,20 +107,9 @@ transfer_funds(db, 'alice', 'bob', 100)
 !!! tip "Automatic Retry"
     The decorator automatically retries on transient errors and conflict.
 
-### Context Manager
-
-For more control, use the context manager:
-
-```python
-with db.transaction() as tr:
-    tr[b'key1'] = b'value1'
-    tr[b'key2'] = b'value2'
-    # Commits automatically on exit
-```
-
 ### Manual Transactions
 
-For fine-grained control:
+Use `create_transaction()` when you need to manage commits and retries explicitly:
 
 ```python
 tr = db.create_transaction()
@@ -369,7 +358,7 @@ def increment(tr, counter_key):
 
 @fdb.transactional
 def get_count(tr, counter_key):
-    value = tr[counter_key]
+    value = tr[counter_key].value
     if value is None:
         return 0
     return struct.unpack('<q', value)[0]
@@ -377,10 +366,12 @@ def get_count(tr, counter_key):
 
 ### Presence Checking
 
+Transaction reads return a `Value` future. Use `present()` to distinguish a missing key from a stored value, including an empty byte string:
+
 ```python
 @fdb.transactional
 def exists(tr, key):
-    return tr[key] is not None
+    return tr[key].present()
 ```
 
 ### Pagination
