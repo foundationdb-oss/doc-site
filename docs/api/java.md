@@ -159,13 +159,16 @@ db.run(tr -> {
 
 ### Range Reads
 
+Use `Tuple.range()` to read tuples that extend a given prefix. The range
+excludes the prefix tuple itself. `null` sorts before other tuple values, so it
+is not an upper-bound sentinel.
+
 ```java
 db.run(tr -> {
-    byte[] begin = Tuple.from("users").pack();
-    byte[] end = Tuple.from("users", null).pack(); // null = max value
+    Range userRange = Tuple.from("users").range();
 
     // Iterate over results
-    for (KeyValue kv : tr.getRange(begin, end)) {
+    for (KeyValue kv : tr.getRange(userRange)) {
         Tuple keyTuple = Tuple.fromBytes(kv.getKey());
         String userId = keyTuple.getString(1);
         System.out.println("User: " + userId);
@@ -266,7 +269,7 @@ Tuple mixed = Tuple.from(
     42L,                // long
     3.14,               // double
     true,               // boolean
-    null,               // null (sorts last)
+    null,               // null (sorts first)
     new byte[]{1,2,3},  // byte[]
     UUID.randomUUID()   // UUID
 );
