@@ -144,6 +144,10 @@ def get_value(tr, key):
 
 ### Range Reads
 
+Use the tuple layer's range helper to read tuples that extend a given prefix.
+The range excludes the prefix tuple itself. `None` sorts before other tuple
+values, so it is not an upper-bound sentinel.
+
 ```python
 @fdb.transactional
 def get_range(tr, start, end):
@@ -153,11 +157,10 @@ def get_range(tr, start, end):
 @fdb.transactional
 def get_all_users(tr):
     """Read all users using tuple keys."""
-    start = fdb.tuple.pack(('users',))
-    end = fdb.tuple.pack(('users', None))  # None is max value
+    user_range = fdb.tuple.range(('users',))
 
     users = []
-    for key, value in tr.get_range(start, end):
+    for key, value in tr[user_range]:
         _, user_id = fdb.tuple.unpack(key)
         users.append((user_id, value.decode()))
     return users
@@ -207,14 +210,13 @@ def get_users_by_city(tr, city):
     # READ_YOUR_WRITES_DISABLE.
     tr.options.set_read_your_writes_disable()
 
-    index_start = fdb.tuple.pack(('city_index', city))
-    index_end = fdb.tuple.pack(('city_index', city, None))
+    index_range = fdb.tuple.range(('city_index', city))
 
     # Define mapper to fetch user data for each index entry
     mapper = fdb.tuple.pack(('users',)) + b'{K[2]}'
 
     results = tr.snapshot.get_mapped_range(
-        index_start, index_end,
+        index_range.start, index_range.stop,
         mapper=mapper
     )
 

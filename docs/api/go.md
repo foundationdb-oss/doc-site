@@ -218,16 +218,16 @@ db.Transact(func(tr fdb.Transaction) (interface{}, error) {
 
 ### Range Reads
 
+Tuples implement `fdb.Range` for longer tuples with that prefix. The prefix
+tuple itself is excluded. `nil` sorts before other tuple values, so it is not
+an upper-bound sentinel.
+
 ```go
 import "github.com/apple/foundationdb/bindings/go/src/fdb/tuple"
 
 db.Transact(func(tr fdb.Transaction) (interface{}, error) {
-    // Define range
-    begin := tuple.Tuple{"users"}.Pack()
-    end := tuple.Tuple{"users", nil}.Pack() // nil = max value
-
-    // Create range
-    r := fdb.KeyRange{Begin: begin, End: end}
+    // All tuples extending the "users" prefix
+    r := tuple.Tuple{"users"}
 
     // Iterate over results
     ri := tr.GetRange(r, fdb.RangeOptions{}).Iterator()
@@ -334,7 +334,7 @@ mixed := tuple.Tuple{
     int64(42),                   // int64
     float64(3.14),               // float64
     true,                        // bool
-    nil,                         // nil (sorts last)
+    nil,                         // nil (sorts first)
     []byte{1, 2, 3},             // []byte
     tuple.UUID{...},             // UUID
 }
